@@ -1,0 +1,11 @@
+{
+  "name": "kuro-viewer-root",
+  "private": true,
+  "scripts": {
+    "check": "biome check .",
+    "format": "biome format . --write",
+    "check:backend": "cd backend && ruff check .",
+    "format:backend": "cd backend && ruff format .",
+    "check:all": "npm run check && npm run check:backend"
+  }
+}
