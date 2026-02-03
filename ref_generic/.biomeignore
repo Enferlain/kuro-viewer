@@ -1,6 +1,0 @@
-node_modules/**
-backend/**
-dist/**
-.venv/**
-venv/**
-.git/**
