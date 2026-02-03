@@ -1,11 +1,11 @@
 ### Random TODOs
 
-- [ ] stats about the image, maybe cached
+- [ ] stats about the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
 - [ ] C hotkey for cropping/editing, save should copy to clipboard or save copy as, not replace
 - [x] biome, ruff, ty for linting
 - [ ] docs
-- [ ] no animation when switching images, instant
-- [ ] all aspect ratios fitted to max possible space instead of random initial sizes
+- [x] no animation when switching images, instant
+- [x] all aspect ratios fitted to max possible space instead of random initial sizes (now with 1:1 scale cap)
 
 ### Future Roadmap & App Transition
 
@@ -23,7 +23,7 @@
 
 #### Metadata & AI
 
-- [ ] Hidden PNG Chunk Parsing (SD, ComfyUI, Midjourney params)
+- [x] Hidden PNG Chunk Parsing (Backend implementation for SD/A1111 and ComfyUI)
 - [ ] Embedding Search (Local CLIP model for semantic search)
 
 #### Technical Stack Evolution

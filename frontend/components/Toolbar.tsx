@@ -4,7 +4,7 @@ import { FilterType } from '../types';
 import { 
   ZoomIn, 
   ZoomOut, 
-  RotateCcw, 
+  Maximize, 
   Activity, 
   Waves, 
   Info,
@@ -99,9 +99,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <ZoomIn size={16} />
         </Button>
         <div className="w-px h-4 bg-white/[0.1] mx-1" />
-        <Button variant="ghost" onClick={onReset} className="text-xs font-mono text-foreground-muted hover:text-foreground" tooltip="Reset View (0)">
-          <RotateCcw size={14} className="mr-1.5" />
-          RESET
+        <Button variant="icon" onClick={onReset} tooltip="Fit to Screen (0)">
+          <Maximize size={16} />
         </Button>
         <div className="w-px h-4 bg-white/[0.1] mx-1" />
         <Button variant="icon" onClick={onSettings} tooltip="Preferences (,)">

@@ -29,20 +29,19 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
     const { width: containerWidth, height: containerHeight } = container.getBoundingClientRect();
     const padding = 48; // Space for visual comfort
     
-    const availWidth = containerWidth - padding;
-    const availHeight = containerHeight - padding;
+    const availWidth = Math.max(containerWidth - padding, 200);
+    const availHeight = Math.max(containerHeight - padding, 200);
     
     const scaleX = availWidth / img.naturalWidth;
     const scaleY = availHeight / img.naturalHeight;
     
-    // Fit within container (contain)
-    const fitScale = Math.min(scaleX, scaleY);
+    // Fit within container (contain), but cap at 1.0 to avoid upscaling small images
+    const fitScale = Math.min(scaleX, scaleY, 1.0);
 
-    setViewerState(prev => ({ 
-      ...prev,
+    setViewerState({ 
       scale: fitScale, 
       translation: { x: 0, y: 0 } 
-    }));
+    });
   };
 
   // Watch for window resize to maintain fit if user hasn't zoomed manually
@@ -155,7 +154,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
       />
       
       <div 
-        className="absolute w-full h-full flex items-center justify-center transition-transform duration-75 ease-out"
+        className="absolute w-full h-full flex items-center justify-center"
         style={{
           transform: `translate3d(${viewerState.translation.x}px, ${viewerState.translation.y}px, 0) scale(${renderScale})`,
           transformOrigin: 'center center',
@@ -167,7 +166,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
             ref={imgRef}
             src={src} 
             alt="View" 
-            className="max-w-none pointer-events-none transition-all duration-300"
+            className="max-w-none pointer-events-none"
             style={getFilterStyle()}
             draggable={false}
             onLoad={fitToView}

@@ -114,23 +114,24 @@ const App: React.FC = () => {
 
   // -- Handlers --
 
+  const handleSelectIndex = useCallback((index: number) => {
+    // Synchronously update both to avoid "popping" where new image is seen at old scale
+    setSelectedIndex(index);
+    setViewerState({ scale: 0, translation: { x: 0, y: 0 } });
+  }, []);
+
   const handleNext = useCallback(() => {
-    setSelectedIndex(prev => (prev + 1) % images.length);
-  }, [images.length]);
+    handleSelectIndex((selectedIndex + 1) % images.length);
+  }, [selectedIndex, images.length, handleSelectIndex]);
 
   const handlePrev = useCallback(() => {
-    setSelectedIndex(prev => (prev - 1 + images.length) % images.length);
-  }, [images.length]);
+    handleSelectIndex((selectedIndex - 1 + images.length) % images.length);
+  }, [selectedIndex, images.length, handleSelectIndex]);
 
   // Triggers the ImageViewer to recalculate fit
   const handleResetView = useCallback(() => {
     setViewerState({ scale: 0, translation: { x: 0, y: 0 } });
   }, []);
-
-  // When changing image, reset to fit trigger (scale 0)
-  useEffect(() => {
-    setViewerState({ scale: 0, translation: { x: 0, y: 0 } });
-  }, [selectedIndex]);
 
   const handleZoomIn = () => setViewerState(prev => ({ 
     ...prev, 
@@ -332,7 +333,7 @@ const App: React.FC = () => {
       <ThumbnailStrip 
         images={images}
         selectedIndex={selectedIndex}
-        onSelect={setSelectedIndex}
+        onSelect={handleSelectIndex}
       />
 
       {/* 4. Overlays */}

@@ -2,8 +2,6 @@ import io
 import os
 import sys
 import uvicorn
-import cv2
-import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
@@ -12,6 +10,7 @@ from PIL import Image
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from backend.scorers import SimpleNoiseScorer, PCAScorer
+from backend.metadata_utils import parse_metadata
 
 app = FastAPI()
 
@@ -58,6 +57,20 @@ async def analyze_pca(file: UploadFile = File(...)):
 
         return {"score": score, "filename": file.filename}
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.post("/metadata")
+async def get_metadata(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        # Create a BytesIO object because parse_metadata needs to open or read it
+        metadata = parse_metadata(io.BytesIO(contents))
+        return {"filename": file.filename, "metadata": metadata}
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
