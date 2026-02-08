@@ -5,7 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-02-03
+## [Unreleased] - 2026-02-08
+
+### Added
+
+- Frontend: **Appearance** settings tab with Theme selection (Light/Dark/System), Window Backdrop effects (Acrylic/Mica), and Accent Color picker.
+- Frontend: **Custom Theme Management** UI for adding, removing, and applying community theme packs.
+- Frontend: **Layout** settings tab featuring an **Interactive Drag-and-Drop Builder**.
+- Frontend: Direct-manipulation minimap for positioning **Toolbar** and **Gallery** components.
+- Frontend: Clickable minimap sidebar for instant Left/Right positioning.
+- Frontend: Polished visual feedback for layout builder (scaling, ghosting, drop zones).
+
+### Changed
+
+- Frontend: Refactored Layout settings from select-menus to a visual interactive builder.
+- Frontend: Restructured Layout tab to a vertical stack for better responsive behavior and clarity.
+- UX: Streamlined settings by removing redundant layout controls and status tips.
+
+### Fixed
+
+- Frontend: Resolved UI clipping in Layout tab where the "Interactive Minimap" badge overlapped controls.
+- Frontend: Removed redundant "Contextual Toolbar" references from state and UI.
+
+## [0.2.0] - 2026-02-03
 
 ### Added
 

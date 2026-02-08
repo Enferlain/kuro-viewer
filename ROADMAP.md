@@ -23,8 +23,8 @@ Also check the equivalent reference image for the current tab you're working on 
 Also keep in mind function scope and file organization in the repo. The script might grow too long, but I'm not familiar with safe/manageable lengths for js code so I'll trust your judgment
 ```
 
-- **[ ] Appearance**: Theme selection, Backdrop styles (Acrylic/Mica), and Accent color picking.
-- **[ ] Layout**: Grid vs. List behavior, Sidebar positioning, and Auto-hide toolbar logic.
+- **[x] Appearance**: Theme selection, Backdrop styles (Acrylic/Mica), and Accent color picking.
+- **[x] Layout**: Grid vs. List behavior, Sidebar positioning, and Auto-hide toolbar logic.
 - **[ ] Slideshow**: Detailed transition controls, Shuffle/Loop modes.
 - **[ ] Controls**: Shortcut remapping and mouse wheel behavior customization.
 - **[ ] File Types**: System-level extension associations and default opener settings.

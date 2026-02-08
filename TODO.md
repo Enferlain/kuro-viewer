@@ -6,6 +6,10 @@
 - [ ] docs
 - [x] no animation when switching images, instant
 - [x] all aspect ratios fitted to max possible space instead of random initial sizes (now with 1:1 scale cap)
+- [x] Settings: **Appearance** tab implementation (Themes, Colors, Backdrops)
+- [x] Settings: **Layout** tab implementation (Interactive drag-and-drop builder)
+- [ ] Settings: **Slideshow** transition and auto-play controls
+- [ ] Settings: **Controls** shortcut remapper
 
 ### Future Roadmap & App Transition
 
@@ -37,3 +41,5 @@
 - [ ] Frameless Glass UI (Acrylic/Vibrant windows)
 - [ ] Drag-and-drop bridge to external apps (Photoshop, etc.)
 - [ ] Global hotkey support
+- [ ] Note button/plugin/hotkey for persistent notes for images
+- [ ] Comparison plugin/view (side-by-side, flicker, difference overlays)
