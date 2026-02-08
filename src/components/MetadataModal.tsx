@@ -10,7 +10,7 @@ import {
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ImageMetadata } from "../types";
-import { Button } from "./Button";
+import { Button } from "./ui/Button";
 
 interface MetadataModalProps {
 	isOpen: boolean;

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { FilterType } from "../types";
-import { Button } from "./Button";
+import { Button } from "./ui/Button";
 
 interface ToolbarProps {
 	currentFilter: FilterType;

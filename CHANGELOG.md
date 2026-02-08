@@ -54,6 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed unwanted transparency in Settings Modal introduced during modularization.
+
+### Fixed
+
 - Frontend: Resolved "SettingToggle" styling regression where track was collapsing.
 - Backend: Cleaned up unused imports in `main.py`.
 - Backend: Fixed syntax and type hinting in `metadata_utils.py`.

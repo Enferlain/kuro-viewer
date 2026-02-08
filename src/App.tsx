@@ -3,7 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ImageViewer } from "./components/ImageViewer";
 import { MetadataModal } from "./components/MetadataModal";
-import { SettingsModal } from "./components/SettingsModal";
+import { SettingsModal } from "./components/settings/SettingsModal";
 import { ThumbnailStrip } from "./components/ThumbnailStrip";
 import { Toolbar } from "./components/Toolbar";
 import {
