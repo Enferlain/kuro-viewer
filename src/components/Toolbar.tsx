@@ -1,15 +1,15 @@
-import React from "react";
-import { Button } from "./Button";
-import { FilterType } from "../types";
 import {
+	Activity,
+	Info,
+	Maximize,
+	Settings,
+	Waves,
 	ZoomIn,
 	ZoomOut,
-	Maximize,
-	Activity,
-	Waves,
-	Info,
-	Settings,
 } from "lucide-react";
+import type React from "react";
+import { FilterType } from "../types";
+import { Button } from "./Button";
 
 interface ToolbarProps {
 	currentFilter: FilterType;
@@ -17,8 +17,6 @@ interface ToolbarProps {
 	onZoomIn: () => void;
 	onZoomOut: () => void;
 	onReset: () => void;
-	onNext: () => void;
-	onPrev: () => void;
 	onInfo: () => void;
 	onSettings: () => void;
 	filename: string;
@@ -31,8 +29,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 	onZoomIn,
 	onZoomOut,
 	onReset,
-	onNext,
-	onPrev,
 	onInfo,
 	onSettings,
 	filename,

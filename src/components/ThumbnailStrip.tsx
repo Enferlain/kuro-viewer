@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from "react";
-import { ImageFile } from "../types";
+import type React from "react";
+import { useEffect, useRef } from "react";
+import type { ImageFile } from "../types";
 
 interface ThumbnailStripProps {
 	images: ImageFile[];
@@ -41,6 +42,7 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
 					const isSelected = idx === selectedIndex;
 					return (
 						<button
+							type="button"
 							key={img.id}
 							onClick={() => onSelect(idx)}
 							className={`

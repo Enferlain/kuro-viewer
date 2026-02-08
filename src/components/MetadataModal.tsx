@@ -1,15 +1,16 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
-	X,
-	Search,
-	Copy,
 	Check,
 	ChevronDown,
 	ChevronRight,
+	Copy,
 	Download,
+	Search,
+	X,
 } from "lucide-react";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ImageMetadata } from "../types";
 import { Button } from "./Button";
-import { ImageMetadata, MetadataGroup } from "../types";
 
 interface MetadataModalProps {
 	isOpen: boolean;
@@ -65,7 +66,10 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 
 	const handleExport = () => {
 		// Flatten data for simple export
-		const exportObj: Record<string, any> = {};
+		const exportObj: Record<
+			string,
+			Record<string, string | number | boolean>
+		> = {};
 		data.forEach((group) => {
 			exportObj[group.label] = {};
 			group.entries.forEach((entry) => {
@@ -110,9 +114,11 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 			className={`fixed inset-0 z-[100] flex items-center justify-center transition-all duration-200 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
 		>
 			{/* Backdrop */}
-			<div
-				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+			<button
+				type="button"
+				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 w-full h-full border-none p-0 m-0"
 				onClick={onClose}
+				aria-label="Close modal"
 			/>
 
 			{/* Modal Window */}
@@ -176,6 +182,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 							<div key={group.id} className="group-section">
 								{/* Group Header */}
 								<button
+									type="button"
 									onClick={() => toggleGroup(group.id)}
 									className="flex items-center gap-2 w-full text-left mb-3 hover:text-foreground transition-colors group"
 								>

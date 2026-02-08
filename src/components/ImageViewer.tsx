@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
-import { ViewerState, FilterType } from "../types";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FilterType, type ViewerState } from "../types";
 
 interface ImageViewerProps {
 	src: string;
@@ -20,7 +21,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
 	// Function to calculate fit scale based on container and image dimensions
-	const fitToView = () => {
+	const fitToView = useCallback(() => {
 		const container = containerRef.current;
 		const img = imgRef.current;
 
@@ -28,7 +29,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 
 		const { width: containerWidth, height: containerHeight } =
 			container.getBoundingClientRect();
-		const padding = 48; // Space for visual comfort
+		const padding = 48;
 
 		const availWidth = Math.max(containerWidth - padding, 200);
 		const availHeight = Math.max(containerHeight - padding, 200);
@@ -36,14 +37,13 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 		const scaleX = availWidth / img.naturalWidth;
 		const scaleY = availHeight / img.naturalHeight;
 
-		// Fit within container (contain), but cap at 1.0 to avoid upscaling small images
 		const fitScale = Math.min(scaleX, scaleY, 1.0);
 
 		setViewerState({
 			scale: fitScale,
 			translation: { x: 0, y: 0 },
 		});
-	};
+	}, [setViewerState]);
 
 	// Watch for window resize to maintain fit if user hasn't zoomed manually
 	useEffect(() => {
@@ -63,14 +63,14 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 
 		observer.observe(container);
 		return () => observer.disconnect();
-	}, [viewerState.scale]);
+	}, [viewerState.scale, fitToView]);
 
 	// Watch for the specific "reset" signal (scale === 0) from parent
 	useEffect(() => {
 		if (viewerState.scale === 0) {
 			fitToView();
 		}
-	}, [viewerState.scale]);
+	}, [viewerState.scale, fitToView]);
 
 	const handleWheel = (e: React.WheelEvent) => {
 		const scaleFactor = 1.1;
@@ -137,8 +137,9 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 	const isHidden = viewerState.scale === 0;
 
 	return (
-		<div
+		<section
 			ref={containerRef}
+			aria-label="Image Viewer"
 			className="flex-1 relative overflow-hidden bg-background-deep cursor-move select-none"
 			onWheel={handleWheel}
 			onMouseDown={handleMouseDown}
@@ -175,6 +176,6 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 					/>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 };

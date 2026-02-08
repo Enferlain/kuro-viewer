@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from "react";
 import {
-	X,
-	Monitor,
-	Eye,
-	Zap,
-	Palette,
-	Layout as LayoutIcon,
-	MousePointer2,
-	Globe,
-	Puzzle,
-	FileType,
-	Scissors,
-	HardDrive,
-	Settings,
 	ChevronRight,
+	Eye,
+	FileType,
+	Globe,
+	HardDrive,
+	Layout as LayoutIcon,
+	Monitor,
+	MousePointer2,
+	Palette,
 	Play,
+	Plus,
+	Puzzle,
+	Scissors,
+	Settings,
 	Shield,
 	Trash2,
-	Plus,
+	X,
+	Zap,
 } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./Button";
 
 interface SettingsModalProps {
@@ -70,9 +71,14 @@ const SettingRow: React.FC<{
 	children: React.ReactNode;
 	onClick?: () => void;
 }> = ({ label, description, children, onClick }) => (
-	<div
+	<section
 		className={`flex items-center justify-between p-4 group transition-colors duration-200 ${onClick ? "cursor-pointer hover:bg-white/[0.02]" : ""}`}
 		onClick={onClick}
+		onKeyDown={(e) =>
+			onClick && (e.key === "Enter" || e.key === " ") && onClick()
+		}
+		aria-label={label}
+		tabIndex={onClick ? 0 : undefined}
 	>
 		<div className="flex flex-col gap-0.5">
 			<span className="text-sm font-medium text-foreground group-hover:text-white transition-colors">
@@ -85,7 +91,7 @@ const SettingRow: React.FC<{
 			)}
 		</div>
 		<div className="flex-none ml-6">{children}</div>
-	</div>
+	</section>
 );
 
 const SettingToggle: React.FC<{
@@ -93,6 +99,7 @@ const SettingToggle: React.FC<{
 	onChange: (val: boolean) => void;
 }> = ({ checked, onChange }) => (
 	<button
+		type="button"
 		onClick={(e) => {
 			e.stopPropagation();
 			onChange(!checked);
@@ -146,11 +153,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [toolbarPos, setToolbarPos] = useState<"Top" | "Bottom" | "Hidden">(
 		"Top",
 	);
-	const [toolbarOrder, setToolbarOrder] = useState(0);
+	const [toolbarOrder, _setToolbarOrder] = useState(0);
 	const [galleryPos, setGalleryPos] = useState<"Top" | "Bottom" | "Hidden">(
 		"Bottom",
 	);
-	const [galleryOrder, setGalleryOrder] = useState(0);
+	const [galleryOrder, _setGalleryOrder] = useState(0);
 	const [sidebarPos, setSidebarPos] = useState<"Left" | "Right">("Left");
 	const [autoHideToolbar, setAutoHideToolbar] = useState(true);
 	const [draggingItem, setDraggingItem] = useState<string | null>(null);
@@ -331,6 +338,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								Reset Settings
 							</span>
 							<Button
+								type="button"
 								variant="secondary"
 								className="text-red-400 hover:text-red-300 hover:bg-red-400/10 border-red-400/20 text-xs"
 							>
@@ -357,6 +365,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								<div className="grid grid-cols-3 gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl w-[240px]">
 									{(["dark", "light", "system"] as const).map((t) => (
 										<button
+											type="button"
 											key={t}
 											onClick={() => setTheme(t)}
 											className={`
@@ -458,7 +467,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 							>
 								<select
 									value={backdropStyle}
-									onChange={(e) => setBackdropStyle(e.target.value as any)}
+									onChange={(e) =>
+										setBackdropStyle(e.target.value as typeof backdropStyle)
+									}
 									className="bg-white/[0.05] border border-white/[0.1] rounded-lg text-xs text-foreground px-3 py-1.5 outline-none focus:border-accent/50 transition-colors w-[120px]"
 								>
 									<option value="None">None</option>
@@ -483,6 +494,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 										"#10b981", // Emerald
 									].map((color) => (
 										<button
+											type="button"
 											key={color}
 											onClick={() => setAccentColor(color)}
 											className={`
@@ -519,7 +531,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						</div>
 					</div>
 				);
-			case "layout":
+			case "layout": {
 				const handleDragStart = (id: string) => setDraggingItem(id);
 				const handleDrop = (newPos: "Top" | "Bottom") => {
 					if (!draggingItem) return;
@@ -529,7 +541,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 				};
 
 				const renderDraggableItem = (item: { id: string; label: string }) => (
-					<div
+					<button
+						type="button"
 						draggable
 						onDragStart={() => handleDragStart(item.id)}
 						className={`
@@ -540,7 +553,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             `}
 					>
 						{item.label}
-					</div>
+					</button>
 				);
 
 				return (
@@ -559,7 +572,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 									<div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
 
 									{/* Top Drop Zone */}
-									<div
+									<section
+										aria-label="Top drop zone"
 										onDragOver={(e) => e.preventDefault()}
 										onDrop={() => handleDrop("Top")}
 										className={`
@@ -584,17 +598,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 											.filter((item) => item.pos === "Top")
 											.sort((a, b) => a.order - b.order)
 											.map((item) => renderDraggableItem(item))}
-									</div>
+									</section>
 
 									{/* Center / Viewer Area */}
 									<div className="flex-1 flex gap-3 px-4 py-2">
 										{sidebarPos === "Left" && (
-											<div
+											<button
+												type="button"
 												onClick={() => setSidebarPos("Right")}
 												className="w-16 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-white/[0.08] hover:text-white transition-all active:scale-95"
 											>
 												SIDEBAR
-											</div>
+											</button>
 										)}
 										<div className="flex-1 bg-white/[0.01] border border-dashed border-white/[0.05] rounded-2xl flex items-center justify-center relative overflow-hidden group/viewer">
 											<div className="absolute inset-0 bg-[#0a0a0c] checkered-bg opacity-5" />
@@ -604,17 +619,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 											/>
 										</div>
 										{sidebarPos === "Right" && (
-											<div
+											<button
+												type="button"
 												onClick={() => setSidebarPos("Left")}
 												className="w-16 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-white/[0.08] hover:text-white transition-all active:scale-95"
 											>
 												SIDEBAR
-											</div>
+											</button>
 										)}
 									</div>
 
 									{/* Bottom Drop Zone */}
-									<div
+									<section
+										aria-label="Bottom drop zone"
 										onDragOver={(e) => e.preventDefault()}
 										onDrop={() => handleDrop("Bottom")}
 										className={`
@@ -639,7 +656,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 											.filter((item) => item.pos === "Bottom")
 											.sort((a, b) => a.order - b.order)
 											.map((item) => renderDraggableItem(item))}
-									</div>
+									</section>
 
 									<div className="absolute -top-7 right-0 flex items-center gap-2 pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity">
 										<div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
@@ -659,9 +676,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 									<div className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-6">
 										<div className="flex items-center justify-between">
 											<div className="space-y-1">
-												<label className="text-xs font-semibold text-white">
+												<span className="text-xs font-semibold text-white">
 													Auto-hide Toolbar
-												</label>
+												</span>
 												<p className="text-[10px] text-foreground-muted leading-relaxed">
 													Automatically hide the main controls when inactive.
 												</p>
@@ -681,9 +698,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 									<div className="p-6 bg-white/[0.02] border border-white/[0.06] rounded-3xl">
 										<div className="flex items-center justify-between gap-10">
 											<div className="space-y-1">
-												<label className="text-xs font-semibold text-white">
+												<span className="text-xs font-semibold text-white">
 													Grid Opacity
-												</label>
+												</span>
 												<p className="text-[10px] text-foreground-muted leading-relaxed">
 													Transparency of the checkered pattern background.
 												</p>
@@ -710,6 +727,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						</div>
 					</div>
 				);
+			}
 			case "slideshow":
 				return (
 					<div className="space-y-6">
@@ -726,7 +744,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
 									<span className="text-sm text-foreground">Random Order</span>
-									<button className="w-11 h-6 rounded-full relative transition-colors bg-white/[0.1] border border-white/[0.05]">
+									<button
+										type="button"
+										className="w-11 h-6 rounded-full relative transition-colors bg-white/[0.1] border border-white/[0.05]"
+									>
 										<div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm" />
 									</button>
 								</div>
@@ -734,7 +755,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 									<span className="text-sm text-foreground">
 										Loop after finishing
 									</span>
-									<button className="w-11 h-6 rounded-full relative transition-colors bg-accent">
+									<button
+										type="button"
+										className="w-11 h-6 rounded-full relative transition-colors bg-accent"
+									>
 										<div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-white shadow-sm" />
 									</button>
 								</div>
@@ -868,7 +892,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								<span className="text-sm text-foreground">
 									Keep usage history
 								</span>
-								<button className="w-11 h-6 rounded-full relative transition-colors bg-accent">
+								<button
+									type="button"
+									className="w-11 h-6 rounded-full relative transition-colors bg-accent"
+								>
 									<div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-white shadow-sm" />
 								</button>
 							</div>
@@ -876,7 +903,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								<span className="text-sm text-foreground">
 									Allow usage diagnostics
 								</span>
-								<button className="w-11 h-6 rounded-full relative transition-colors bg-white/[0.1] border border-white/[0.05]">
+								<button
+									type="button"
+									className="w-11 h-6 rounded-full relative transition-colors bg-white/[0.1] border border-white/[0.05]"
+								>
 									<div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm" />
 								</button>
 							</div>
@@ -906,9 +936,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		<div
 			className={`fixed inset-0 z-[100] flex items-center justify-center transition-all duration-200 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
 		>
-			<div
-				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+			<button
+				type="button"
+				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 w-full h-full border-none p-0 m-0"
 				onClick={onClose}
+				aria-label="Close settings"
 			/>
 
 			<div
@@ -921,12 +953,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         `}
 			>
 				{/* Resize Handle */}
-				<div
+				<button
+					type="button"
 					onMouseDown={startResizing}
-					className="absolute bottom-0 right-0 w-6 h-6 z-50 cursor-nwse-resize group flex items-center justify-center pointer-events-auto"
+					className="absolute bottom-0 right-0 w-6 h-6 z-50 cursor-nwse-resize group flex items-center justify-center pointer-events-auto bg-transparent border-none p-0"
+					aria-label="Resize settings"
 				>
 					<div className="w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-accent group-hover:scale-125 transition-all shadow-glow" />
-				</div>
+				</button>
 				{/* Sidebar Navigation */}
 				<div className="w-[240px] flex-none border-r border-white/[0.06] bg-white/[0.01] flex flex-col">
 					<div className="p-6">
@@ -938,6 +972,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					<nav className="flex-1 overflow-y-auto px-3 pb-6 space-y-1 custom-scrollbar">
 						{categories.map((cat) => (
 							<button
+								type="button"
 								key={cat.id}
 								onClick={() => setActiveCategory(cat.id)}
 								className={`

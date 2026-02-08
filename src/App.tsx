@@ -1,11 +1,17 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Toolbar } from "./components/Toolbar";
-import { ThumbnailStrip } from "./components/ThumbnailStrip";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ImageViewer } from "./components/ImageViewer";
 import { MetadataModal } from "./components/MetadataModal";
 import { SettingsModal } from "./components/SettingsModal";
-import { ImageFile, FilterType, ViewerState, ImageMetadata } from "./types";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ThumbnailStrip } from "./components/ThumbnailStrip";
+import { Toolbar } from "./components/Toolbar";
+import {
+	FilterType,
+	type ImageFile,
+	type ImageMetadata,
+	type ViewerState,
+} from "./types";
 
 // Placeholder data generation
 const generateMockImages = (): ImageFile[] => {
@@ -57,7 +63,7 @@ const App: React.FC = () => {
 	// Generate deterministic mock metadata for the current image (Simulating Stable Diffusion / Gen AI metadata)
 	const currentMetadata: ImageMetadata = useMemo(() => {
 		if (!currentImage) return [];
-		const seed = parseInt(currentImage.id.replace(/\D/g, "")) || 1;
+		const seed = parseInt(currentImage.id.replace(/\D/g, ""), 10) || 1;
 
 		// Simulate realistic varied data
 		const steps = 20 + (seed % 4) * 10;
@@ -148,17 +154,19 @@ const App: React.FC = () => {
 		setViewerState({ scale: 0, translation: { x: 0, y: 0 } });
 	}, []);
 
-	const handleZoomIn = () =>
+	const handleZoomIn = useCallback(() => {
 		setViewerState((prev) => ({
 			...prev,
 			scale: prev.scale === 0 ? 1.2 : Math.min(prev.scale * 1.2, 50),
 		}));
+	}, []);
 
-	const handleZoomOut = () =>
+	const handleZoomOut = useCallback(() => {
 		setViewerState((prev) => ({
 			...prev,
 			scale: prev.scale === 0 ? 0.8 : Math.max(prev.scale / 1.2, 0.05),
 		}));
+	}, []);
 
 	const handleMouseMove = useCallback((e: React.MouseEvent) => {
 		// Only process if we have a valid container width
@@ -256,7 +264,7 @@ const App: React.FC = () => {
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleNext, handlePrev, handleResetView]);
+	}, [handleNext, handlePrev, handleResetView, handleZoomIn, handleZoomOut]);
 
 	return (
 		<div className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden">
@@ -270,8 +278,6 @@ const App: React.FC = () => {
 					onZoomIn={handleZoomIn}
 					onZoomOut={handleZoomOut}
 					onReset={handleResetView}
-					onNext={handleNext}
-					onPrev={handlePrev}
 					onInfo={() => setIsMetadataOpen(true)}
 					onSettings={() => setIsSettingsOpen(true)}
 					filename={currentImage?.name || "No Image"}
@@ -280,10 +286,11 @@ const App: React.FC = () => {
 			</div>
 
 			{/* 2. Main Content Area */}
-			<div
+			<section
 				className="flex-1 flex flex-col relative min-h-0"
 				onMouseMove={handleMouseMove}
 				onMouseLeave={handleMouseLeave}
+				aria-label="Main Content Area"
 			>
 				{currentImage ? (
 					<>
@@ -303,6 +310,7 @@ const App: React.FC = () => {
               `}
 						>
 							<button
+								type="button"
 								onClick={(e) => {
 									e.stopPropagation();
 									handlePrev();
@@ -333,6 +341,7 @@ const App: React.FC = () => {
               `}
 						>
 							<button
+								type="button"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleNext();
@@ -359,7 +368,7 @@ const App: React.FC = () => {
 						No images loaded
 					</div>
 				)}
-			</div>
+			</section>
 
 			{/* 3. Footer / Thumbnails */}
 			<ThumbnailStrip
