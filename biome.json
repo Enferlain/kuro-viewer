@@ -8,6 +8,18 @@
 	"files": {
 		"includes": ["**", "!!**/dist"]
 	},
+	"overrides": [
+		{
+			"includes": [
+				"ref_frontend/**",
+				"ref_functions/**",
+				"ref_generic/**",
+				"src/styles/**"
+			],
+			"linter": { "enabled": false },
+			"formatter": { "enabled": false }
+		}
+	],
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab"

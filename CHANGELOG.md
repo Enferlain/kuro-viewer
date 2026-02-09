@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-02-09
+
+### Added
+
+- **Tailwind v4 Build**: Transitioned from runtime CDN to a professional production build process using `@tailwindcss/vite`.
+- **Engineering Standards**: Created [STYLING_GUIDE.md](file:///d:/Projects/kuro-viewer/STYLING_GUIDE.md) and updated [AGENTS.md](file:///d:/Projects/kuro-viewer/AGENTS.md) to formalize design system practices.
+- **Standardized Transparency**: Added a dedicated `--palette-white-t*` scale for consistent glassmorphism and UI overlays.
+
+### Changed
+
+- **Full OKLCH Refactor**: Migrated the entire `design-system.css` from hardcoded HEX/RGBA to a peroxically consistent OKLCH palette.
+- **3-Tier Design System**: Implemented a robust `Palette` (primitives) -> `UI` (semantic tokens) -> `@theme inline` (utility bridge) architecture.
+- **Shadow Palette**: Replaced standard shadows with high-fidelity OKLCH primitives in `--palette-shadow-*`.
+- **Variable Namespacing**: Refactored raw values to `--palette-*` and semantic intent to `--ui-*` to prevent conflicts with Tailwind v4 internals.
+
+### Fixed
+
+- **Settings Modal Restoration**: Successfully restored visual fidelity and exact UI layout from historical references.
+- **Design System Correctness**: Fixed broken primary color references (`ruri`), missing transparency vars (`t05`), and circular shadow definitions.
+
 ## [Unreleased] - 2026-02-08
 
 ### Added

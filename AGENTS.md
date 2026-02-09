@@ -14,7 +14,12 @@ This document is a guide for AI Agents working on this codebase. It outlines the
 
 - **Framework**: React 19 + Vite 7
 - **Language**: TypeScript
-- **Styling**: Vanilla CSS (Premium Aesthetics)
+- **Styling**: Tailwind CSS v4 (CSS-first architecture)
+  - **Core Tokens**: Centralized in `src/styles/design-system.css` via the `@theme` block.
+    - > [!TIP]
+    - > Use `@theme` (not `inline`) for semantic tokens you want to override globally (e.g., `--color-accent`). Use `@theme inline` only as an optimization for values that will never be overridden.
+  - **Integration**: Standard Tailwind v4 `@import` directive in `src/index.css`.
+  - **Zero-runtime**: Built using `@tailwindcss/vite` (no `tailwind.config.js` needed).
 - **Linting & Formatting**: **Biome** (configured in `biome.json`)
 - **Icons**: Lucide React
 
@@ -71,6 +76,10 @@ kuro-viewer/
   - Fix: `ruff check . --fix`
   - Format: `ruff format .`
 - **Global Check**: Run `npm run check:all` to verify the entire repository.
+- **Ignoring (Biome)**:
+  - Biome is configured with **VCS Integration** (`vcs: { enabled: true, useIgnoreFile: true }`).
+  - **Implicit Ignores**: Biome automatically respects all patterns in `.gitignore`. There is no need to manually add `node_modules` or `dist` to Biome's ignore list.
+  - **Explicit Ignores**: Use `.biomeignore` (or `files.ignore` in `biome.json`) ONLY for files that are **tracked by Git** but should still be ignored by Biome (e.g., minified libraries, reference code in `ref_*` folders).
 - **Type Checking**:
   - **Frontend**: Run `npm run typecheck` for `tsc`.
   - **Backend**: Use **Ty**.

@@ -1,0 +1,8 @@
+# Biome Ignore File
+node_modules
+dist
+ref_frontend
+ref_functions
+ref_generic
+src/styles/design-system.css
+src/index.css

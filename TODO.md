@@ -3,7 +3,7 @@
 - [ ] stats about the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
 - [ ] C hotkey for cropping/editing, save should copy to clipboard or save copy as, not replace
 - [x] biome, ruff, ty for linting
-- [ ] docs
+- [/] docs (Added STYLING_GUIDE.md & updated AGENTS.md)
 - [x] no animation when switching images, instant
 - [x] all aspect ratios fitted to max possible space instead of random initial sizes (now with 1:1 scale cap)
 - [x] Settings: **Appearance** tab implementation (Themes, Colors, Backdrops)
@@ -43,3 +43,4 @@
 - [ ] Global hotkey support
 - [ ] Note button/plugin/hotkey for persistent notes for images
 - [ ] Comparison plugin/view (side-by-side, flicker, difference overlays)
+- [ ] Check for consistent style usage in the components

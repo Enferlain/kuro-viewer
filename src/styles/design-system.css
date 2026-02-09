@@ -1,0 +1,184 @@
+/* ==========================================================================
+   KURO-ROKU DESIGN SYSTEM (Layer 1 - Core Tokens)
+   
+   A structured, themeable design system following established patterns.
+   ========================================================================== */
+
+:root {
+  /* ========================================================================
+     1. BASE PALETTE
+     Raw color values using --palette-* to avoid collision with Tailwind --color-*
+     ======================================================================== */
+
+  /* Kuro Scale (Deep purples/blacks for dark theme) */
+  --palette-kuro-900: oklch(0.0862 0.0056 285.17);
+  --palette-kuro-800: oklch(0.1156 0.0032 285.88);
+  --palette-kuro-700: oklch(0.1457 0.0043 285.86);
+  --palette-kuro-600: oklch(0.1698 0.0062 285.72);
+  --palette-kuro-500: oklch(0.2015 0.0059 285.86);
+  --palette-kuro-400: oklch(0.2367 0.0076 285.81);
+  --palette-kuro-300: oklch(0.2707 0.0092 285.77);
+  --palette-kuro-200: oklch(0.3036 0.0107 285.74);
+  --palette-kuro-100: oklch(0.3516 0.0138 285.67);
+
+  /* User-Specific Primary (Ruri) */
+  --palette-ruri-500: oklch(0.5942 0.1553 276.41);
+  --palette-ruri-600: oklch(0.5674 0.1585 275.21);
+
+  /* Smoke Scale (Grays) */
+  --palette-smoke-100: oklch(0.9642 0 0);
+  --palette-smoke-200: oklch(0.934 0 0);
+  --palette-smoke-300: oklch(0.8853 0 0);
+  --palette-smoke-400: oklch(0.8234 0 0);
+  --palette-smoke-500: oklch(0.7058 0 0);
+  --palette-smoke-600: oklch(0.6334 0 0);
+  --palette-smoke-700: oklch(0.5243 0 0);
+  --palette-smoke-800: oklch(0.4091 0 0);
+
+  /* Slate Scale (Cool muted tones) */
+  --palette-slate-100: oklch(0.9467 0.0027 286.35);
+  --palette-slate-200: oklch(0.8594 0.0082 286.23);
+  --palette-slate-300: oklch(0.7603 0.0141 286.06);
+  --palette-slate-400: oklch(0.6488 0.0146 262.36);
+  --palette-slate-500: oklch(0.5465 0.0256 271.78);
+  --palette-slate-600: oklch(0.4329 0.0272 271.57);
+  --palette-slate-700: oklch(0.3674 0.0201 266.01);
+  --palette-slate-800: oklch(0.305 0.0211 265.89);
+
+  /* Violet Scale (Primary accent) */
+  --palette-violet-100: oklch(0.9433 0.0284 294.59);
+  --palette-violet-200: oklch(0.8943 0.0549 293.28);
+  --palette-violet-300: oklch(0.8112 0.1013 293.57);
+  --palette-violet-400: oklch(0.709 0.1592 293.54);
+  --palette-violet-500: oklch(0.6056 0.2189 292.72);
+  --palette-violet-600: oklch(0.5413 0.2466 293.01);
+  --palette-violet-700: oklch(0.4907 0.2412 292.58);
+  --palette-violet-800: oklch(0.432 0.2106 292.76);
+
+  /* Transparency Scale */
+  --palette-white-t02: oklch(1 0 0 / 2%);
+  --palette-white-t04: oklch(1 0 0 / 4%);
+  --palette-white-t05: oklch(1 0 0 / 5%);
+  --palette-white-t06: oklch(1 0 0 / 6%);
+  --palette-white-t08: oklch(1 0 0 / 8%);
+  --palette-white-t10: oklch(1 0 0 / 10%);
+  --palette-white-t15: oklch(1 0 0 / 15%);
+  --palette-white-t20: oklch(1 0 0 / 20%);
+  --palette-white-t30: oklch(1 0 0 / 30%);
+
+  /* Azure Scale (Info/secondary accent) */
+  --palette-azure-300: oklch(0.8276 0.1013 230.32);
+  --palette-azure-400: oklch(0.7535 0.139 232.66);
+  --palette-azure-500: oklch(0.6847 0.1479 237.32);
+  --palette-azure-600: oklch(0.5876 0.1389 241.97);
+
+  /* Jade Scale (Success) */
+  --palette-jade-300: oklch(0.8712 0.1363 154.45);
+  --palette-jade-400: oklch(0.8003 0.1821 151.71);
+  --palette-jade-500: oklch(0.7227 0.192 149.58);
+  --palette-jade-600: oklch(0.6271 0.1699 149.21);
+
+  /* Gold Scale (Warning) */
+  --palette-gold-300: oklch(0.879 0.1534 91.61);
+  --palette-gold-400: oklch(0.8369 0.1644 84.43);
+  --palette-gold-500: oklch(0.7686 0.1647 70.08);
+  --palette-gold-600: oklch(0.6658 0.1574 58.32);
+
+  /* Coral Scale (Error/Destructive) */
+  --palette-coral-300: oklch(0.8077 0.1035 19.57);
+  --palette-coral-400: oklch(0.7106 0.1661 22.22);
+  --palette-coral-500: oklch(0.6368 0.2078 25.33);
+  --palette-coral-600: oklch(0.5771 0.2152 27.33);
+
+  /* Neutrals */
+  --palette-white: oklch(1 0 0);
+  --palette-black: oklch(0 0 0);
+
+  /* Shadows Source */
+  --palette-shadow-glow: 0 0 0 1px oklch(0.5674 0.1585 275.21 / 50%),
+    0 4px 12px oklch(0.5674 0.1585 275.21 / 30%),
+    inset 0 1px 0 0 oklch(1 0 0 / 20%);
+  --palette-shadow-sm: 0 1px 2px oklch(0 0 0 / 30%);
+  --palette-shadow-md: 0 4px 6px oklch(0 0 0 / 40%);
+  --palette-shadow-lg: 0 10px 15px oklch(0 0 0 / 40%);
+  --palette-shadow-xl: 0 20px 25px oklch(0 0 0 / 50%);
+
+  /* ========================================================================
+     2. SEMANTIC TOKENS (Layer 2 - Logic)
+     Map palette variables to intent-based --ui-* tokens.
+     This avoids collision with Tailwind's --color- or --shadow- space.
+     ======================================================================== */
+
+  /* Foreground (Text) */
+  --ui-foreground: var(--palette-slate-100);
+  --ui-foreground-hover: var(--palette-white);
+  --ui-foreground-secondary: var(--palette-slate-300);
+  --ui-foreground-muted: var(--palette-slate-400);
+  --ui-foreground-inverted: var(--palette-kuro-800);
+
+  /* Background */
+  --ui-bg-base: var(--palette-kuro-800);
+  --ui-bg-secondary: var(--palette-kuro-600);
+  --ui-bg-hover: var(--palette-kuro-500);
+  --ui-bg-selected: var(--palette-kuro-400);
+  --ui-bg-elevated: var(--palette-kuro-700);
+  --ui-bg-deep: var(--palette-kuro-900);
+
+  /* Primary Accent (Ruri) */
+  --ui-primary: var(--palette-ruri-600); 
+  --ui-primary-hover: var(--palette-ruri-500);
+  --ui-primary-active: var(--palette-violet-600);
+  --ui-primary-foreground: var(--palette-white);
+
+  /* Borders */
+  --ui-border-default: var(--palette-kuro-100);
+  --ui-border-subtle: var(--palette-white-t06);
+  --ui-border-hover: var(--palette-white-t10);
+  --ui-border-strong: var(--palette-slate-600);
+
+  /* Shadows (Internal references) */
+  --ui-shadow-glow: var(--palette-shadow-glow);
+  --ui-shadow-sm: var(--palette-shadow-sm);
+  --ui-shadow-md: var(--palette-shadow-md);
+  --ui-shadow-lg: var(--palette-shadow-lg);
+  --ui-shadow-xl: var(--palette-shadow-xl);
+
+  /* Glassmorphism & Effects */
+  --ui-glass-bg-low: var(--palette-white-t02);
+  --ui-glass-bg-mid: var(--palette-white-t04);
+  --ui-glass-bg-high: var(--palette-white-t08);
+  --ui-glass-border-low: var(--palette-white-t05);
+  --ui-glass-border-mid: var(--palette-white-t10);
+}
+
+@theme inline {
+  /* ========================================================================
+     3. TAILWIND BRIDGE (@theme inline)
+     Explicitly map --ui-* tokens to Tailwind --prefix-* utilities.
+     ======================================================================== */
+
+  /* Background Colors */
+  --color-background-deep: var(--ui-bg-deep);
+  --color-background-base: var(--ui-bg-base);
+  --color-background-elevated: var(--ui-bg-elevated);
+  
+  /* Text Colors */
+  --color-foreground: var(--ui-foreground);
+  --color-foreground-muted: var(--ui-foreground-muted);
+  
+  /* Accent Colors */
+  --color-accent: var(--ui-primary);
+  --color-accent-bright: var(--ui-primary-hover);
+  
+  /* Borders */
+  --color-border-subtle: var(--ui-border-subtle);
+  --color-border-hover: var(--ui-border-hover);
+  
+  /* Shadow Utilities
+     Tailwind uses --shadow-* directly from @theme inline to build shadow-* classes */
+  --shadow-glow: var(--ui-shadow-glow);
+  --shadow-sm: var(--ui-shadow-sm);
+  --shadow-md: var(--ui-shadow-md);
+  --shadow-lg: var(--ui-shadow-lg);
+  --shadow-xl: var(--ui-shadow-xl);
+}
