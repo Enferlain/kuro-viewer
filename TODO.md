@@ -8,8 +8,12 @@
 - [x] all aspect ratios fitted to max possible space instead of random initial sizes (now with 1:1 scale cap)
 - [x] Settings: **Appearance** tab implementation (Themes, Colors, Backdrops)
 - [x] Settings: **Layout** tab implementation (Interactive drag-and-drop builder)
-- [ ] Settings: **Slideshow** transition and auto-play controls
-- [ ] Settings: **Controls** shortcut remapper
+- [x] Settings: **Slideshow** transition and auto-play controls
+- [x] Settings: **Controls** shortcut remapper
+- [ ] Settings: **General** tab - Build Export/Import settings logic & UI
+- [ ] Settings: **Controls** tab - Build `<KeyRecorder />` keystroke interception logic
+- [ ] Hover: ensure all buttons, toggles, and dropdowns have explicit `cursor-pointer` styles
+- [ ] Stats: about the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
 
 ### Future Roadmap & App Transition
 

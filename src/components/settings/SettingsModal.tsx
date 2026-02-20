@@ -15,11 +15,14 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
+import type { Keybind, MouseAction } from "../../types";
 import { Button } from "../ui/Button";
 import { AppearanceTab } from "./tabs/AppearanceTab";
 import { CategoryStub } from "./tabs/CategoryStub";
+import { ControlsTab } from "./tabs/ControlsTab";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { LayoutTab } from "./tabs/LayoutTab";
+import { type Playlist, SlideshowTab } from "./tabs/SlideshowTab";
 
 export type SettingCategory =
 	| "general"
@@ -102,6 +105,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [sidebarPos, setSidebarPos] = useState<"Left" | "Right">("Left");
 	const [autoHideToolbar, setAutoHideToolbar] = useState(true);
 	const [draggingItem, setDraggingItem] = useState<string | null>(null);
+
+	// Slideshow
+	const [slideshowEnabled, setSlideshowEnabled] = useState(false);
+	const [slideshowInterval, setSlideshowInterval] = useState(5);
+	const [slideshowLoop, setSlideshowLoop] = useState(true);
+	const [slideshowShuffle, setSlideshowShuffle] = useState(false);
+	const [transitionStyle, setTransitionStyle] = useState<
+		"Instant" | "Fade" | "Slide"
+	>("Fade");
+	const [playlists, setPlaylists] = useState<Playlist[]>([]);
+	const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
+
+	// Controls
+	const [primaryScroll, setPrimaryScroll] = useState<MouseAction>("Zoom");
+	const [middleClick, setMiddleClick] = useState<MouseAction>("Reset Zoom");
+	const [invertScroll, setInvertScroll] = useState(false);
+	const [ctrlScroll, setCtrlScroll] = useState<MouseAction>("Vertical Pan");
+	const [shiftScroll, setShiftScroll] = useState<MouseAction>("Horizontal Pan");
+	const [spacebarAction, setSpacebarAction] =
+		useState<MouseAction>("Drag/Pan Mode");
+
+	const [keybinds, setKeybinds] = useState<Keybind[]>([
+		{ action: "next", label: "Next Image", key: "Right" },
+		{ action: "prev", label: "Previous Image", key: "Left" },
+		{ action: "reset", label: "Reset View", key: "0" },
+		{ action: "noise", label: "Toggle Noise Filter", key: "N" },
+		{ action: "pca", label: "Toggle PCA Filter", key: "P" },
+		{ action: "metadata", label: "Toggle Metadata", key: "I" },
+		{ action: "toolbar", label: "Toggle Toolbar", key: "T" },
+	]);
 
 	// Custom Themes
 	const [customThemes, setCustomThemes] = useState([
@@ -213,6 +246,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						setDraggingItem={setDraggingItem}
 					/>
 				);
+			case "slideshow":
+				return (
+					<SlideshowTab
+						slideshowEnabled={slideshowEnabled}
+						setSlideshowEnabled={setSlideshowEnabled}
+						slideshowInterval={slideshowInterval}
+						setSlideshowInterval={setSlideshowInterval}
+						slideshowLoop={slideshowLoop}
+						setSlideshowLoop={setSlideshowLoop}
+						slideshowShuffle={slideshowShuffle}
+						setSlideshowShuffle={setSlideshowShuffle}
+						transitionStyle={transitionStyle}
+						setTransitionStyle={setTransitionStyle}
+						playlists={playlists}
+						setPlaylists={setPlaylists}
+						activePlaylistId={activePlaylistId}
+						setActivePlaylistId={setActivePlaylistId}
+					/>
+				);
+			case "controls":
+				return (
+					<ControlsTab
+						primaryScroll={primaryScroll}
+						setPrimaryScroll={setPrimaryScroll}
+						middleClick={middleClick}
+						setMiddleClick={setMiddleClick}
+						invertScroll={invertScroll}
+						setInvertScroll={setInvertScroll}
+						ctrlScroll={ctrlScroll}
+						setCtrlScroll={setCtrlScroll}
+						shiftScroll={shiftScroll}
+						setShiftScroll={setShiftScroll}
+						spacebarAction={spacebarAction}
+						setSpacebarAction={setSpacebarAction}
+						keybinds={keybinds}
+						setKeybinds={setKeybinds}
+					/>
+				);
 			default: {
 				const cat = categories.find((c) => c.id === activeCategory);
 				return (
@@ -229,20 +300,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	return (
 		<div
 			className={`
-        fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300 ease-out
+        fixed inset-0 z-100 flex items-center justify-center p-4 transition-all duration-300 ease-out
         ${isOpen ? "opacity-100 pointer-events-auto backdrop-blur-md" : "opacity-0 pointer-events-none backdrop-blur-0"}
       `}
 		>
 			<button
 				type="button"
-				className="absolute inset-0 bg-black/40"
+				className="absolute inset-0 bg-overlay-dim"
 				onClick={onClose}
 				aria-label="Close settings"
 			/>
 
 			<div
 				className={`
-          relative bg-[#0a0a0c] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden flex
+          relative bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex
           transform transition-all ease-out transform-gpu
           ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
           ${isResizing ? "duration-0 transition-none select-none" : "duration-300"}
@@ -253,7 +324,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 				}}
 			>
 				{/* Sidebar Navigation */}
-				<div className="w-[240px] flex-none border-r border-white/[0.06] bg-white/[0.01] flex flex-col">
+				<div className="w-[240px] flex-none border-r border-glass-border-base bg-glass-bg-base flex flex-col">
 					<div className="p-6">
 						<h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
 							Settings
@@ -271,7 +342,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     ${
 											activeCategory === cat.id
 												? "bg-accent text-white shadow-glow translate-x-1"
-												: "text-foreground-muted hover:text-foreground hover:bg-white/[0.03]"
+												: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-base"
 										}
                   `}
 							>
@@ -292,7 +363,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						))}
 					</nav>
 
-					<div className="p-4 border-t border-white/[0.06] bg-black/20">
+					<div className="p-4 border-t border-glass-border-base bg-overlay-focus">
 						<div className="flex flex-col gap-1">
 							<span className="text-[10px] text-foreground-muted font-bold uppercase tracking-widest">
 								Kuro Viewer
@@ -310,7 +381,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						<button
 							type="button"
 							onClick={onClose}
-							className="p-2 rounded-xl text-foreground-muted hover:text-white hover:bg-white/[0.05] transition-all"
+							className="p-2 rounded-xl text-foreground-muted hover:text-white hover:bg-glass-bg-hover transition-all"
 						>
 							<X size={18} />
 						</button>
@@ -321,7 +392,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						{renderContent()}
 					</div>
 
-					<div className="flex-none px-10 py-6 border-t border-white/[0.06] bg-white/[0.01] flex justify-end gap-3">
+					<div className="flex-none px-10 py-4 border-t border-glass-border-base bg-glass-bg-base flex justify-end gap-3 items-center">
 						<Button variant="secondary" onClick={onClose} className="px-6">
 							Cancel
 						</Button>
@@ -346,7 +417,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					className="absolute bottom-0 right-0 w-8 h-8 cursor-nwse-resize flex items-center justify-center group z-50"
 					aria-label="Resize settings window"
 				>
-					<div className="w-1.5 h-1.5 bg-white/20 rounded-full transition-all group-hover:bg-accent group-hover:scale-125 translate-x-1 translate-y-1" />
+					<div className="w-1.5 h-1.5 bg-glass-bg-strong rounded-full transition-all group-hover:bg-accent group-hover:scale-125 translate-x-1 translate-y-1" />
 				</button>
 			</div>
 		</div>

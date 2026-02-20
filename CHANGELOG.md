@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-02-20
+
+### Added
+
+- Frontend: **Custom Dropdown Component** (`Dropdown.tsx`) to replace native HTML `<select>` elements, fixing OS styling artifacts and adhering to the Tailwind OKLCH design system.
+- Tooling: **CSS Support in Biome** for native Tailwind directive parsing and formatting.
+
+### Changed
+
+- Frontend: Migrated the "Thumbnail Cache Limit" (General tab) and "Backdrop Style" (Appearance tab) settings to use the newly created custom `Dropdown` component.
+- Frontend: Fully implemented **Slideshow** auto-play timing, loop controls, and custom playlist state interfaces within `SlideshowTab.tsx`.
+- Frontend: Fully implemented **Controls** shortcut remapper within `ControlsTab.tsx`, adding mapping states for scrolling, modifier keys (`Ctrl`, `Shift`), spacebar triggers, and keybinds.
+- UX: Systematized all nested Settings modal components (`General`, `Appearance`, `SlideShow`, `Controls`, `Layout`) to strictly use `--ui-glass-*` design tokens instead of hard-coded inline Tailwind Opacity strings.
+- Tooling: Updated **Biome** to version `2.4.3` to resolve linter issues and improve CSS/Tailwind support.
+
 ## [Unreleased] - 2026-02-09
 
 ### Added

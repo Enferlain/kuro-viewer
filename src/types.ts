@@ -29,3 +29,22 @@ export interface MetadataGroup {
 }
 
 export type ImageMetadata = MetadataGroup[];
+
+export type MouseAction =
+	| "Zoom"
+	| "Next/Prev Image"
+	| "Vertical Pan"
+	| "Horizontal Pan"
+	| "Reset Zoom"
+	| "Fit to Screen"
+	| "Toggle Fullscreen"
+	| "Toggle Metadata"
+	| "Toggle Toolbar"
+	| "Play/Pause Slideshow"
+	| "Drag/Pan Mode";
+
+export interface Keybind {
+	action: string;
+	key: string;
+	label: string;
+}

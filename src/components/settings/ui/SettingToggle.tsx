@@ -12,7 +12,7 @@ export const SettingToggle: React.FC<{
 		}}
 		className={`
       w-9 h-5 rounded-full relative transition-all duration-300 border flex items-center
-      ${checked ? "bg-accent border-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.3)]" : "bg-white/[0.05] border-white/[0.1]"}
+      ${checked ? "bg-accent border-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.3)]" : "bg-glass-bg-hover border-glass-border-hover"}
     `}
 	>
 		<div

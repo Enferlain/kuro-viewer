@@ -1,6 +1,7 @@
 import { Eye, Monitor, Zap } from "lucide-react";
 import type React from "react";
 import { Button } from "../../ui/Button";
+import { Dropdown } from "../../ui/Dropdown";
 import { SettingGroup } from "../ui/SettingGroup";
 import { SettingRow } from "../ui/SettingRow";
 import { SettingToggle } from "../ui/SettingToggle";
@@ -104,19 +105,20 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 				description="Maximum disk space allocated for image previews."
 			>
 				<div className="flex items-center gap-3">
-					<select
+					<Dropdown
 						value={cacheSize}
-						onChange={(e) => setCacheSize(Number(e.target.value))}
-						className="bg-white/[0.05] border border-white/[0.1] rounded-lg text-xs text-foreground px-3 py-1.5 outline-none focus:border-accent/50 transition-colors"
-					>
-						<option value={256}>256 MB</option>
-						<option value={512}>512 MB</option>
-						<option value={1024}>1024 MB</option>
-						<option value={2048}>2.0 GB</option>
-					</select>
+						onChange={(val) => setCacheSize(val as number)}
+						className="min-w-[100px]"
+						options={[
+							{ label: "256 MB", value: 256 },
+							{ label: "512 MB", value: 512 },
+							{ label: "1024 MB", value: 1024 },
+							{ label: "2.0 GB", value: 2048 },
+						]}
+					/>
 					<Button
 						variant="secondary"
-						className="text-[10px] h-8 px-3 py-0 border-white/[0.05]"
+						className="text-[10px] h-8 px-3 py-0 border-glass-border-subtle"
 					>
 						Clear
 					</Button>

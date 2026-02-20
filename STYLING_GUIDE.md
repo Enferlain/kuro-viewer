@@ -110,7 +110,36 @@ Tailwind v4 automatically generates utilities based on specific CSS variable pre
 
 ---
 
-## 📚 References (use context7 mcp for specific docs if available)
+## 🎡 Interaction & Accessibility
+
+### The "Speed" Pillar (Hotkeys)
+
+The app must be fully navigable via keyboard to support the "luxury" efficiency of a high-performance viewer.
+
+- **`ArrowRight` / `ArrowLeft`**: Navigate image list.
+- **`0`**: Reset zoom and center view (Fit).
+- **`T`**: Toggle Toolbar visibility (distraction-free mode).
+- **`X`**: Toggle Image Metadata panel.
+- **`N`**: Toggle Noise Analysis filter.
+- **`P`**: Toggle PCA Analysis filter.
+
+### Transitions & Motion
+
+- **Micro-animations**: Every interactive element (buttons, tabs) must have `transition-all duration-200` to feel premium.
+- **Layout Swaps**: Structural changes (like opening the Settings Modal or switching image filters) should be smooth but fast.
+- **Image Navigation**: Navigating between images remains **instant** (no animation) to support perfect A/B comparison.
+
+---
+
+## 📸 Image Display Logic
+
+- **Containment**: Images should never overflow screen boundaries unless zoomed.
+- **Scaling**: Preserve aspect ratio at all times.
+- **Viewport Constraints**: Automatic fitting scale is capped at `1.0` (1:1) to prevent blurring on small images.
+
+---
+
+## 📚 References (use context7 mcp for specific docs)
 
 - [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
 - [Tailwind v4 Theme Configuration](https://tailwindcss.com/docs/theme)

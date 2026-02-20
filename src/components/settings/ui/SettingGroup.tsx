@@ -12,7 +12,7 @@ export const SettingGroup: React.FC<{
 				{title}
 			</h5>
 		</div>
-		<div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden divide-y divide-white/[0.04]">
+		<div className="bg-glass-bg-base border border-glass-border-base rounded-2xl divide-y divide-glass-border-subtle">
 			{children}
 		</div>
 	</div>

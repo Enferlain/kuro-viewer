@@ -35,7 +35,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 	zoomLevel,
 }) => {
 	return (
-		<div className="h-14 bg-background-base/80 backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-4 z-50 select-none">
+		<div className="h-14 bg-background-base/80 backdrop-blur-md border-b border-glass-border-base flex items-center justify-between px-4 z-50 select-none">
 			{/* Left: File Info */}
 			<div className="flex items-center gap-3 w-1/3">
 				<div className="flex flex-col">
@@ -50,7 +50,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
 			{/* Center: Filter Controls */}
 			<div className="flex items-center gap-2 w-1/3 justify-center">
-				<div className="flex items-center bg-background-elevated rounded-lg p-1 border border-white/[0.06] shadow-xl">
+				<div className="flex items-center bg-background-elevated rounded-lg p-1 border border-glass-border-base shadow-xl">
 					<Button
 						variant="secondary"
 						className="text-xs px-3 py-1"
@@ -59,7 +59,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 					>
 						Original
 					</Button>
-					<div className="w-px h-4 bg-white/[0.1] mx-1" />
+					<div className="w-px h-4 bg-glass-border-strong mx-1" />
 					<Button
 						variant="secondary"
 						className="text-xs px-3 py-1 flex items-center gap-2"
@@ -88,18 +88,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				<Button variant="icon" onClick={onInfo} tooltip="Image Metadata (X)">
 					<Info size={16} />
 				</Button>
-				<div className="w-px h-4 bg-white/[0.1] mx-1" />
+				<div className="w-px h-4 bg-glass-border-strong mx-1" />
 				<Button variant="icon" onClick={onZoomOut} tooltip="Zoom Out (-)">
 					<ZoomOut size={16} />
 				</Button>
 				<Button variant="icon" onClick={onZoomIn} tooltip="Zoom In (+)">
 					<ZoomIn size={16} />
 				</Button>
-				<div className="w-px h-4 bg-white/[0.1] mx-1" />
+				<div className="w-px h-4 bg-glass-border-strong mx-1" />
 				<Button variant="icon" onClick={onReset} tooltip="Fit to Screen (0)">
 					<Maximize size={16} />
 				</Button>
-				<div className="w-px h-4 bg-white/[0.1] mx-1" />
+				<div className="w-px h-4 bg-glass-border-strong mx-1" />
 				<Button variant="icon" onClick={onSettings} tooltip="Preferences (,)">
 					<Settings size={16} />
 				</Button>

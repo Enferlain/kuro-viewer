@@ -111,12 +111,12 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 
 	return (
 		<div
-			className={`fixed inset-0 z-[100] flex items-center justify-center transition-all duration-200 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+			className={`fixed inset-0 z-100 flex items-center justify-center transition-all duration-200 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
 		>
 			{/* Backdrop */}
 			<button
 				type="button"
-				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 w-full h-full border-none p-0 m-0"
+				className="absolute inset-0 bg-overlay-dim backdrop-blur-sm transition-opacity duration-300 w-full h-full border-none p-0 m-0"
 				onClick={onClose}
 				aria-label="Close modal"
 			/>
@@ -124,13 +124,13 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 			{/* Modal Window */}
 			<div
 				className={`
-          relative w-full max-w-2xl h-[85vh] bg-[#0a0a0c] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden flex flex-col
+          relative w-full max-w-2xl h-[85vh] bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex flex-col
           transform transition-all duration-300 ease-out
           ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
         `}
 			>
 				{/* Header */}
-				<div className="flex-none px-6 py-4 border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-between">
+				<div className="flex-none px-6 py-4 border-b border-glass-border-base bg-glass-bg-base flex items-center justify-between">
 					<div className="flex flex-col overflow-hidden">
 						<h3 className="text-sm font-semibold text-foreground tracking-tight">
 							Image Inspector
@@ -142,14 +142,14 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 					<Button
 						variant="icon"
 						onClick={onClose}
-						className="hover:bg-white/[0.08]"
+						className="hover:bg-glass-bg-active"
 					>
 						<X size={18} />
 					</Button>
 				</div>
 
 				{/* Toolbar / Search */}
-				<div className="flex-none px-6 py-3 border-b border-white/[0.06] bg-[#0a0a0c] flex gap-3">
+				<div className="flex-none px-6 py-3 border-b border-glass-border-base bg-background-deep flex gap-3">
 					<div className="relative flex-1">
 						<Search
 							size={14}
@@ -161,7 +161,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 							placeholder="Filter tags..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg pl-9 pr-3 py-1.5 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50 focus:bg-white/[0.05] transition-all"
+							className="w-full bg-glass-bg-base border border-glass-border-strong rounded-lg pl-9 pr-3 py-1.5 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50 focus:bg-glass-bg-hover transition-all"
 						/>
 					</div>
 					<Button
@@ -200,22 +200,22 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 									<span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted group-hover:text-foreground">
 										{group.label}
 									</span>
-									<span className="text-[10px] bg-white/[0.05] px-1.5 py-0.5 rounded-full text-foreground-subtle font-mono">
+									<span className="text-[10px] bg-glass-bg-hover px-1.5 py-0.5 rounded-full text-foreground-subtle font-mono">
 										{group.entries.length}
 									</span>
 								</button>
 
 								{/* Group Entries */}
 								{!collapsedGroups.has(group.id) && (
-									<div className="grid gap-px bg-white/[0.04] border border-white/[0.04] rounded-lg overflow-hidden">
+									<div className="grid gap-px bg-glass-bg-subtle border border-glass-border-subtle rounded-lg overflow-hidden">
 										{group.entries.map((entry, idx) => (
 											<div
 												key={`${group.id}-${entry.key}-${idx}`}
 												className="flex flex-col sm:flex-row bg-[#0a0a0c] group/row relative"
 											>
 												{/* Key Column */}
-												<div className="w-full sm:w-48 p-3 sm:py-2 sm:px-4 bg-white/[0.01] border-b sm:border-b-0 sm:border-r border-white/[0.04] flex items-center">
-													<span className="text-xs text-foreground-muted font-medium break-words">
+												<div className="w-full sm:w-48 p-3 sm:py-2 sm:px-4 bg-glass-bg-subtle border-b sm:border-b-0 sm:border-r border-glass-border-subtle flex items-center">
+													<span className="text-xs text-foreground-muted font-medium wrap-break-word">
 														{entry.key}
 													</span>
 												</div>
@@ -223,7 +223,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 												{/* Value Column */}
 												<div className="flex-1 p-3 sm:py-2 sm:px-4 flex items-center relative min-w-0 pr-12">
 													<div
-														className={`text-xs font-mono text-foreground/90 ${entry.isLong ? "whitespace-pre-wrap break-words leading-relaxed py-1" : "truncate"}`}
+														className={`text-xs font-mono text-foreground/90 ${entry.isLong ? "whitespace-pre-wrap wrap-break-word leading-relaxed py-1" : "truncate"}`}
 													>
 														{entry.value}
 													</div>
@@ -267,7 +267,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 				</div>
 
 				{/* Footer */}
-				<div className="flex-none px-6 py-4 bg-white/[0.02] border-t border-white/[0.06] flex justify-between items-center">
+				<div className="flex-none px-6 py-4 bg-glass-bg-base border-t border-glass-border-base flex justify-between items-center">
 					<span className="text-[10px] text-foreground-subtle">
 						{filteredData.reduce((acc, g) => acc + g.entries.length, 0)} tags
 						visible

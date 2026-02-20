@@ -1,6 +1,7 @@
 import { Monitor, Palette, Plus, Puzzle, Trash2 } from "lucide-react";
 import type React from "react";
 import { Button } from "../../ui/Button";
+import { Dropdown } from "../../ui/Dropdown";
 import { SettingGroup } from "../ui/SettingGroup";
 import { SettingRow } from "../ui/SettingRow";
 
@@ -44,7 +45,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 				label="Application Theme"
 				description="Select between light, dark, or follow your system preference."
 			>
-				<div className="grid grid-cols-3 gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl w-[240px]">
+				<div className="grid grid-cols-3 gap-1 p-1 bg-glass-bg-base border border-glass-border-base rounded-xl w-[240px]">
 					{(["dark", "light", "system"] as const).map((t) => (
 						<button
 							type="button"
@@ -55,7 +56,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                 ${
 									theme === t
 										? "bg-accent text-white shadow-glow"
-										: "text-foreground-muted hover:text-foreground hover:bg-white/[0.05]"
+										: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover"
 								}
               `}
 						>
@@ -86,7 +87,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 							) : (
 								<Button
 									variant="secondary"
-									className="text-[10px] h-7 px-3 border-white/[0.05]"
+									className="text-[10px] h-7 px-3 border-glass-border-subtle"
 									onClick={(e) => {
 										e.stopPropagation();
 										setSelectedThemeId(t.id);
@@ -119,7 +120,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 					</p>
 				</div>
 			)}
-			<div className="p-3 border-t border-white/[0.04]">
+			<div className="p-3 border-t border-glass-border-subtle">
 				<Button
 					variant="secondary"
 					className="w-full text-[10px] h-9 border-dashed flex items-center justify-center gap-2 hover:border-accent/50 hover:text-accent transition-all"
@@ -146,17 +147,18 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 				label="Backdrop Style"
 				description="Windows 11 system transparency effects for the application window."
 			>
-				<select
+				<Dropdown
 					value={backdropStyle}
-					onChange={(e) =>
-						setBackdropStyle(e.target.value as typeof backdropStyle)
+					onChange={(val) =>
+						setBackdropStyle(val as "None" | "Acrylic" | "Mica")
 					}
-					className="bg-white/[0.05] border border-white/[0.1] rounded-lg text-xs text-foreground px-3 py-1.5 outline-none focus:border-accent/50 transition-colors w-[120px]"
-				>
-					<option value="None">None</option>
-					<option value="Acrylic">Acrylic</option>
-					<option value="Mica">Mica</option>
-				</select>
+					className="min-w-[120px]"
+					options={[
+						{ label: "None", value: "None" },
+						{ label: "Acrylic", value: "Acrylic" },
+						{ label: "Mica", value: "Mica" },
+					]}
+				/>
 			</SettingRow>
 		</SettingGroup>
 
@@ -185,7 +187,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 							style={{ backgroundColor: color }}
 						/>
 					))}
-					<div className="w-[1px] h-4 bg-white/[0.1] mx-1" />
+					<div className="w-px h-4 bg-glass-border-strong mx-1" />
 					<input
 						type="color"
 						value={accentColor}

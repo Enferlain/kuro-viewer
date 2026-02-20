@@ -71,8 +71,8 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 			<div className="space-y-10">
 				{/* Visual Preview / Drag Interface - Full Width Row */}
 				<div className="flex justify-center">
-					<div className="w-full max-w-[500px] h-[380px] bg-black/40 border border-white/[0.06] rounded-3xl flex flex-col overflow-hidden shadow-2xl relative group">
-						<div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
+					<div className="w-full max-w-[500px] h-[380px] bg-overlay-dim border border-glass-border-base rounded-3xl flex flex-col overflow-hidden shadow-2xl relative group">
+						<div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent pointer-events-none" />
 
 						{/* Top Drop Zone */}
 						<section
@@ -81,7 +81,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 							onDrop={() => handleDrop("Top")}
 							className={`
                 flex flex-col gap-1.5 p-4 min-h-[70px] transition-colors duration-300
-                ${draggingItem ? "bg-accent/[0.02] border-b border-dashed border-accent/20" : ""}
+                ${draggingItem ? "bg-accent/2 border-b border-dashed border-accent/20" : ""}
               `}
 						>
 							{[
@@ -109,23 +109,23 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 								<button
 									type="button"
 									onClick={() => setSidebarPos("Right")}
-									className="w-16 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-white/[0.08] hover:text-white transition-all active:scale-95"
+									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-all active:scale-95"
 								>
 									SIDEBAR
 								</button>
 							)}
-							<div className="flex-1 bg-white/[0.01] border border-dashed border-white/[0.05] rounded-2xl flex items-center justify-center relative overflow-hidden group/viewer">
+							<div className="flex-1 bg-glass-bg-subtle border border-dashed border-glass-border-subtle rounded-2xl flex items-center justify-center relative overflow-hidden group/viewer">
 								<div className="absolute inset-0 bg-[#0a0a0c] checkered-bg opacity-5" />
 								<Eye
 									size={40}
-									className="text-white/[0.02] group-hover/viewer:text-accent/10 transition-colors duration-700"
+									className="text-white/2 group-hover/viewer:text-accent/10 transition-colors duration-700"
 								/>
 							</div>
 							{sidebarPos === "Right" && (
 								<button
 									type="button"
 									onClick={() => setSidebarPos("Left")}
-									className="w-16 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-white/[0.08] hover:text-white transition-all active:scale-95"
+									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-all active:scale-95"
 								>
 									SIDEBAR
 								</button>
@@ -139,7 +139,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 							onDrop={() => handleDrop("Bottom")}
 							className={`
                 flex flex-col gap-1.5 p-4 min-h-[70px] transition-colors duration-300
-                ${draggingItem ? "bg-accent/[0.02] border-t border-dashed border-accent/20" : ""}
+                ${draggingItem ? "bg-accent/2 border-t border-dashed border-accent/20" : ""}
               `}
 						>
 							{[
@@ -176,7 +176,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 						<h5 className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] px-1">
 							Navigation Panels
 						</h5>
-						<div className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-6">
+						<div className="bg-glass-bg-base border border-glass-border-base rounded-3xl p-6">
 							<div className="flex items-center justify-between">
 								<div className="space-y-1">
 									<span className="text-xs font-semibold text-white">
@@ -198,7 +198,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 						<h5 className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] px-1">
 							Viewer Experience
 						</h5>
-						<div className="p-6 bg-white/[0.02] border border-white/[0.06] rounded-3xl">
+						<div className="p-6 bg-glass-bg-base border border-glass-border-base rounded-3xl">
 							<div className="flex items-center justify-between gap-10">
 								<div className="space-y-1">
 									<span className="text-xs font-semibold text-white">
@@ -215,7 +215,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 										max="100"
 										value={gridOpacity}
 										onChange={(e) => setGridOpacity(Number(e.target.value))}
-										className="flex-1 h-1 bg-white/[0.1] rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
+										className="flex-1 h-1 bg-glass-border-strong rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
 									/>
 									<span className="text-xs font-mono text-foreground-muted w-10 text-right">
 										{gridOpacity}%

@@ -56,7 +56,9 @@
   --palette-violet-800: oklch(0.432 0.2106 292.76);
 
   /* Transparency Scale */
+  --palette-white-t01: oklch(1 0 0 / 1%);
   --palette-white-t02: oklch(1 0 0 / 2%);
+  --palette-white-t03: oklch(1 0 0 / 3%);
   --palette-white-t04: oklch(1 0 0 / 4%);
   --palette-white-t05: oklch(1 0 0 / 5%);
   --palette-white-t06: oklch(1 0 0 / 6%);
@@ -65,6 +67,11 @@
   --palette-white-t15: oklch(1 0 0 / 15%);
   --palette-white-t20: oklch(1 0 0 / 20%);
   --palette-white-t30: oklch(1 0 0 / 30%);
+
+  /* Black Transparency Scale (Overlays) */
+  --palette-black-t20: oklch(0 0 0 / 20%);
+  --palette-black-t40: oklch(0 0 0 / 40%);
+  --palette-black-t80: oklch(0 0 0 / 80%);
 
   /* Azure Scale (Info/secondary accent) */
   --palette-azure-300: oklch(0.8276 0.1013 230.32);
@@ -143,12 +150,24 @@
   --ui-shadow-lg: var(--palette-shadow-lg);
   --ui-shadow-xl: var(--palette-shadow-xl);
 
-  /* Glassmorphism & Effects */
-  --ui-glass-bg-low: var(--palette-white-t02);
-  --ui-glass-bg-mid: var(--palette-white-t04);
-  --ui-glass-bg-high: var(--palette-white-t08);
-  --ui-glass-border-low: var(--palette-white-t05);
-  --ui-glass-border-mid: var(--palette-white-t10);
+  /* Glassmorphism Backgrounds */
+  --ui-glass-bg-subtle: var(--palette-white-t01);
+  --ui-glass-bg-base: var(--palette-white-t02);
+  --ui-glass-bg-hover: var(--palette-white-t05);
+  --ui-glass-bg-active: var(--palette-white-t08);
+  --ui-glass-bg-strong: var(--palette-white-t10);
+
+  /* Glassmorphism Borders */
+  --ui-glass-border-subtle: var(--palette-white-t04);
+  --ui-glass-border-base: var(--palette-white-t06);
+  --ui-glass-border-strong: var(--palette-white-t08);
+  --ui-glass-border-hover: var(--palette-white-t10);
+  --ui-glass-border-focus: var(--palette-white-t30);
+
+  /* Modal Overlays */
+  --ui-overlay-focus: var(--palette-black-t20);
+  --ui-overlay-dim: var(--palette-black-t40);
+  --ui-overlay-blur: var(--palette-black-t80);
 }
 
 @theme inline {
@@ -174,6 +193,25 @@
   --color-border-subtle: var(--ui-border-subtle);
   --color-border-hover: var(--ui-border-hover);
   
+  /* Glass Backgrounds */
+  --color-glass-bg-subtle: var(--ui-glass-bg-subtle);
+  --color-glass-bg-base: var(--ui-glass-bg-base);
+  --color-glass-bg-hover: var(--ui-glass-bg-hover);
+  --color-glass-bg-active: var(--ui-glass-bg-active);
+  --color-glass-bg-strong: var(--ui-glass-bg-strong);
+
+  /* Glass Borders */
+  --color-glass-border-subtle: var(--ui-glass-border-subtle);
+  --color-glass-border-base: var(--ui-glass-border-base);
+  --color-glass-border-strong: var(--ui-glass-border-strong);
+  --color-glass-border-hover: var(--ui-glass-border-hover);
+  --color-glass-border-focus: var(--ui-glass-border-focus);
+
+  /* Overlays */
+  --color-overlay-focus: var(--ui-overlay-focus);
+  --color-overlay-dim: var(--ui-overlay-dim);
+  --color-overlay-blur: var(--ui-overlay-blur);
+
   /* Shadow Utilities
      Tailwind uses --shadow-* directly from @theme inline to build shadow-* classes */
   --shadow-glow: var(--ui-shadow-glow);

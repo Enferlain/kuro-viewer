@@ -32,7 +32,7 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
 	}, [selectedIndex]);
 
 	return (
-		<div className="h-24 bg-background-base border-t border-white/[0.06] flex items-center px-4 relative z-40">
+		<div className="h-24 bg-background-base border-t border-glass-border-base flex items-center px-4 relative z-40">
 			<div
 				ref={scrollContainerRef}
 				className="flex gap-3 overflow-x-auto w-full h-full items-center no-scrollbar pb-1"
@@ -45,13 +45,11 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
 							type="button"
 							key={img.id}
 							onClick={() => onSelect(idx)}
-							className={`
-                group relative flex-shrink-0 h-16 w-24 rounded-lg overflow-hidden transition-all duration-200
-                border 
+							className={`relative shrink-0 overflow-hidden cursor-pointer transition-all duration-200 rounded-md border-2 h-16 w-24
                 ${
 									isSelected
 										? "border-accent ring-2 ring-accent/30 opacity-100 scale-105"
-										: "border-white/[0.1] opacity-60 hover:opacity-100 hover:border-white/[0.3]"
+										: "border-glass-border-strong opacity-60 hover:opacity-100 hover:border-glass-border-focus"
 								}
               `}
 						>
@@ -70,8 +68,8 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
 			</div>
 
 			{/* Gradients to indicate scrolling */}
-			<div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background-base to-transparent pointer-events-none" />
-			<div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background-base to-transparent pointer-events-none" />
+			<div className="absolute left-0 top-0 h-full w-12 bg-linear-to-r from-background-base to-transparent pointer-events-none z-10" />
+			<div className="absolute right-0 top-0 h-full w-12 bg-linear-to-l from-background-base to-transparent pointer-events-none z-10" />
 		</div>
 	);
 };

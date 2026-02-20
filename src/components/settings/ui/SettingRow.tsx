@@ -3,17 +3,18 @@ import type React from "react";
 export const SettingRow: React.FC<{
 	label: string;
 	description?: string;
+	disabled?: boolean;
 	children: React.ReactNode;
 	onClick?: () => void;
-}> = ({ label, description, children, onClick }) => (
+}> = ({ label, description, disabled, children, onClick }) => (
 	<section
-		className={`flex items-center justify-between p-4 group transition-colors duration-200 ${onClick ? "cursor-pointer hover:bg-white/[0.02]" : ""}`}
-		onClick={onClick}
+		className={`flex items-center justify-between p-4 group transition-all duration-200 ${onClick && !disabled ? "cursor-pointer hover:bg-glass-bg-base" : ""} ${disabled ? "opacity-50 pointer-events-none grayscale-50" : ""}`}
+		onClick={disabled ? undefined : onClick}
 		onKeyDown={(e) =>
-			onClick && (e.key === "Enter" || e.key === " ") && onClick()
+			!disabled && onClick && (e.key === "Enter" || e.key === " ") && onClick()
 		}
 		aria-label={label}
-		tabIndex={onClick ? 0 : undefined}
+		tabIndex={onClick && !disabled ? 0 : undefined}
 	>
 		<div className="flex flex-col gap-0.5">
 			<span className="text-sm font-medium text-foreground group-hover:text-white transition-colors">

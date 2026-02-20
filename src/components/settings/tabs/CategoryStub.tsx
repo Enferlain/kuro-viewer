@@ -20,8 +20,8 @@ export const CategoryStub: React.FC<CategoryStubProps> = ({
 			<p className="text-sm text-foreground-muted">{description}</p>
 		</div>
 
-		<div className="p-12 border border-dashed border-white/[0.08] rounded-3xl flex flex-col items-center justify-center gap-4 bg-white/[0.01]">
-			<div className="w-12 h-12 rounded-full bg-white/[0.05] flex items-center justify-center text-foreground-muted">
+		<div className="p-12 border border-dashed border-glass-border-strong rounded-3xl flex flex-col items-center justify-center gap-4 bg-glass-bg-subtle">
+			<div className="w-12 h-12 rounded-full bg-glass-bg-hover flex items-center justify-center text-foreground-muted">
 				{icon}
 			</div>
 			<div className="text-center">
