@@ -11,11 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Frontend: **Universal ConfirmDialog Component** for standardizing destructive actions across the UI.
 - Frontend: **Explicit Session State UI** in the Privacy tab to clearly visualize saved cursor/zoom interactions.
+- Styling: Added future-ready structural token families in `src/styles/design-system.css` (layers, motion, density/sizing, material, and analysis/forensics).
+- Documentation: Added `THEME_CONTRACT.md` to define required theme token surface, compatibility, and override boundaries.
 
 ### Changed
 
 - UX: Centered and aligned the `ConfirmDialog` layout to match luxury modal aesthetics.
 - Documentation: Synchronized `STYLING_GUIDE.md` with the exact token strategy and Tailwind v4 behaviors.
+- Styling: Replaced hardcoded layer utilities with tokenized layer values in `App.tsx`, `Toolbar.tsx`, `MetadataModal.tsx`, `SettingsModal.tsx`, `Dropdown.tsx`, and `ConfirmDialog.tsx`.
+- Styling: Replaced targeted fixed structural heights with semantic spacing/density tokens across shell controls, thumbnail strip/cards, and layout preview/drop-zones.
+- Styling: Tokenized motion timing/easing in shared UI primitives (`Button`, `Dropdown`, settings rows/toggles) and settings tab entry animations.
 
 ### Fixed
 
@@ -23,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Styling: Expanded token bridge coverage in `design-system.css` for background, text, accent, border, and status families.
 - Styling: Fixed critical silent failures in `index.css` where custom scrollbars and selections were referencing undefined variables.
 - Styling: Replaced hardcoded HEX/Tailwind opacity colors (e.g., `bg-black/40`, `text-red-400`) in modals and toggles with compliant semantic `--ui-` tokens.
+- Styling: Completed validation sweep for targeted legacy patterns; no remaining hardcoded `z-10/20/50/100`, targeted fixed-height utilities, or literal `duration-200/300` and `ease-out/ease-in-out` classes in `src/`.
+- Tooling: Resolved remaining Biome formatting/import-order issues in settings files (`SettingsModal.tsx`, `PrivacyTab.tsx`).
 
 ## [Unreleased] - 2026-02-20
 

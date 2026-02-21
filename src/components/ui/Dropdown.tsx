@@ -54,22 +54,25 @@ export function Dropdown<T extends string | number>({
 	}, [isOpen, handleOutsideClick]);
 
 	return (
-		<div className={`relative ${isOpen ? "z-50" : "z-10"}`} ref={dropdownRef}>
+		<div
+			className={`relative ${isOpen ? "z-[var(--ui-layer-overlay)]" : "z-[var(--ui-layer-content)]"}`}
+			ref={dropdownRef}
+		>
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
-				className={`flex items-center justify-between gap-2 bg-glass-bg-hover hover:bg-glass-bg-active border border-glass-border-hover rounded-lg text-xs text-foreground px-3 py-1.5 outline-none focus:border-accent/50 transition-all duration-200 cursor-pointer w-full ${className}`}
+				className={`flex items-center justify-between gap-2 bg-glass-bg-hover hover:bg-glass-bg-active border border-glass-border-hover rounded-lg text-xs text-foreground px-3 py-1.5 outline-none focus:border-accent/50 transition-[background-color,border-color,color] duration-[var(--ui-motion-duration-standard)] cursor-pointer w-full ${className}`}
 			>
 				<span className="truncate">{selectedOption?.label}</span>
 				<ChevronDown
 					size={14}
-					className={`text-foreground-muted transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+					className={`text-foreground-muted transition-transform duration-[var(--ui-motion-duration-standard)] ${isOpen ? "rotate-180" : ""}`}
 				/>
 			</button>
 
 			{isOpen && (
 				<div
-					className={`absolute z-100 top-full left-0 mt-1 w-full max-h-60 overflow-y-auto bg-overlay-blur backdrop-blur-xl border border-glass-border-base rounded-xl shadow-xl py-1 animate-in fade-in zoom-in-95 duration-200 ${listClassName}`}
+					className={`absolute z-[var(--ui-layer-overlay)] top-full left-0 mt-1 w-full max-h-60 overflow-y-auto bg-overlay-blur backdrop-blur-xl border border-glass-border-base rounded-xl shadow-xl py-1 animate-in fade-in zoom-in-95 duration-[var(--ui-motion-duration-standard)] ${listClassName}`}
 				>
 					{options.map((opt) => (
 						<button

@@ -15,7 +15,7 @@ export const Button: React.FC<ButtonProps> = ({
 	...props
 }) => {
 	const baseStyles =
-		"relative inline-flex items-center justify-center rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+		"relative inline-flex items-center justify-center rounded-lg transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 
 	const variants = {
 		primary:

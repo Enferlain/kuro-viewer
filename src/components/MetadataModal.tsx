@@ -111,12 +111,12 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 
 	return (
 		<div
-			className={`fixed inset-0 z-100 flex items-center justify-center transition-all duration-200 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+			className={`fixed inset-0 z-[var(--ui-layer-modal)] flex items-center justify-center transition-opacity duration-[var(--ui-motion-duration-standard)] ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
 		>
 			{/* Backdrop */}
 			<button
 				type="button"
-				className="absolute inset-0 bg-overlay-dim backdrop-blur-sm transition-opacity duration-300 w-full h-full border-none p-0 m-0"
+				className="absolute inset-0 bg-overlay-dim backdrop-blur-sm transition-opacity duration-[var(--ui-motion-duration-slow)] w-full h-full border-none p-0 m-0"
 				onClick={onClose}
 				aria-label="Close modal"
 			/>
@@ -125,7 +125,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 			<div
 				className={`
           relative w-full max-w-2xl h-[85vh] bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex flex-col
-          transform transition-all duration-300 ease-out
+	          transform transition-[transform,opacity] duration-[var(--ui-motion-duration-slow)] ease-[var(--ease-decelerate)]
           ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
         `}
 			>
@@ -161,7 +161,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 							placeholder="Filter tags..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className="w-full bg-glass-bg-base border border-glass-border-strong rounded-lg pl-9 pr-3 py-1.5 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50 focus:bg-glass-bg-hover transition-all"
+							className="w-full bg-glass-bg-base border border-glass-border-strong rounded-lg pl-9 pr-3 py-1.5 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50 focus:bg-glass-bg-hover transition-[border-color,background-color] duration-[var(--ui-motion-duration-standard)]"
 						/>
 					</div>
 					<Button

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   KURO-ROKU DESIGN SYSTEM (Layer 1 - Core Tokens)
+   KURO DESIGN SYSTEM (Layer 1 - Core Tokens)
    
    A structured, themeable design system following established patterns.
    ========================================================================== */
@@ -180,6 +180,112 @@
   --ui-overlay-focus: var(--palette-black-t20);
   --ui-overlay-dim: var(--palette-black-t40);
   --ui-overlay-blur: var(--palette-black-t80);
+
+  /* Native Backdrop Material (Web Fallback Values) */
+  --ui-material-none: var(--ui-bg-base);
+  --ui-material-acrylic: color-mix(
+    in srgb,
+    var(--ui-bg-base) 88%,
+    var(--palette-white) 12%
+  );
+  --ui-material-mica: color-mix(
+    in srgb,
+    var(--ui-bg-deep) 92%,
+    var(--palette-slate-400) 8%
+  );
+
+  /* Forensics / Analysis */
+  --ui-analysis-diff-positive: var(--palette-jade-400);
+  --ui-analysis-diff-negative: var(--palette-coral-400);
+  --ui-analysis-diff-neutral: var(--palette-slate-500);
+  --ui-analysis-heat-low: var(--palette-azure-300);
+  --ui-analysis-heat-mid: var(--palette-gold-400);
+  --ui-analysis-heat-high: var(--palette-coral-500);
+
+  /* Density & Scale (Virtualized/List-heavy UIs) */
+  --ui-density-row-compact: 2rem;
+  --ui-density-row-comfortable: 2.5rem;
+  --ui-density-row-relaxed: 3rem;
+  --ui-density-thumbnail-compact: 4rem;
+  --ui-density-thumbnail-comfortable: 5rem;
+  --ui-density-thumbnail-cinematic: 6rem;
+
+  /* Structural Component Sizes */
+  --ui-size-toolbar: 3.5rem;
+  --ui-size-nav-control: 3.5rem;
+  --ui-size-thumbnail-strip: var(--ui-density-thumbnail-cinematic);
+  --ui-size-thumbnail-card-height: var(--ui-density-thumbnail-compact);
+  --ui-size-thumbnail-card-width: calc(var(--ui-density-thumbnail-compact) * 1.5);
+  --ui-size-layout-preview-height: 23.75rem;
+  --ui-size-drop-zone-min: 4.375rem;
+
+  /* Semantic Layout Spacing */
+  --ui-space-panel-x: 1rem;
+  --ui-space-panel-y: 0.75rem;
+  --ui-space-section-gap: 1.5rem;
+  --ui-space-control-gap: 0.5rem;
+
+  /* Semantic Radius */
+  --ui-radius-panel: 1rem;
+  --ui-radius-modal: 1.25rem;
+  --ui-radius-pill: 9999px;
+
+  /* Typography */
+  --ui-font-sans: "Space Grotesk", "Inter", "Segoe UI", sans-serif;
+  --ui-font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  --ui-text-label: 0.6875rem;
+  --ui-text-body: 0.875rem;
+  --ui-text-title: 1.125rem;
+  --ui-leading-tight: 1.2;
+  --ui-leading-body: 1.5;
+
+  /* Motion */
+  --ui-motion-duration-instant: 0ms;
+  --ui-motion-duration-fast: 120ms;
+  --ui-motion-duration-standard: 200ms;
+  --ui-motion-duration-slow: 320ms;
+  --ui-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ui-motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1.1);
+  --ui-motion-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+
+  /* Layering (Use with z-[var(--ui-layer-*)] when needed) */
+  --ui-layer-base: 0;
+  --ui-layer-content: 10;
+  --ui-layer-chrome: 40;
+  --ui-layer-overlay: 50;
+  --ui-layer-modal: 100;
+  --ui-layer-toast: 120;
+  --ui-layer-drag: 140;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ui-motion-duration-fast: 0ms;
+    --ui-motion-duration-standard: 0ms;
+    --ui-motion-duration-slow: 0ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --ui-border-subtle: var(--palette-white-t15);
+    --ui-border-hover: var(--palette-white-t20);
+    --ui-glass-bg-base: var(--palette-white-t05);
+    --ui-glass-bg-hover: var(--palette-white-t08);
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --ui-glass-bg-subtle: Canvas;
+    --ui-glass-bg-base: Canvas;
+    --ui-glass-bg-hover: Canvas;
+    --ui-glass-bg-active: Canvas;
+    --ui-glass-border-subtle: CanvasText;
+    --ui-glass-border-base: CanvasText;
+    --ui-glass-border-strong: CanvasText;
+    --ui-overlay-dim: transparent;
+  }
 }
 
 @theme inline {
@@ -243,6 +349,55 @@
   --color-overlay-focus: var(--ui-overlay-focus);
   --color-overlay-dim: var(--ui-overlay-dim);
   --color-overlay-blur: var(--ui-overlay-blur);
+
+  /* Native Material (Web Fallback) */
+  --color-material-none: var(--ui-material-none);
+  --color-material-acrylic: var(--ui-material-acrylic);
+  --color-material-mica: var(--ui-material-mica);
+
+  /* Forensics / Analysis */
+  --color-analysis-diff-positive: var(--ui-analysis-diff-positive);
+  --color-analysis-diff-negative: var(--ui-analysis-diff-negative);
+  --color-analysis-diff-neutral: var(--ui-analysis-diff-neutral);
+  --color-analysis-heat-low: var(--ui-analysis-heat-low);
+  --color-analysis-heat-mid: var(--ui-analysis-heat-mid);
+  --color-analysis-heat-high: var(--ui-analysis-heat-high);
+
+  /* Spacing & Density */
+  --spacing-panel-x: var(--ui-space-panel-x);
+  --spacing-panel-y: var(--ui-space-panel-y);
+  --spacing-section-gap: var(--ui-space-section-gap);
+  --spacing-control-gap: var(--ui-space-control-gap);
+  --spacing-density-row-compact: var(--ui-density-row-compact);
+  --spacing-density-row-comfortable: var(--ui-density-row-comfortable);
+  --spacing-density-row-relaxed: var(--ui-density-row-relaxed);
+  --spacing-density-thumbnail-compact: var(--ui-density-thumbnail-compact);
+  --spacing-density-thumbnail-comfortable: var(--ui-density-thumbnail-comfortable);
+  --spacing-density-thumbnail-cinematic: var(--ui-density-thumbnail-cinematic);
+  --spacing-toolbar: var(--ui-size-toolbar);
+  --spacing-nav-control: var(--ui-size-nav-control);
+  --spacing-thumbnail-strip: var(--ui-size-thumbnail-strip);
+  --spacing-thumbnail-card-height: var(--ui-size-thumbnail-card-height);
+  --spacing-thumbnail-card-width: var(--ui-size-thumbnail-card-width);
+  --spacing-layout-preview-height: var(--ui-size-layout-preview-height);
+  --spacing-drop-zone-min: var(--ui-size-drop-zone-min);
+
+  /* Radius */
+  --radius-panel: var(--ui-radius-panel);
+  --radius-modal: var(--ui-radius-modal);
+  --radius-pill: var(--ui-radius-pill);
+
+  /* Typography */
+  --font-sans: var(--ui-font-sans);
+  --font-mono: var(--ui-font-mono);
+  --text-label: var(--ui-text-label);
+  --text-body: var(--ui-text-body);
+  --text-title: var(--ui-text-title);
+  --leading-tight: var(--ui-leading-tight);
+  --leading-body: var(--ui-leading-body);
+  --ease-standard: var(--ui-motion-ease-standard);
+  --ease-emphasized: var(--ui-motion-ease-emphasized);
+  --ease-decelerate: var(--ui-motion-ease-decelerate);
 
   /* Shadow Utilities
      Tailwind uses --shadow-* directly from @theme inline to build shadow-* classes */

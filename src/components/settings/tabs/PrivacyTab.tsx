@@ -1,6 +1,8 @@
 import {
 	ArrowRight,
 	Clock,
+	Database,
+	Download,
 	FileImage,
 	FolderOpen,
 	History,
@@ -17,48 +19,30 @@ import { SettingRow } from "../ui/SettingRow";
 import { SettingToggle } from "../ui/SettingToggle";
 
 interface PrivacyTabProps {
-	saveHistory: boolean;
-	setSaveHistory: (val: boolean) => void;
 	telemetryEnabled: boolean;
 	setTelemetryEnabled: (val: boolean) => void;
 }
-
 export const PrivacyTab: React.FC<PrivacyTabProps> = ({
-	saveHistory,
-	setSaveHistory,
 	telemetryEnabled,
 	setTelemetryEnabled,
 }) => {
 	const [confirmActivityOpen, setConfirmActivityOpen] = useState(false);
 	const [confirmConfigOpen, setConfirmConfigOpen] = useState(false);
-
+	const [confirmAllPrivacyOpen, setConfirmAllPrivacyOpen] = useState(false);
+	const [autoClearOnExit, setAutoClearOnExit] = useState(false);
+	const [storeFullPaths, setStoreFullPaths] = useState(true);
+	const [crashReportsEnabled, setCrashReportsEnabled] = useState(true);
 	return (
-		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
 				<h4 className="text-xl font-bold text-white mb-1">Privacy</h4>
 				<p className="text-sm text-foreground-muted">
 					History management and anonymous telemetry toggles.
 				</p>
 			</div>
-
 			<SettingGroup title="Activity Log" icon={<Clock size={12} />}>
 				<div className="px-4 py-3 space-y-4">
-					<div className="flex flex-col gap-1.5">
-						<div className="flex items-center justify-between">
-							<span className="text-xs font-medium text-foreground">
-								Record Usage Activity
-							</span>
-							<SettingToggle checked={saveHistory} onChange={setSaveHistory} />
-						</div>
-						<p className="text-[11px] text-foreground-muted leading-relaxed">
-							Keep a detailed local timeline of folders opened, time spent
-							navigating images, and features utilized. This metadata powers
-							future AI workspace functionality.
-						</p>
-					</div>
-
-					{/* Explicit Data Readout Card */}
-					<div className="flex flex-col gap-1 pt-2 border-t border-glass-border-subtle">
+					<div className="flex flex-col gap-1">
 						{[
 							{
 								id: "a1",
@@ -102,7 +86,6 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 							</div>
 						))}
 					</div>
-
 					<div className="pt-2 flex items-center justify-between">
 						<Button
 							variant="ghost"
@@ -121,7 +104,6 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 					</div>
 				</div>
 			</SettingGroup>
-
 			<SettingGroup title="Configuration History" icon={<History size={12} />}>
 				<div className="px-4 py-3 space-y-3">
 					<div className="flex flex-col gap-2">
@@ -172,7 +154,6 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 							</div>
 						))}
 					</div>
-
 					<div className="pt-2 flex items-center justify-between">
 						<Button
 							variant="ghost"
@@ -190,7 +171,6 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 					</div>
 				</div>
 			</SettingGroup>
-
 			<SettingGroup title="Telemetry" icon={<ShieldAlert size={12} />}>
 				<SettingRow
 					label="Anonymous Usage Statistics"
@@ -201,8 +181,59 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 						onChange={setTelemetryEnabled}
 					/>
 				</SettingRow>
+				<SettingRow
+					label="Crash Diagnostics"
+					description="Include stack traces and runtime environment metadata in crash events."
+					disabled={!telemetryEnabled}
+				>
+					<SettingToggle
+						checked={crashReportsEnabled}
+						onChange={setCrashReportsEnabled}
+					/>
+				</SettingRow>
 			</SettingGroup>
-
+			<SettingGroup title="Data Controls" icon={<Database size={12} />}>
+				<SettingRow
+					label="Export Privacy Data"
+					description="Download your local activity and configuration history as a JSON file."
+				>
+					<Button variant="secondary" className="text-xs h-8 px-4">
+						<Download size={12} className="mr-2" />
+						Export JSON
+					</Button>
+				</SettingRow>
+				<SettingRow
+					label="Auto-Clear Activity on Exit"
+					description="Delete session activity entries when the app closes."
+				>
+					<SettingToggle
+						checked={autoClearOnExit}
+						onChange={setAutoClearOnExit}
+					/>
+				</SettingRow>
+				<SettingRow
+					label="Store Full File Paths"
+					description="Keep complete absolute paths in logs for easier tracing."
+				>
+					<SettingToggle
+						checked={storeFullPaths}
+						onChange={setStoreFullPaths}
+					/>
+				</SettingRow>
+				<SettingRow
+					label="Delete Local Privacy Data"
+					description="Remove activity log, configuration history, and cached privacy snapshots."
+				>
+					<Button
+						variant="destructive"
+						onClick={() => setConfirmAllPrivacyOpen(true)}
+						className="text-xs h-8 px-4"
+					>
+						<Trash2 size={12} className="mr-2" />
+						Delete All
+					</Button>
+				</SettingRow>
+			</SettingGroup>
 			<ConfirmDialog
 				isOpen={confirmActivityOpen}
 				onClose={() => setConfirmActivityOpen(false)}
@@ -214,7 +245,6 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 				confirmText="Clear Activity"
 				isDestructive={true}
 			/>
-
 			<ConfirmDialog
 				isOpen={confirmConfigOpen}
 				onClose={() => setConfirmConfigOpen(false)}
@@ -224,6 +254,17 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 				title="Clear Configuration History"
 				description="Are you sure you want to delete the chronological record of all changes made to your settings? This does not reset your settings, only the history log."
 				confirmText="Clear History"
+				isDestructive={true}
+			/>
+			<ConfirmDialog
+				isOpen={confirmAllPrivacyOpen}
+				onClose={() => setConfirmAllPrivacyOpen(false)}
+				onConfirm={() => {
+					// Backend logic to clear all privacy-related data
+				}}
+				title="Delete Local Privacy Data"
+				description="This removes activity history, configuration history, and local privacy snapshots. This action cannot be undone."
+				confirmText="Delete All Data"
 				isDestructive={true}
 			/>
 		</div>

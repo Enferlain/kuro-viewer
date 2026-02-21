@@ -32,7 +32,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 	accentColor,
 	setAccentColor,
 }) => (
-	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 		<div>
 			<h4 className="text-xl font-bold text-white mb-1">Appearance</h4>
 			<p className="text-sm text-foreground-muted">
@@ -52,7 +52,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 							key={t}
 							onClick={() => setTheme(t)}
 							className={`
-                py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all
+	                py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-[background-color,color,box-shadow] duration-[var(--ui-motion-duration-standard)]
                 ${
 									theme === t
 										? "bg-accent text-white shadow-glow"
@@ -123,7 +123,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 			<div className="p-3 border-t border-glass-border-subtle">
 				<Button
 					variant="secondary"
-					className="w-full text-[10px] h-9 border-dashed flex items-center justify-center gap-2 hover:border-accent/50 hover:text-accent transition-all"
+					className="w-full text-[10px] h-9 border-dashed flex items-center justify-center gap-2 hover:border-accent/50 hover:text-accent transition-[border-color,color] duration-[var(--ui-motion-duration-standard)]"
 					onClick={() => {
 						const id = `new-theme-${Date.now()}`;
 						setCustomThemes([
@@ -181,7 +181,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 							key={color}
 							onClick={() => setAccentColor(color)}
 							className={`
-                w-6 h-6 rounded-full transition-all border-2
+	                w-6 h-6 rounded-full transition-[transform,border-color,box-shadow] duration-[var(--ui-motion-duration-standard)] border-2
                 ${accentColor === color ? "border-white scale-110 shadow-glow" : "border-transparent hover:scale-105"}
               `}
 							style={{ backgroundColor: color }}

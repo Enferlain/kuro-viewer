@@ -36,7 +36,7 @@ export const FileTypesTab: React.FC<FileTypesTabProps> = ({
 	};
 
 	return (
-		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
 				<h4 className="text-xl font-bold text-white mb-1">File Types</h4>
 				<p className="text-sm text-foreground-muted">
@@ -81,7 +81,7 @@ export const FileTypesTab: React.FC<FileTypesTabProps> = ({
 							value={newExt}
 							onChange={(e) => setNewExt(e.target.value)}
 							placeholder="e.g. .arw, .dng"
-							className="flex-1 bg-glass-bg-base border border-glass-border-hover rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted/50 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all"
+							className="flex-1 bg-glass-bg-base border border-glass-border-hover rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted/50 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-[border-color,background-color,box-shadow] duration-[var(--ui-motion-duration-standard)]"
 						/>
 						<Button
 							type="submit"

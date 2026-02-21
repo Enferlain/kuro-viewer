@@ -270,7 +270,7 @@ const App: React.FC = () => {
 		<div className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden">
 			{/* 1. Header / Toolbar */}
 			<div
-				className={`transition-all duration-300 ease-in-out overflow-hidden ${isToolbarVisible ? "h-14 opacity-100" : "h-0 opacity-0"}`}
+				className={`transition-[height,opacity] duration-[var(--ui-motion-duration-slow)] ease-[var(--ease-standard)] overflow-hidden ${isToolbarVisible ? "h-[var(--spacing-toolbar)] opacity-100" : "h-0 opacity-0"}`}
 			>
 				<Toolbar
 					currentFilter={activeFilter}
@@ -305,7 +305,7 @@ const App: React.FC = () => {
 						<div
 							className={`
                 absolute left-0 top-0 bottom-0 w-32 flex items-center justify-start pl-6 
-                transition-opacity duration-300 pointer-events-none z-20
+	                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
                 ${hoverZone === "left" ? "opacity-100" : "opacity-0"}
               `}
 						>
@@ -316,11 +316,11 @@ const App: React.FC = () => {
 									handlePrev();
 								}}
 								className="
-                  pointer-events-auto h-14 w-14 rounded-full flex items-center justify-center
+	                  pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center
                   bg-black/40 backdrop-blur-xl 
                   text-white/80 
                   shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)]
-                  transition-[transform,background-color,box-shadow,color] duration-200 ease-out transform-gpu will-change-transform
+                  transition-[transform,background-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform
                   hover:bg-accent/20 hover:text-white hover:scale-110 
                   hover:shadow-[0_0_0_1px_rgba(94,106,210,0.5),0_0_20px_rgba(94,106,210,0.4),inset_0_1px_0_0_rgba(255,255,255,0.2)]
                   active:scale-95
@@ -336,7 +336,7 @@ const App: React.FC = () => {
 						<div
 							className={`
                 absolute right-0 top-0 bottom-0 w-32 flex items-center justify-end pr-6 
-                transition-opacity duration-300 pointer-events-none z-20
+	                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
                 ${hoverZone === "right" ? "opacity-100" : "opacity-0"}
               `}
 						>
@@ -347,11 +347,11 @@ const App: React.FC = () => {
 									handleNext();
 								}}
 								className="
-                  pointer-events-auto h-14 w-14 rounded-full flex items-center justify-center
+	                  pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center
                   bg-black/40 backdrop-blur-xl 
                   text-white/80 
                   shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)]
-                  transition-[transform,background-color,box-shadow,color] duration-200 ease-out transform-gpu will-change-transform
+                  transition-[transform,background-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform
                   hover:bg-accent/20 hover:text-white hover:scale-110 
                   hover:shadow-[0_0_0_1px_rgba(94,106,210,0.5),0_0_20px_rgba(94,106,210,0.4),inset_0_1px_0_0_rgba(255,255,255,0.2)]
                   active:scale-95

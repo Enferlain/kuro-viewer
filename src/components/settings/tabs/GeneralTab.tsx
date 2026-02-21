@@ -43,7 +43,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 	cacheSize,
 	setCacheSize,
 }) => (
-	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 		<div>
 			<h4 className="text-xl font-bold text-white mb-1">General</h4>
 			<p className="text-sm text-foreground-muted">

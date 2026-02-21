@@ -11,7 +11,7 @@ export const CategoryStub: React.FC<CategoryStubProps> = ({
 	description = "This category is currently under development.",
 	icon,
 }) => (
-	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 		<div className="flex flex-col gap-1">
 			<div className="flex items-center gap-3">
 				{icon && <div className="text-foreground-muted">{icon}</div>}

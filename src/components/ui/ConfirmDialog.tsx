@@ -39,11 +39,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center">
+		<div className="fixed inset-0 z-[var(--ui-layer-modal)] flex items-center justify-center">
 			{/* Backdrop */}
 			<button
 				type="button"
-				className="absolute inset-0 w-full h-full bg-overlay-dim backdrop-blur-sm animate-in fade-in duration-200 cursor-default"
+				className="absolute inset-0 w-full h-full bg-overlay-dim backdrop-blur-sm animate-in fade-in duration-[var(--ui-motion-duration-standard)] cursor-default"
 				onClick={onClose}
 				aria-label="Close dialog"
 			/>
@@ -52,7 +52,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			<div
 				role="dialog"
 				aria-modal="true"
-				className="relative w-full max-w-sm bg-background-elevated border border-glass-border-strong rounded-xl shadow-2xl p-6 animate-in zoom-in-95 fade-in duration-200"
+				className="relative w-full max-w-sm bg-background-elevated border border-glass-border-strong rounded-xl shadow-2xl p-6 animate-in zoom-in-95 fade-in duration-[var(--ui-motion-duration-standard)]"
 			>
 				{/* Close Button */}
 				<button

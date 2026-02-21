@@ -17,6 +17,7 @@ This is the **Source of Truth**. It is built with three distinct tiers of variab
     - _Why?_ Tailwind uses `--color-*` and `--shadow-*` for utility generation. By using `--ui-*` in `:root`, we avoid naming collisions and circular references.
 3.  **Tailwind Bridge**: A `@theme inline` block that maps `--ui-*` tokens to standard utility namespaces (e.g., `--color-[name]`).
     - _Why inline?_ The bridge tokens reference other variables (`--ui-*`). `inline` keeps utility output bound to those source tokens.
+4.  **Accessibility Overrides**: Media-query overrides (`prefers-reduced-motion`, `prefers-contrast`, `forced-colors`) tune the semantic layer instead of patching component styles one-by-one.
 
 > [!TIP]
 > Use `@theme` for direct semantic tokens you want to override by redefining `--color-*` globally. Use `@theme inline` for bridge aliases that point to other variables.
@@ -64,6 +65,7 @@ We use **OKLCH** (`oklch(L C H)`) for our color scales. It is mathematically "pe
 - **Framework**: Tailwind CSS v4.
 - **Build Plugin**: `@tailwindcss/vite` (configured in `vite.config.ts`).
 - **Config-less**: We do **not** use `tailwind.config.js`. All configuration happens inside `@theme` blocks in CSS.
+- **Theme Contract**: Required/optional token surface is versioned in `THEME_CONTRACT.md`.
 
 ### Design Principles (Luxury UI)
 
@@ -72,7 +74,46 @@ To maintain the "Premium" look:
 - **Rounded Corners**: Use `rounded-xl` or `rounded-2xl` for main panels.
 - **Glassmorphism**: Use semantic glass tokens (e.g., `bg-glass-bg-base border border-glass-border-base backdrop-blur-xl`).
 - **Shadows**: Use `shadow-glow` (for accents) or `shadow-xl` (for depth).
-- **Transitions**: Prefer `transition-colors`, `transition-opacity`, or `transition-transform` with `duration-200`; use `transition-all` only when genuinely needed.
+- **Transitions**: Prefer `transition-colors`, `transition-opacity`, or `transition-transform` with tokenized durations (for example `duration-[var(--ui-motion-duration-standard)]`); use `transition-all` only when genuinely needed.
+
+---
+
+## 🚀 Phase 3 Styling Contract (Native + Plugins)
+
+These rules are required for roadmap work in Tauri/native UX, plugins, workspaces/profiles, sidecars, and forensic tooling.
+
+### 1. Native Backdrop Policy (Acrylic/Mica)
+
+- Use semantic material tokens (`bg-material-none`, `bg-material-acrylic`, `bg-material-mica`) instead of hardcoded RGBA recipes.
+- Treat current values as **web fallback** tokens. Tauri-native material integration should map to the same semantic names.
+- Keep content legible regardless of material mode (minimum readable contrast over textured/blurred backgrounds).
+
+### 2. Layering Policy (No Ad-Hoc z-index)
+
+- Do not introduce new hardcoded `z-*` values for structural layers.
+- Use layer tokens (`--ui-layer-*`) via `z-[var(--ui-layer-modal)]` style utilities for overlays, modals, toasts, drag surfaces, and plugin popups.
+- If a new layer tier is needed, add it in `design-system.css` and document it in `THEME_CONTRACT.md`.
+
+### 3. Motion Safety Policy
+
+- Prefer semantic motion durations/easing (tokenized in `--ui-motion-*`) over arbitrary custom cubic-bezier values.
+- Features that may flicker rapidly (forensic compare modes) must provide a reduced-motion-safe path.
+- Respect `prefers-reduced-motion`; transitions should degrade to instant or near-instant behavior.
+
+### 4. Density & Virtualization Policy
+
+- List-heavy or virtualized surfaces must use density tokens (`--ui-density-*`) for row/thumbnail heights.
+- Do not hardcode density-specific pixel heights in feature code; derive from density tokens so profiles/workspaces can switch compact/comfortable modes.
+
+### 5. Forensics Visualization Policy
+
+- Difference overlays, heatmaps, and analysis indicators must use semantic analysis tokens (`--color-analysis-*`), not ad-hoc red/green ramps.
+- Never rely on color alone for critical forensic state. Pair color with labels/icons/patterns where possible.
+
+### 6. Plugin/Workspace Theme Boundary
+
+- Plugin-specific tokens must be namespaced (for example `--plugin-<id>-*`) and always provide fallback to core semantic tokens.
+- Workspace/profile themes can override core semantic tokens, but must keep required tokens from `THEME_CONTRACT.md`.
 
 ---
 
@@ -82,11 +123,12 @@ When building a new component, follow these steps:
 
 1.  **Check Tokens**: Does the color/spacing I need exist in `design-system.css`?
 2.  **Apply Utilities**: Use standard Tailwind utilities (e.g., `flex items-center gap-2`).
-3.  **Styling Overrides**: If a specific component needs a unique tweak, define a local CSS variable and reference it, allowing it to be themed later.
+3.  **Contract Check**: If a missing token is structural (layer, motion, density, analysis, material), add it to `design-system.css` and `THEME_CONTRACT.md`.
+4.  **Styling Overrides**: If a specific component needs a unique tweak, define a local CSS variable and reference it, allowing it to be themed later.
 
 ```tsx
 // Example of a correctly styled "Luxury" Button
-<button className="px-4 py-2 rounded-xl bg-accent text-accent-foreground shadow-glow hover:bg-accent-bright transition-colors duration-200">
+<button className="px-4 py-2 rounded-xl bg-accent text-accent-foreground shadow-glow hover:bg-accent-bright transition-colors duration-[var(--ui-motion-duration-standard)]">
   Confirm Action
 </button>
 ```
@@ -105,6 +147,7 @@ Tailwind v4 automatically generates utilities based on specific CSS variable pre
 | **Font Size**    | `--text-*`          | `text-label`              |
 | **Radius**       | `--radius-*`        | `rounded-card`            |
 | **Shadows**      | `--shadow-*`        | `shadow-glow`             |
+| **Easing**       | `--ease-*`          | `ease-standard`           |
 | **Aspect Ratio** | `--aspect-*`        | `aspect-video`            |
 | **Breakpoints**  | `--breakpoint-*`    | `sm:flex`, `lg:grid`      |
 
@@ -133,7 +176,7 @@ The app must be fully navigable via keyboard to support the "luxury" efficiency 
 
 ### Transitions & Motion
 
-- **Micro-animations**: Use targeted transitions (`colors`, `opacity`, `transform`) at `~200ms`; avoid blanket `transition-all` for layout-heavy elements.
+- **Micro-animations**: Use targeted transitions (`colors`, `opacity`, `transform`) with semantic motion tokens (for example `--ui-motion-duration-standard`); avoid blanket `transition-all` for layout-heavy elements.
 - **Layout Swaps**: Structural changes (like opening the Settings Modal or switching image filters) should be smooth but fast.
 - **Image Navigation**: Navigating between images remains **instant** (no animation) to support perfect A/B comparison.
 

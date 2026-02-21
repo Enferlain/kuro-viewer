@@ -35,7 +35,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 	zoomLevel,
 }) => {
 	return (
-		<div className="h-14 bg-background-base/80 backdrop-blur-md border-b border-glass-border-base flex items-center justify-between px-4 z-50 select-none">
+		<div className="h-[var(--spacing-toolbar)] bg-background-base/80 backdrop-blur-md border-b border-glass-border-base flex items-center justify-between px-4 z-[var(--ui-layer-chrome)] select-none">
 			{/* Left: File Info */}
 			<div className="flex items-center gap-3 w-1/3">
 				<div className="flex flex-col">

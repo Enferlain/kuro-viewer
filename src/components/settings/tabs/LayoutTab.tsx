@@ -49,18 +49,18 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 			draggable
 			onDragStart={() => handleDragStart(item.id)}
 			className={`
-        h-8 px-3 bg-accent border border-accent/20 rounded flex items-center justify-center 
-        text-[9px] font-bold text-white uppercase tracking-widest shadow-lg cursor-grab active:cursor-grabbing
-        transition-all duration-300 hover:scale-[1.02] active:scale-95
-        ${draggingItem === item.id ? "opacity-40 scale-95 grayscale" : "opacity-100"}
-      `}
+	        h-8 px-3 bg-accent border border-accent/20 rounded flex items-center justify-center
+	        text-[9px] font-bold text-white uppercase tracking-widest shadow-lg cursor-grab active:cursor-grabbing
+	        transition-[transform,opacity,filter] duration-[var(--ui-motion-duration-slow)] hover:scale-[1.02] active:scale-95
+	        ${draggingItem === item.id ? "opacity-40 scale-95 grayscale" : "opacity-100"}
+	      `}
 		>
 			{item.label}
 		</button>
 	);
 
 	return (
-		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
 				<h4 className="text-xl font-bold text-white mb-1">Layout</h4>
 				<p className="text-sm text-foreground-muted">
@@ -71,7 +71,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 			<div className="space-y-10">
 				{/* Visual Preview / Drag Interface - Full Width Row */}
 				<div className="flex justify-center">
-					<div className="w-full max-w-[500px] h-[380px] bg-overlay-dim border border-glass-border-base rounded-3xl flex flex-col overflow-hidden shadow-2xl relative group">
+					<div className="w-full max-w-[500px] h-[var(--spacing-layout-preview-height)] bg-overlay-dim border border-glass-border-base rounded-3xl flex flex-col overflow-hidden shadow-2xl relative group">
 						<div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent pointer-events-none" />
 
 						{/* Top Drop Zone */}
@@ -80,9 +80,9 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 							onDragOver={(e) => e.preventDefault()}
 							onDrop={() => handleDrop("Top")}
 							className={`
-                flex flex-col gap-1.5 p-4 min-h-[70px] transition-colors duration-300
-                ${draggingItem ? "bg-accent/2 border-b border-dashed border-accent/20" : ""}
-              `}
+	                flex flex-col gap-1.5 p-4 min-h-[var(--spacing-drop-zone-min)] transition-colors duration-[var(--ui-motion-duration-slow)]
+	                ${draggingItem ? "bg-accent/2 border-b border-dashed border-accent/20" : ""}
+	              `}
 						>
 							{[
 								{
@@ -109,23 +109,25 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 								<button
 									type="button"
 									onClick={() => setSidebarPos("Right")}
-									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-all active:scale-95"
+									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-[background-color,color,transform] duration-[var(--ui-motion-duration-standard)] active:scale-95"
 								>
 									SIDEBAR
 								</button>
 							)}
+
 							<div className="flex-1 bg-glass-bg-subtle border border-dashed border-glass-border-subtle rounded-2xl flex items-center justify-center relative overflow-hidden group/viewer">
 								<div className="absolute inset-0 bg-[#0a0a0c] checkered-bg opacity-5" />
 								<Eye
 									size={40}
-									className="text-white/2 group-hover/viewer:text-accent/10 transition-colors duration-700"
+									className="text-white/2 group-hover/viewer:text-accent/10 transition-colors duration-[var(--ui-motion-duration-slow)]"
 								/>
 							</div>
+
 							{sidebarPos === "Right" && (
 								<button
 									type="button"
 									onClick={() => setSidebarPos("Left")}
-									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-all active:scale-95"
+									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-[background-color,color,transform] duration-[var(--ui-motion-duration-standard)] active:scale-95"
 								>
 									SIDEBAR
 								</button>
@@ -138,9 +140,9 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 							onDragOver={(e) => e.preventDefault()}
 							onDrop={() => handleDrop("Bottom")}
 							className={`
-                flex flex-col gap-1.5 p-4 min-h-[70px] transition-colors duration-300
-                ${draggingItem ? "bg-accent/2 border-t border-dashed border-accent/20" : ""}
-              `}
+	                flex flex-col gap-1.5 p-4 min-h-[var(--spacing-drop-zone-min)] transition-colors duration-[var(--ui-motion-duration-slow)]
+	                ${draggingItem ? "bg-accent/2 border-t border-dashed border-accent/20" : ""}
+	              `}
 						>
 							{[
 								{
@@ -215,7 +217,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 										max="100"
 										value={gridOpacity}
 										onChange={(e) => setGridOpacity(Number(e.target.value))}
-										className="flex-1 h-1 bg-glass-border-strong rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
+										className="flex-1 h-1 bg-glass-border-strong rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:scale-125 transition-transform duration-[var(--ui-motion-duration-standard)]"
 									/>
 									<span className="text-xs font-mono text-foreground-muted w-10 text-right">
 										{gridOpacity}%

@@ -90,7 +90,7 @@ const KeyRecorder: FC<{
 		<Button
 			variant={listening ? "primary" : "secondary"}
 			className={`
-        min-w-[48px] h-8 px-3 justify-center transition-all font-mono text-[11px] tracking-wider
+	        min-w-[48px] h-8 px-3 justify-center transition-[background-color,border-color,color,box-shadow,transform] duration-[var(--ui-motion-duration-standard)] font-mono text-[11px] tracking-wider
         ${
 					listening
 						? "animate-pulse shadow-glow ring-2 ring-accent"
@@ -132,7 +132,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 	);
 
 	return (
-		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
 				<h4 className="text-xl font-bold text-white mb-1">Controls</h4>
 				<p className="text-sm text-foreground-muted">
@@ -221,7 +221,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 				<div className="py-2 flex justify-center border-t border-glass-border-subtle">
 					<Button
 						variant="secondary"
-						className="text-[11px] h-8 px-4 text-foreground-muted hover:text-white border-glass-border-subtle hover:bg-glass-bg-hover transition-all"
+						className="text-[11px] h-8 px-4 text-foreground-muted hover:text-white border-glass-border-subtle hover:bg-glass-bg-hover transition-[background-color,color,border-color] duration-[var(--ui-motion-duration-standard)]"
 						onClick={() => {
 							// Reset logic would go here
 						}}

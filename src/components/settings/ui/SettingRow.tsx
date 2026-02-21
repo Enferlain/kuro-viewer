@@ -8,7 +8,7 @@ export const SettingRow: React.FC<{
 	onClick?: () => void;
 }> = ({ label, description, disabled, children, onClick }) => (
 	<section
-		className={`flex items-center justify-between p-4 group transition-all duration-200 ${onClick && !disabled ? "cursor-pointer hover:bg-glass-bg-base" : ""} ${disabled ? "opacity-50 pointer-events-none grayscale-50" : ""}`}
+		className={`flex items-center justify-between p-4 group transition-[background-color,opacity,filter] duration-[var(--ui-motion-duration-standard)] ${onClick && !disabled ? "cursor-pointer hover:bg-glass-bg-base" : ""} ${disabled ? "opacity-50 pointer-events-none grayscale-50" : ""}`}
 		onClick={disabled ? undefined : onClick}
 		onKeyDown={(e) =>
 			!disabled && onClick && (e.key === "Enter" || e.key === " ") && onClick()

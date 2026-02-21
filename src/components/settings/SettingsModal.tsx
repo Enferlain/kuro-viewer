@@ -163,7 +163,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [extractMetadata, setExtractMetadata] = useState(true);
 
 	// Privacy
-	const [saveHistory, setSaveHistory] = useState(true);
 	const [telemetryEnabled, setTelemetryEnabled] = useState(false);
 
 	useEffect(() => {
@@ -326,8 +325,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 			case "privacy":
 				return (
 					<PrivacyTab
-						saveHistory={saveHistory}
-						setSaveHistory={setSaveHistory}
 						telemetryEnabled={telemetryEnabled}
 						setTelemetryEnabled={setTelemetryEnabled}
 					/>
@@ -348,9 +345,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	return (
 		<div
 			className={`
-        fixed inset-0 z-100 flex items-center justify-center p-4 transition-all duration-300 ease-out
-        ${isOpen ? "opacity-100 pointer-events-auto backdrop-blur-md" : "opacity-0 pointer-events-none backdrop-blur-0"}
-      `}
+	        fixed inset-0 z-[var(--ui-layer-modal)] flex items-center justify-center p-4 transition-opacity duration-[var(--ui-motion-duration-slow)] ease-[var(--ease-decelerate)]
+	        ${isOpen ? "opacity-100 pointer-events-auto backdrop-blur-md" : "opacity-0 pointer-events-none backdrop-blur-0"}
+	      `}
 		>
 			<button
 				type="button"
@@ -361,11 +358,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
 			<div
 				className={`
-          relative bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex
-          transform transition-all ease-out transform-gpu
-          ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
-          ${isResizing ? "duration-0 transition-none select-none" : "duration-300"}
-        `}
+	          relative bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex
+	          transform transition-[transform,opacity] ease-[var(--ease-decelerate)] transform-gpu
+	          ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
+	          ${isResizing ? "duration-[var(--ui-motion-duration-instant)] transition-none select-none" : "duration-[var(--ui-motion-duration-slow)]"}
+	        `}
 				style={{
 					width: `${size.width}px`,
 					height: `${size.height}px`,
@@ -385,18 +382,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								type="button"
 								key={cat.id}
 								onClick={() => setActiveCategory(cat.id)}
-								className={`
-                    w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group
-                    ${
-											activeCategory === cat.id
-												? "bg-accent text-white shadow-glow translate-x-1"
-												: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-base"
-										}
-                  `}
+								className={[
+									"w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-[transform,background-color,color,box-shadow] duration-[var(--ui-motion-duration-standard)] group",
+									activeCategory === cat.id
+										? "bg-accent text-white shadow-glow translate-x-1"
+										: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-base",
+								].join(" ")}
 							>
 								<div className="flex items-center gap-3">
 									<span
-										className={`transition-transform duration-200 ${activeCategory === cat.id ? "scale-110" : "group-hover:scale-110"}`}
+										className={`transition-transform duration-[var(--ui-motion-duration-standard)] ${activeCategory === cat.id ? "scale-110" : "group-hover:scale-110"}`}
 									>
 										{cat.icon}
 									</span>
@@ -429,7 +424,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						<button
 							type="button"
 							onClick={onClose}
-							className="p-2 rounded-xl text-foreground-muted hover:text-white hover:bg-glass-bg-hover transition-all"
+							className="p-2 rounded-xl text-foreground-muted hover:text-white hover:bg-glass-bg-hover transition-[background-color,color] duration-[var(--ui-motion-duration-standard)]"
 						>
 							<X size={18} />
 						</button>
@@ -462,10 +457,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						setIsResizing(true);
 						document.body.style.cursor = "nwse-resize";
 					}}
-					className="absolute bottom-0 right-0 w-8 h-8 cursor-nwse-resize flex items-center justify-center group z-50"
+					className="absolute bottom-0 right-0 w-8 h-8 cursor-nwse-resize flex items-center justify-center group z-[var(--ui-layer-overlay)]"
 					aria-label="Resize settings window"
 				>
-					<div className="w-1.5 h-1.5 bg-glass-bg-strong rounded-full transition-all group-hover:bg-accent group-hover:scale-125 translate-x-1 translate-y-1" />
+					<div className="w-1.5 h-1.5 bg-glass-bg-strong rounded-full transition-[transform,background-color] duration-[var(--ui-motion-duration-standard)] group-hover:bg-accent group-hover:scale-125 translate-x-1 translate-y-1" />
 				</button>
 			</div>
 		</div>
