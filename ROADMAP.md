@@ -25,11 +25,11 @@ Also keep in mind function scope and file organization in the repo. The script m
 
 - **[x] Appearance**: Theme selection, Backdrop styles (Acrylic/Mica), and Accent color picking.
 - **[x] Layout**: Grid vs. List behavior, Sidebar positioning, and Auto-hide toolbar logic.
-- **[ ] Slideshow**: Detailed transition controls, Shuffle/Loop modes.
-- **[ ] Controls**: Shortcut remapping and mouse wheel behavior customization.
-- **[ ] File Types**: System-level extension associations and default opener settings.
-- **[ ] Content**: Library monitoring paths and metadata deep-scanning (CLIP semantic search).
-- **[ ] Privacy**: History management and anonymous telemetry toggles.
+- **[x] Slideshow**: Detailed transition controls, Shuffle/Loop modes.
+- **[x] Controls**: Shortcut remapping and mouse wheel behavior customization.
+- **[x] File Types**: System-level extension associations and default opener settings.
+- **[x] Content**: Library monitoring paths and metadata deep-scanning (CLIP semantic search).
+- **[x] Privacy**: History management and anonymous telemetry toggles.
 
 ## ⚡ Performance & Forensics
 

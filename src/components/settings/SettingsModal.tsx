@@ -19,9 +19,12 @@ import type { Keybind, MouseAction } from "../../types";
 import { Button } from "../ui/Button";
 import { AppearanceTab } from "./tabs/AppearanceTab";
 import { CategoryStub } from "./tabs/CategoryStub";
+import { ContentTab } from "./tabs/ContentTab";
 import { ControlsTab } from "./tabs/ControlsTab";
+import { FileTypesTab } from "./tabs/FileTypesTab";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { LayoutTab } from "./tabs/LayoutTab";
+import { PrivacyTab } from "./tabs/PrivacyTab";
 import { type Playlist, SlideshowTab } from "./tabs/SlideshowTab";
 
 export type SettingCategory =
@@ -144,6 +147,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [selectedThemeId, setSelectedThemeId] = useState<string | null>(
 		"kobe-default",
 	);
+
+	// File Types
+	const [fileAssociations, setFileAssociations] = useState<string[]>([
+		".png",
+		".jpg",
+		".jpeg",
+		".webp",
+		".gif",
+	]);
+
+	// Content
+	const [libraryPaths, setLibraryPaths] = useState<string[]>([]);
+	const [clipEnabled, setClipEnabled] = useState(false);
+	const [extractMetadata, setExtractMetadata] = useState(true);
+
+	// Privacy
+	const [saveHistory, setSaveHistory] = useState(true);
+	const [telemetryEnabled, setTelemetryEnabled] = useState(false);
 
 	useEffect(() => {
 		if (isOpen) {
@@ -282,6 +303,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						setSpacebarAction={setSpacebarAction}
 						keybinds={keybinds}
 						setKeybinds={setKeybinds}
+					/>
+				);
+			case "fileType":
+				return (
+					<FileTypesTab
+						fileAssociations={fileAssociations}
+						setFileAssociations={setFileAssociations}
+					/>
+				);
+			case "content":
+				return (
+					<ContentTab
+						libraryPaths={libraryPaths}
+						setLibraryPaths={setLibraryPaths}
+						clipEnabled={clipEnabled}
+						setClipEnabled={setClipEnabled}
+						extractMetadata={extractMetadata}
+						setExtractMetadata={setExtractMetadata}
+					/>
+				);
+			case "privacy":
+				return (
+					<PrivacyTab
+						saveHistory={saveHistory}
+						setSaveHistory={setSaveHistory}
+						telemetryEnabled={telemetryEnabled}
+						setTelemetryEnabled={setTelemetryEnabled}
 					/>
 				);
 			default: {

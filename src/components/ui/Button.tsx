@@ -1,7 +1,7 @@
 import type React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	variant?: "primary" | "secondary" | "ghost" | "icon";
+	variant?: "primary" | "secondary" | "ghost" | "icon" | "destructive";
 	active?: boolean;
 	tooltip?: string;
 }
@@ -15,7 +15,7 @@ export const Button: React.FC<ButtonProps> = ({
 	...props
 }) => {
 	const baseStyles =
-		"relative inline-flex items-center justify-center rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background-base disabled:opacity-50 disabled:cursor-not-allowed";
+		"relative inline-flex items-center justify-center rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 
 	const variants = {
 		primary:
@@ -24,6 +24,8 @@ export const Button: React.FC<ButtonProps> = ({
 		ghost:
 			"bg-transparent text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover",
 		icon: `p-2 rounded-md hover:bg-glass-bg-strong text-foreground-muted hover:text-foreground transition-colors ${active ? "text-accent-bright bg-accent/10" : ""}`,
+		destructive:
+			"bg-destructive/10 border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/30 hover:text-destructive-hover shadow-sm active:scale-[0.98]",
 	};
 
 	const sizes = variant === "icon" ? "" : "px-3 py-1.5 text-sm font-medium";

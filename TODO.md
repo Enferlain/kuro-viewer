@@ -1,6 +1,5 @@
 ### Random TODOs
 
-- [ ] stats about the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
 - [ ] C hotkey for cropping/editing, save should copy to clipboard or save copy as, not replace
 - [x] biome, ruff, ty for linting
 - [/] docs (Added STYLING_GUIDE.md & updated AGENTS.md)
@@ -10,10 +9,12 @@
 - [x] Settings: **Layout** tab implementation (Interactive drag-and-drop builder)
 - [x] Settings: **Slideshow** transition and auto-play controls
 - [x] Settings: **Controls** shortcut remapper
-- [ ] Settings: **General** tab - Build Export/Import settings logic & UI
-- [ ] Settings: **Controls** tab - Build `<KeyRecorder />` keystroke interception logic
-- [ ] Hover: ensure all buttons, toggles, and dropdowns have explicit `cursor-pointer` styles
-- [ ] Stats: about the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
+- [x] Settings: **General** tab - Build Export/Import settings logic & UI
+- [x] Settings: **Controls** tab - Build `<KeyRecorder />` keystroke interception logic
+- [x] Hover: Ensure all buttons, toggles, and dropdowns have explicit `cursor-pointer` styles
+- [x] Settings Tabs Implementation: **File Types**, **Content**, **Privacy**
+- [ ] Stats: About the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
+- [ ] Settings: Apply only lights up when a setting changes
 
 ### Future Roadmap & App Transition
 
@@ -48,3 +49,8 @@
 - [ ] Note button/plugin/hotkey for persistent notes for images
 - [ ] Comparison plugin/view (side-by-side, flicker, difference overlays)
 - [ ] Check for consistent style usage in the components
+
+#### Plugins
+
+- [ ] Workspaces/profiles
+- [ ] Forensics

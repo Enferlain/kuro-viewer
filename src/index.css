@@ -23,15 +23,15 @@
 	background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-	background: var(--border-subtle);
+	background: var(--color-border-subtle);
 	border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: var(--border-hover);
+	background: var(--color-border-hover);
 }
 
 /* Selection */
 ::selection {
-	background: color-mix(in srgb, var(--primary-color) 30%, transparent);
+	background: color-mix(in srgb, var(--color-accent) 30%, transparent);
 	color: inherit;
 }

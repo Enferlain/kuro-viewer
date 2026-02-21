@@ -11,15 +11,15 @@ export const SettingToggle: React.FC<{
 			onChange(!checked);
 		}}
 		className={`
-      w-9 h-5 rounded-full relative transition-all duration-300 border flex items-center
-      ${checked ? "bg-accent border-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.3)]" : "bg-glass-bg-hover border-glass-border-hover"}
-    `}
+	      w-9 h-5 rounded-full relative transition-all duration-300 border flex items-center cursor-pointer
+	      ${checked ? "bg-accent border-accent shadow-glow" : "bg-glass-bg-hover border-glass-border-hover"}
+	    `}
 	>
 		<div
 			className={`
-      w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all duration-300
-      ${checked ? "translate-x-[18px]" : "translate-x-0.5"}
-    `}
+	      w-3.5 h-3.5 rounded-full bg-accent-foreground shadow-sm transition-all duration-300
+	      ${checked ? "translate-x-[18px]" : "translate-x-0.5"}
+	    `}
 		/>
 	</button>
 );

@@ -15,8 +15,11 @@ This is the **Source of Truth**. It is built with three distinct tiers of variab
 1.  **Base Palette**: Raw color, transparency, and shadow values using the `--palette-*` prefix.
 2.  **Semantic Tokens**: Design intent variables using the `--ui-*` prefix (e.g., `--ui-bg-base`, `--ui-shadow-md`).
     - _Why?_ Tailwind uses `--color-*` and `--shadow-*` for utility generation. By using `--ui-*` in `:root`, we avoid naming collisions and circular references.
-3.  **Tailwind Bridge**: The custom `@theme inline` block that maps `--ui-*` tokens to standard utility namespaces (e.g., `--color-[name]`).
-    - _Why inline?_ As per Tailwind v4 documentation, when theme variables reference _other_ variables (like our `--ui-*` tokens), using `inline` ensures utilities reference the source variable directly. This maintains correct CSS scoping for sub-tree overrides.
+3.  **Tailwind Bridge**: A `@theme inline` block that maps `--ui-*` tokens to standard utility namespaces (e.g., `--color-[name]`).
+    - _Why inline?_ The bridge tokens reference other variables (`--ui-*`). `inline` keeps utility output bound to those source tokens.
+
+> [!TIP]
+> Use `@theme` for direct semantic tokens you want to override by redefining `--color-*` globally. Use `@theme inline` for bridge aliases that point to other variables.
 
 ### Layer 2: Global Integration (`src/index.css`)
 
@@ -33,13 +36,13 @@ This is the **Entry Point**. It handles:
 
 ### 1. Semantic Over Explicit
 
-**Never** use raw hex codes or base palette variables in your JSX/TSX. Always use the semantic Tailwind utility or the semantic variable.
+**Never** use raw hex codes or `--palette-*` variables in JSX/TSX. Prefer semantic Tailwind utilities in components; use `var(--color-*)` directly only in CSS or rare inline-style edge cases.
 
-| ✅ Good (Semantic)           | ❌ Bad (Explicit) |
-| :--------------------------- | :---------------- |
-| `text-foreground-muted`      | `text-slate-400`  |
-| `bg-accent`                  | `bg-[#5e6ad2]`    |
-| `var(--color-border-subtle)` | `#ffffff0f`       |
+| ✅ Good (Semantic)      | ❌ Bad (Explicit) |
+| :---------------------- | :---------------- |
+| `text-foreground-muted` | `text-slate-400`  |
+| `bg-glass-bg-base`      | `bg-white/[0.03]` |
+| `border-border-subtle`  | `#ffffff0f`       |
 
 ### 2. OKLCH for Color Ramp Perfection
 
@@ -47,10 +50,10 @@ We use **OKLCH** (`oklch(L C H)`) for our color scales. It is mathematically "pe
 
 - **L (Lightness)**: `0.0` - `1.0`. Keep this consistent across themes to maintain contrast.
 - **C (Chroma)**: `0` - `~0.4`. Controls the intensity.
-- **H (Hue)**: `0` - `360`. 285 is our signature Blue.
+- **H (Hue)**: `0` - `360`. Our default Ruri accent is around `276`.
 
 > [!TIP]
-> When creating a new theme (e.g., Forest), simply swap the **Hue** (H) while keeping Lightness (L) and Chroma (C) identical to the default theme. This ensures perfect accessibility with zero extra effort.
+> When creating a new theme (e.g., Forest), start by swapping **Hue** while keeping Lightness and Chroma close. Then verify contrast in-app; hue shifts can still affect readability and gamut clipping.
 
 ---
 
@@ -67,9 +70,9 @@ We use **OKLCH** (`oklch(L C H)`) for our color scales. It is mathematically "pe
 To maintain the "Premium" look:
 
 - **Rounded Corners**: Use `rounded-xl` or `rounded-2xl` for main panels.
-- **Glassmorphism**: Use `bg-white/[0.03]` + `backdrop-blur-xl` + `border border-white/[0.06]`.
+- **Glassmorphism**: Use semantic glass tokens (e.g., `bg-glass-bg-base border border-glass-border-base backdrop-blur-xl`).
 - **Shadows**: Use `shadow-glow` (for accents) or `shadow-xl` (for depth).
-- **Transitions**: Every interactive element must have `transition-all duration-200`.
+- **Transitions**: Prefer `transition-colors`, `transition-opacity`, or `transition-transform` with `duration-200`; use `transition-all` only when genuinely needed.
 
 ---
 
@@ -83,7 +86,7 @@ When building a new component, follow these steps:
 
 ```tsx
 // Example of a correctly styled "Luxury" Button
-<button className="px-4 py-2 rounded-xl bg-accent text-white shadow-glow hover:bg-accent-bright transition-all">
+<button className="px-4 py-2 rounded-xl bg-accent text-accent-foreground shadow-glow hover:bg-accent-bright transition-colors duration-200">
   Confirm Action
 </button>
 ```
@@ -96,7 +99,7 @@ Tailwind v4 automatically generates utilities based on specific CSS variable pre
 
 | Feature          | CSS Variable Prefix | Resulting Utility Example |
 | :--------------- | :------------------ | :------------------------ |
-| **Colors**       | `--color-*`         | `text-accent`, `bg-base`  |
+| **Colors**       | `--color-*`         | `text-accent`, `bg-background-base` |
 | **Spacing**      | `--spacing-*`       | `p-section`, `m-panel`    |
 | **Font Family**  | `--font-*`          | `font-mono`               |
 | **Font Size**    | `--text-*`          | `text-label`              |
@@ -107,6 +110,8 @@ Tailwind v4 automatically generates utilities based on specific CSS variable pre
 
 > [!NOTE]
 > In Tailwind v4, **Font size** variables use the `--text-` prefix, not `--font-size-`. This allows Tailwind to automatically pair it with a line-height if needed.
+>
+> Utility names must match token suffixes exactly. If a `--color-*` token does not exist, the corresponding class (e.g., `text-foo`) will not be generated.
 
 ---
 
@@ -118,14 +123,17 @@ The app must be fully navigable via keyboard to support the "luxury" efficiency 
 
 - **`ArrowRight` / `ArrowLeft`**: Navigate image list.
 - **`0`**: Reset zoom and center view (Fit).
+- **`+` / `-`**: Zoom in / out.
 - **`T`**: Toggle Toolbar visibility (distraction-free mode).
-- **`X`**: Toggle Image Metadata panel.
+- **`X` or `I`**: Toggle Image Metadata panel.
 - **`N`**: Toggle Noise Analysis filter.
 - **`P`**: Toggle PCA Analysis filter.
+- **`,`**: Open/close Settings.
+- **`Escape`**: Close Metadata/Settings dialogs.
 
 ### Transitions & Motion
 
-- **Micro-animations**: Every interactive element (buttons, tabs) must have `transition-all duration-200` to feel premium.
+- **Micro-animations**: Use targeted transitions (`colors`, `opacity`, `transform`) at `~200ms`; avoid blanket `transition-all` for layout-heavy elements.
 - **Layout Swaps**: Structural changes (like opening the Settings Modal or switching image filters) should be smooth but fast.
 - **Image Navigation**: Navigating between images remains **instant** (no animation) to support perfect A/B comparison.
 

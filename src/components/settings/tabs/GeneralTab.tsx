@@ -1,4 +1,4 @@
-import { Eye, Monitor, Zap } from "lucide-react";
+import { Database, Download, Eye, Monitor, Upload, Zap } from "lucide-react";
 import type React from "react";
 import { Button } from "../../ui/Button";
 import { Dropdown } from "../../ui/Dropdown";
@@ -123,6 +123,25 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 						Clear
 					</Button>
 				</div>
+			</SettingRow>
+		</SettingGroup>
+
+		<SettingGroup title="Data Management" icon={<Database size={12} />}>
+			<SettingRow
+				label="Export Settings"
+				description="Save your current configuration to a file."
+			>
+				<Button variant="secondary" className="text-xs h-8 px-4">
+					<Download size={14} className="mr-2" /> Export
+				</Button>
+			</SettingRow>
+			<SettingRow
+				label="Import Settings"
+				description="Load a previously saved configuration file."
+			>
+				<Button variant="secondary" className="text-xs h-8 px-4">
+					<Upload size={14} className="mr-2" /> Import
+				</Button>
 			</SettingRow>
 		</SettingGroup>
 

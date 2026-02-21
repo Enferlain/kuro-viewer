@@ -121,6 +121,7 @@
   --ui-foreground-hover: var(--palette-white);
   --ui-foreground-secondary: var(--palette-slate-300);
   --ui-foreground-muted: var(--palette-slate-400);
+  --ui-foreground-subtle: var(--palette-slate-500);
   --ui-foreground-inverted: var(--palette-kuro-800);
 
   /* Background */
@@ -132,10 +133,21 @@
   --ui-bg-deep: var(--palette-kuro-900);
 
   /* Primary Accent (Ruri) */
-  --ui-primary: var(--palette-ruri-600); 
+  --ui-primary: var(--palette-ruri-600);
   --ui-primary-hover: var(--palette-ruri-500);
   --ui-primary-active: var(--palette-violet-600);
   --ui-primary-foreground: var(--palette-white);
+
+  /* Destructive Accent (Coral) */
+  --ui-destructive: var(--palette-coral-500);
+  --ui-destructive-hover: var(--palette-coral-400);
+  --ui-destructive-active: var(--palette-coral-600);
+  --ui-destructive-foreground: var(--palette-white);
+
+  /* Status Colors */
+  --ui-status-info: var(--palette-azure-400);
+  --ui-status-success: var(--palette-jade-400);
+  --ui-status-warning: var(--palette-gold-400);
 
   /* Borders */
   --ui-border-default: var(--palette-kuro-100);
@@ -179,19 +191,39 @@
   /* Background Colors */
   --color-background-deep: var(--ui-bg-deep);
   --color-background-base: var(--ui-bg-base);
+  --color-background-secondary: var(--ui-bg-secondary);
+  --color-background-hover: var(--ui-bg-hover);
+  --color-background-selected: var(--ui-bg-selected);
   --color-background-elevated: var(--ui-bg-elevated);
   
   /* Text Colors */
   --color-foreground: var(--ui-foreground);
+  --color-foreground-secondary: var(--ui-foreground-secondary);
   --color-foreground-muted: var(--ui-foreground-muted);
+  --color-foreground-subtle: var(--ui-foreground-subtle);
   
   /* Accent Colors */
   --color-accent: var(--ui-primary);
   --color-accent-bright: var(--ui-primary-hover);
+  --color-accent-active: var(--ui-primary-active);
+  --color-accent-foreground: var(--ui-primary-foreground);
+  
+  /* Destructive Colors */
+  --color-destructive: var(--ui-destructive);
+  --color-destructive-hover: var(--ui-destructive-hover);
+  --color-destructive-active: var(--ui-destructive-active);
+  --color-destructive-foreground: var(--ui-destructive-foreground);
   
   /* Borders */
+  --color-border-default: var(--ui-border-default);
   --color-border-subtle: var(--ui-border-subtle);
   --color-border-hover: var(--ui-border-hover);
+  --color-border-strong: var(--ui-border-strong);
+
+  /* Status Colors */
+  --color-status-info: var(--ui-status-info);
+  --color-status-success: var(--ui-status-success);
+  --color-status-warning: var(--ui-status-warning);
   
   /* Glass Backgrounds */
   --color-glass-bg-subtle: var(--ui-glass-bg-subtle);

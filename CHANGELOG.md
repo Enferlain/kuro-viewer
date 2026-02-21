@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-02-21
+
+### Added
+
+- Frontend: **Universal ConfirmDialog Component** for standardizing destructive actions across the UI.
+- Frontend: **Explicit Session State UI** in the Privacy tab to clearly visualize saved cursor/zoom interactions.
+
+### Changed
+
+- UX: Centered and aligned the `ConfirmDialog` layout to match luxury modal aesthetics.
+- Documentation: Synchronized `STYLING_GUIDE.md` with the exact token strategy and Tailwind v4 behaviors.
+
+### Fixed
+
+- Styling: Added missing semantic wrapper tokens (e.g., `text-foreground-subtle`, `text-status-success`) to `design-system.css`.
+- Styling: Expanded token bridge coverage in `design-system.css` for background, text, accent, border, and status families.
+- Styling: Fixed critical silent failures in `index.css` where custom scrollbars and selections were referencing undefined variables.
+- Styling: Replaced hardcoded HEX/Tailwind opacity colors (e.g., `bg-black/40`, `text-red-400`) in modals and toggles with compliant semantic `--ui-` tokens.
+
 ## [Unreleased] - 2026-02-20
 
 ### Added
