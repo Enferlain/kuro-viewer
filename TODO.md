@@ -15,7 +15,7 @@
 - [x] Settings Tabs Implementation: **File Types**, **Content**, **Privacy**
 - [ ] Stats: About the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
 - [ ] Settings: Apply only lights up when a setting changes
-- [ ] Controls: Default pan is space + drag. Default cursor is normal cursor, not pan cursor. Default zoom is to the cursor, not center of image.
+- [x] Controls: Default pan is space + drag. Default cursor is normal cursor, not pan cursor. Default zoom is to the cursor, not center of image.
 
 ### Future Roadmap & App Transition
 

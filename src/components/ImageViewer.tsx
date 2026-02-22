@@ -19,6 +19,31 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 	const imgRef = useRef<HTMLImageElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+	const [isSpacePressed, setIsSpacePressed] = useState(false);
+	const [isMouseDown, setIsMouseDown] = useState(false);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.code === "Space") {
+				// Prevent spacebar scrolling page, but typically Vite app takes whole height
+				e.preventDefault();
+				setIsSpacePressed(true);
+			}
+		};
+		const handleKeyUp = (e: KeyboardEvent) => {
+			if (e.code === "Space") {
+				setIsSpacePressed(false);
+				setIsDragging(false); // Still cancel drag when space released
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		window.addEventListener("keyup", handleKeyUp);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+			window.removeEventListener("keyup", handleKeyUp);
+		};
+	}, []);
 
 	// Function to calculate fit scale based on container and image dimensions
 	const fitToView = useCallback(() => {
@@ -29,10 +54,8 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 
 		const { width: containerWidth, height: containerHeight } =
 			container.getBoundingClientRect();
-		const padding = 48;
-
-		const availWidth = Math.max(containerWidth - padding, 200);
-		const availHeight = Math.max(containerHeight - padding, 200);
+		const availWidth = Math.max(containerWidth, 200);
+		const availHeight = Math.max(containerHeight, 200);
 
 		const scaleX = availWidth / img.naturalWidth;
 		const scaleY = availHeight / img.naturalHeight;
@@ -42,6 +65,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 		setViewerState({
 			scale: fitScale,
 			translation: { x: 0, y: 0 },
+			isFit: true,
 		});
 	}, [setViewerState]);
 
@@ -55,15 +79,15 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 			// or if the scale is very close to the fit scale.
 			// For simplicity in this rapid viewer, we maintain fit if the user hit '0' recently.
 			// Here we just check if scale is 0 (pending) or if we want to enforce it.
-			// A simple heuristic: if scale is 0, we fit.
-			if (viewerState.scale === 0) {
+			// A simple heuristic: if scale is 0 or isFit=true, we fit.
+			if (viewerState.scale === 0 || viewerState.isFit) {
 				fitToView();
 			}
 		});
 
 		observer.observe(container);
 		return () => observer.disconnect();
-	}, [viewerState.scale, fitToView]);
+	}, [viewerState.scale, viewerState.isFit, fitToView]);
 
 	// Watch for the specific "reset" signal (scale === 0) from parent
 	useEffect(() => {
@@ -72,27 +96,54 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 		}
 	}, [viewerState.scale, fitToView]);
 
-	const handleWheel = (e: React.WheelEvent) => {
+	const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+		const container = containerRef.current;
+		if (!container) return;
+
 		const scaleFactor = 1.1;
 		const delta = -e.deltaY;
 
-		setViewerState((prev) => {
-			// Don't calculate on 0 scale (loading state)
-			const currentScale = prev.scale === 0 ? 1 : prev.scale;
-			let newScale =
-				delta > 0 ? currentScale * scaleFactor : currentScale / scaleFactor;
-			newScale = Math.min(Math.max(newScale, 0.05), 50);
-			return { ...prev, scale: newScale };
-		});
+		const currentScale = viewerState.scale === 0 ? 1 : viewerState.scale;
+		let newScale =
+			delta > 0 ? currentScale * scaleFactor : currentScale / scaleFactor;
+		newScale = Math.min(Math.max(newScale, 0.05), 50);
+
+		if (newScale === currentScale) return;
+
+		const rect = container.getBoundingClientRect();
+		// Compute mouse offset from the center of the viewport
+		const cursorX = e.clientX - rect.left - rect.width / 2;
+		const cursorY = e.clientY - rect.top - rect.height / 2;
+
+		// Calculate translation shift to keep cursor over the same image pixel
+		// Since scaling happens from the center of the translation wrapper, the apparent movement
+		// of the point (cursor) under scaling needs to be offset.
+		const ratio = 1 - newScale / currentScale;
+		const dx = (cursorX - viewerState.translation.x) * ratio;
+		const dy = (cursorY - viewerState.translation.y) * ratio;
+
+		setViewerState((prev) => ({
+			...prev,
+			scale: newScale,
+			translation: {
+				x: prev.translation.x + dx,
+				y: prev.translation.y + dy,
+			},
+			isFit: false,
+		}));
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button !== 0) return; // Only left click
-		setIsDragging(true);
-		setDragStart({
-			x: e.clientX - viewerState.translation.x,
-			y: e.clientY - viewerState.translation.y,
-		});
+		setIsMouseDown(true);
+		if (isSpacePressed) {
+			e.preventDefault();
+			setIsDragging(true);
+			setDragStart({
+				x: e.clientX - viewerState.translation.x,
+				y: e.clientY - viewerState.translation.y,
+			});
+		}
 	};
 
 	const handleMouseMove = (e: React.MouseEvent) => {
@@ -104,10 +155,12 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 				x: e.clientX - dragStart.x,
 				y: e.clientY - dragStart.y,
 			},
+			isFit: false,
 		}));
 	};
 
 	const handleMouseUp = () => {
+		setIsMouseDown(false);
 		setIsDragging(false);
 	};
 
@@ -140,7 +193,14 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 		<section
 			ref={containerRef}
 			aria-label="Image Viewer"
-			className="flex-1 relative overflow-hidden bg-background-deep cursor-move select-none"
+			className="flex-1 relative overflow-hidden bg-background-deep select-none"
+			style={{
+				cursor: isSpacePressed
+					? isMouseDown
+						? "grabbing"
+						: "grab"
+					: "default",
+			}}
 			onWheel={handleWheel}
 			onMouseDown={handleMouseDown}
 			onMouseMove={handleMouseMove}

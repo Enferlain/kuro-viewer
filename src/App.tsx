@@ -48,6 +48,7 @@ const App: React.FC = () => {
 	const [isMetadataOpen, setIsMetadataOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+	const [isGalleryVisible, setIsGalleryVisible] = useState(true);
 
 	// Hover zone state for navigation arrows
 	const [hoverZone, setHoverZone] = useState<"left" | "right" | null>(null);
@@ -56,6 +57,7 @@ const App: React.FC = () => {
 	const [viewerState, setViewerState] = useState<ViewerState>({
 		scale: 0,
 		translation: { x: 0, y: 0 },
+		isFit: true,
 	});
 
 	const currentImage = images[selectedIndex];
@@ -140,7 +142,7 @@ const App: React.FC = () => {
 	const handleSelectIndex = useCallback((index: number) => {
 		// Synchronously update both to avoid "popping" where new image is seen at old scale
 		setSelectedIndex(index);
-		setViewerState({ scale: 0, translation: { x: 0, y: 0 } });
+		setViewerState({ scale: 0, translation: { x: 0, y: 0 }, isFit: true });
 	}, []);
 
 	const handleNext = useCallback(() => {
@@ -153,13 +155,14 @@ const App: React.FC = () => {
 
 	// Triggers the ImageViewer to recalculate fit
 	const handleResetView = useCallback(() => {
-		setViewerState({ scale: 0, translation: { x: 0, y: 0 } });
+		setViewerState({ scale: 0, translation: { x: 0, y: 0 }, isFit: true });
 	}, []);
 
 	const handleZoomIn = useCallback(() => {
 		setViewerState((prev) => ({
 			...prev,
 			scale: prev.scale === 0 ? 1.2 : Math.min(prev.scale * 1.2, 50),
+			isFit: false,
 		}));
 	}, []);
 
@@ -167,6 +170,7 @@ const App: React.FC = () => {
 		setViewerState((prev) => ({
 			...prev,
 			scale: prev.scale === 0 ? 0.8 : Math.max(prev.scale / 1.2, 0.05),
+			isFit: false,
 		}));
 	}, []);
 
@@ -252,6 +256,11 @@ const App: React.FC = () => {
 					e.preventDefault();
 					setIsToolbarVisible((prev) => !prev);
 					break;
+				case "g":
+				case "G":
+					e.preventDefault();
+					setIsGalleryVisible((prev) => !prev);
+					break;
 				case ",":
 					e.preventDefault();
 					setIsSettingsOpen((prev) => !prev);
@@ -272,7 +281,7 @@ const App: React.FC = () => {
 		<div className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden">
 			{/* 1. Header / Toolbar */}
 			<div
-				className={`transition-[height,opacity] duration-[var(--ui-motion-duration-slow)] ease-[var(--ease-standard)] overflow-hidden ${isToolbarVisible ? "h-[var(--spacing-toolbar)] opacity-100" : "h-0 opacity-0"}`}
+				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${isToolbarVisible ? "h-toolbar opacity-100" : "h-0 opacity-0"}`}
 			>
 				<Toolbar
 					currentFilter={activeFilter}
@@ -353,11 +362,15 @@ const App: React.FC = () => {
 			</section>
 
 			{/* 3. Footer / Thumbnails */}
-			<ThumbnailStrip
-				images={images}
-				selectedIndex={selectedIndex}
-				onSelect={handleSelectIndex}
-			/>
+			<div
+				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${isGalleryVisible ? "h-thumbnail-strip opacity-100" : "h-0 opacity-0"}`}
+			>
+				<ThumbnailStrip
+					images={images}
+					selectedIndex={selectedIndex}
+					onSelect={handleSelectIndex}
+				/>
+			</div>
 
 			{/* 4. Overlays */}
 			<MetadataModal

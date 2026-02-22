@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- UX: **Gallery Hotkey ('G')** to instantly toggle the Thumbnail Strip visibility.
+- UX: **Space+Drag Panning** in the ImageViewer for standard canvas navigation.
+- UX: **Dynamic UI Refit** logic, allowing the image to smoothly scale and fill available space when modifying UI panels (like hiding the toolbar or gallery) as long as it isn't manually zoomed/panned.
 - Documentation: Added `.agents/workflows/check-style-violations.md` with an explicit 3-file batch workflow for style audits/fixes, including both Bash and PowerShell command variants.
 
 ### Changed
+
+- UX: **Zoom-to-Cursor** behavior in the ImageViewer, proportionally translating the image alongside scaling so the pixel under the mouse remains stationary.
+- UX: Changed the default image hover cursor from `grab/move` to the standard default pointer.
+- UX: Removed artificial padding constraints from the `fitToView` calculation, maximizing image area across the application layout.
 
 - Styling: Completed a systematic semantic-token adherence pass for core viewer components (`App.tsx`, `ImageViewer.tsx`, `MetadataModal.tsx`, `ThumbnailStrip.tsx`, `Toolbar.tsx`).
 - Styling: Completed the same adherence pass for reusable UI primitives (`Button.tsx`, `ConfirmDialog.tsx`, `Dropdown.tsx`, `SettingRow.tsx`) and settings shell (`SettingsModal.tsx`).

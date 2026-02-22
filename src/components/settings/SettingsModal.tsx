@@ -137,6 +137,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		{ action: "pca", label: "Toggle PCA Filter", key: "P" },
 		{ action: "metadata", label: "Toggle Metadata", key: "I" },
 		{ action: "toolbar", label: "Toggle Toolbar", key: "T" },
+		{ action: "gallery", label: "Toggle Gallery", key: "G" },
 	]);
 
 	// Custom Themes

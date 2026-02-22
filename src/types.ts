@@ -14,6 +14,7 @@ export enum FilterType {
 export interface ViewerState {
 	scale: number;
 	translation: { x: number; y: number };
+	isFit: boolean;
 }
 
 export interface MetadataEntry {
@@ -40,6 +41,7 @@ export type MouseAction =
 	| "Toggle Fullscreen"
 	| "Toggle Metadata"
 	| "Toggle Toolbar"
+	| "Toggle Gallery"
 	| "Play/Pause Slideshow"
 	| "Drag/Pan Mode";
 
