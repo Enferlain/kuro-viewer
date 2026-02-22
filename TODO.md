@@ -14,7 +14,7 @@
 - [x] Hover: Ensure all buttons, toggles, and dropdowns have explicit `cursor-pointer` styles
 - [x] Settings Tabs Implementation: **File Types**, **Content**, **Privacy**
 - [ ] Stats: About the image (color codes for background, dominant colors, etc.), maybe indexed for instant reuse
-- [ ] Settings: Apply only lights up when a setting changes
+- [x] Settings: Apply only lights up when a setting changes
 - [x] Controls: Default pan is space + drag. Default cursor is normal cursor, not pan cursor. Default zoom is to the cursor, not center of image.
 
 ### Future Roadmap & App Transition

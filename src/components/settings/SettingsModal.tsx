@@ -14,7 +14,7 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Keybind, MouseAction } from "../../types";
 import { Button } from "../ui/Button";
 import { AppearanceTab } from "./tabs/AppearanceTab";
@@ -166,14 +166,78 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	// Privacy
 	const [telemetryEnabled, setTelemetryEnabled] = useState(false);
 
+	// --- CHANGE TRACKING ---
+	// We snapshot the state when the modal opens to enable/disable the Apply button.
+	const initialStateRef = useRef<Record<string, unknown>>({});
+
+	// Derived current state representation
+	const currentState = {
+		startupRun,
+		checkUpdates,
+		allowInstances,
+		watchChanges,
+		autoOpenNew,
+		gpuEnabled,
+		lowPower,
+		cacheSize,
+		theme,
+		backdropStyle,
+		accentColor,
+		gridOpacity,
+		toolbarPos,
+		toolbarOrder,
+		galleryPos,
+		galleryOrder,
+		sidebarPos,
+		autoHideToolbar,
+		slideshowEnabled,
+		slideshowInterval,
+		slideshowLoop,
+		slideshowShuffle,
+		transitionStyle,
+		playlists,
+		activePlaylistId,
+		primaryScroll,
+		middleClick,
+		invertScroll,
+		ctrlScroll,
+		shiftScroll,
+		spacebarAction,
+		keybinds,
+		customThemes,
+		selectedThemeId,
+		fileAssociations,
+		libraryPaths,
+		clipEnabled,
+		extractMetadata,
+		telemetryEnabled,
+	};
+
+	// Determine if anything was actually modified
+	const hasChanges =
+		Object.keys(initialStateRef.current).length > 0 &&
+		JSON.stringify(initialStateRef.current) !== JSON.stringify(currentState);
+	// We use a ref to hold the derived current state so our effect can read it without
+	// triggering an exhaustive-deps warning or infinite loops when state changes.
+	const currentStateRef = useRef(currentState);
+	currentStateRef.current = currentState;
+
+	// Capture baseline state strictly when the modal finishes opening
 	useEffect(() => {
 		if (isOpen) {
 			setIsVisible(true);
+			initialStateRef.current = structuredClone(currentStateRef.current);
 		} else {
 			const timer = setTimeout(() => setIsVisible(false), 200);
 			return () => clearTimeout(timer);
 		}
 	}, [isOpen]);
+
+	const handleApply = () => {
+		// Example: Here you would emit the state to a global context or backend
+		initialStateRef.current = structuredClone(currentState); // Reset baseline so "Apply" dims out again
+		onClose();
+	};
 
 	// Resizing Logic
 	useEffect(() => {
@@ -384,7 +448,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								key={cat.id}
 								onClick={() => setActiveCategory(cat.id)}
 								className={[
-									"w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-[transform,background-color,color,box-shadow] duration-[var(--ui-motion-duration-standard)] group",
+									"w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-[transform,background-color,color,box-shadow] duration-[var(--ui-motion-duration-standard)] group",
 									activeCategory === cat.id
 										? "bg-accent text-accent-foreground shadow-glow translate-x-1"
 										: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-base",
@@ -425,7 +489,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						<button
 							type="button"
 							onClick={onClose}
-							className="p-2 rounded-xl text-foreground-muted hover:text-foreground-hover hover:bg-glass-bg-hover transition-[background-color,color] duration-[var(--ui-motion-duration-standard)]"
+							className="p-2 rounded-xl text-foreground-muted hover:text-foreground-hover hover:bg-glass-bg-hover cursor-pointer transition-[background-color,color] duration-[var(--ui-motion-duration-standard)]"
 						>
 							<X size={18} />
 						</button>
@@ -442,8 +506,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						</Button>
 						<Button
 							variant="primary"
-							onClick={onClose}
-							className="px-8 shadow-glow"
+							onClick={handleApply}
+							disabled={!hasChanges}
+							className={`px-8 transition-[opacity,box-shadow,transform] duration-[var(--ui-motion-duration-standard)] 
+								${hasChanges ? "shadow-glow opacity-100" : "opacity-40 cursor-not-allowed shadow-none"}`}
 						>
 							Apply Changes
 						</Button>

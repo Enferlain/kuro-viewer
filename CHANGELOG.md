@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UX: **Zoom-to-Cursor** behavior in the ImageViewer, proportionally translating the image alongside scaling so the pixel under the mouse remains stationary.
 - UX: Changed the default image hover cursor from `grab/move` to the standard default pointer.
 - UX: Removed artificial padding constraints from the `fitToView` calculation, maximizing image area across the application layout.
+- UX: Added missing standard `cursor-pointer` styles to the settings sidebar categories and close buttons.
 
 - Styling: Completed a systematic semantic-token adherence pass for core viewer components (`App.tsx`, `ImageViewer.tsx`, `MetadataModal.tsx`, `ThumbnailStrip.tsx`, `Toolbar.tsx`).
 - Styling: Completed the same adherence pass for reusable UI primitives (`Button.tsx`, `ConfirmDialog.tsx`, `Dropdown.tsx`, `SettingRow.tsx`) and settings shell (`SettingsModal.tsx`).
