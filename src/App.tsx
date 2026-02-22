@@ -59,6 +59,8 @@ const App: React.FC = () => {
 	});
 
 	const currentImage = images[selectedIndex];
+	const navControlButtonClass =
+		"pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center border border-glass-border-base bg-overlay-dim backdrop-blur-xl text-foreground-secondary shadow-xl transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform hover:bg-glass-bg-hover hover:border-glass-border-hover hover:text-foreground hover:shadow-glow hover:scale-110 active:scale-95";
 
 	// Generate deterministic mock metadata for the current image (Simulating Stable Diffusion / Gen AI metadata)
 	const currentMetadata: ImageMetadata = useMemo(() => {
@@ -315,17 +317,7 @@ const App: React.FC = () => {
 									e.stopPropagation();
 									handlePrev();
 								}}
-								className="
-	                  pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center
-                  bg-black/40 backdrop-blur-xl 
-                  text-white/80 
-                  shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)]
-                  transition-[transform,background-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform
-                  hover:bg-accent/20 hover:text-white hover:scale-110 
-                  hover:shadow-[0_0_0_1px_rgba(94,106,210,0.5),0_0_20px_rgba(94,106,210,0.4),inset_0_1px_0_0_rgba(255,255,255,0.2)]
-                  active:scale-95
-                  pr-1
-                "
+								className={`${navControlButtonClass} pr-1`}
 								title="Previous Image"
 							>
 								<ChevronLeft size={32} strokeWidth={1.5} />
@@ -346,17 +338,7 @@ const App: React.FC = () => {
 									e.stopPropagation();
 									handleNext();
 								}}
-								className="
-	                  pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center
-                  bg-black/40 backdrop-blur-xl 
-                  text-white/80 
-                  shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)]
-                  transition-[transform,background-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform
-                  hover:bg-accent/20 hover:text-white hover:scale-110 
-                  hover:shadow-[0_0_0_1px_rgba(94,106,210,0.5),0_0_20px_rgba(94,106,210,0.4),inset_0_1px_0_0_rgba(255,255,255,0.2)]
-                  active:scale-95
-                  pl-1
-                "
+								className={`${navControlButtonClass} pl-1`}
 								title="Next Image"
 							>
 								<ChevronRight size={32} strokeWidth={1.5} />

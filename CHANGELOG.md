@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-02-22
+
+### Added
+
+- Documentation: Added `.agents/workflows/check-style-violations.md` with an explicit 3-file batch workflow for style audits/fixes, including both Bash and PowerShell command variants.
+
+### Changed
+
+- Styling: Completed a systematic semantic-token adherence pass for core viewer components (`App.tsx`, `ImageViewer.tsx`, `MetadataModal.tsx`, `ThumbnailStrip.tsx`, `Toolbar.tsx`).
+- Styling: Completed the same adherence pass for reusable UI primitives (`Button.tsx`, `ConfirmDialog.tsx`, `Dropdown.tsx`, `SettingRow.tsx`) and settings shell (`SettingsModal.tsx`).
+- Styling: Completed a full adherence pass across all settings tabs (`Appearance`, `CategoryStub`, `Content`, `Controls`, `FileTypes`, `General`, `Layout`, `Privacy`, `Slideshow`).
+- Documentation: Clarified `STYLING_GUIDE.md` to explicitly allow semantic token opacity variants, require semantic tokens in inline style strings, document current naming ergonomics debt, and define the raw-hex exception for non-presentational data/state.
+
+### Fixed
+
+- Styling: Replaced lingering non-semantic utility usage (`text-white`, `hover:text-white`, raw red utility classes, `shadow-2xl`, and `bg-[#...]`) with semantic/tokenized alternatives.
+- Styling: Removed remaining raw presentational color usage in targeted components while preserving intentional hex color values used only as color-picker data/state.
+- Validation: Completed repo-wide style-pattern sweeps and type checks after each batch pass.
+
 ## [Unreleased] - 2026-02-21
 
 ### Added

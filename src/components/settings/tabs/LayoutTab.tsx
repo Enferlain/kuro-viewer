@@ -50,7 +50,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 			onDragStart={() => handleDragStart(item.id)}
 			className={`
 	        h-8 px-3 bg-accent border border-accent/20 rounded flex items-center justify-center
-	        text-[9px] font-bold text-white uppercase tracking-widest shadow-lg cursor-grab active:cursor-grabbing
+	        text-[9px] font-bold text-accent-foreground uppercase tracking-widest shadow-lg cursor-grab active:cursor-grabbing
 	        transition-[transform,opacity,filter] duration-[var(--ui-motion-duration-slow)] hover:scale-[1.02] active:scale-95
 	        ${draggingItem === item.id ? "opacity-40 scale-95 grayscale" : "opacity-100"}
 	      `}
@@ -62,7 +62,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
-				<h4 className="text-xl font-bold text-white mb-1">Layout</h4>
+				<h4 className="text-xl font-bold text-foreground mb-1">Layout</h4>
 				<p className="text-sm text-foreground-muted">
 					Directly drag components to position them in your interface.
 				</p>
@@ -71,7 +71,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 			<div className="space-y-10">
 				{/* Visual Preview / Drag Interface - Full Width Row */}
 				<div className="flex justify-center">
-					<div className="w-full max-w-[500px] h-[var(--spacing-layout-preview-height)] bg-overlay-dim border border-glass-border-base rounded-3xl flex flex-col overflow-hidden shadow-2xl relative group">
+					<div className="w-full max-w-[500px] h-[var(--spacing-layout-preview-height)] bg-overlay-dim border border-glass-border-base rounded-3xl flex flex-col overflow-hidden shadow-xl relative group">
 						<div className="absolute inset-0 bg-linear-to-br from-accent/5 to-transparent pointer-events-none" />
 
 						{/* Top Drop Zone */}
@@ -109,17 +109,17 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 								<button
 									type="button"
 									onClick={() => setSidebarPos("Right")}
-									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-[background-color,color,transform] duration-[var(--ui-motion-duration-standard)] active:scale-95"
+									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-foreground-hover transition-[background-color,color,transform] duration-[var(--ui-motion-duration-standard)] active:scale-95"
 								>
 									SIDEBAR
 								</button>
 							)}
 
 							<div className="flex-1 bg-glass-bg-subtle border border-dashed border-glass-border-subtle rounded-2xl flex items-center justify-center relative overflow-hidden group/viewer">
-								<div className="absolute inset-0 bg-[#0a0a0c] checkered-bg opacity-5" />
+								<div className="absolute inset-0 bg-background-deep checkered-bg opacity-5" />
 								<Eye
 									size={40}
-									className="text-white/2 group-hover/viewer:text-accent/10 transition-colors duration-[var(--ui-motion-duration-slow)]"
+									className="text-foreground-subtle/10 group-hover/viewer:text-accent/10 transition-colors duration-[var(--ui-motion-duration-slow)]"
 								/>
 							</div>
 
@@ -127,7 +127,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 								<button
 									type="button"
 									onClick={() => setSidebarPos("Left")}
-									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-white transition-[background-color,color,transform] duration-[var(--ui-motion-duration-standard)] active:scale-95"
+									className="w-16 bg-glass-bg-base border border-glass-border-strong rounded-2xl flex items-center justify-center text-[8px] text-foreground-muted font-bold rotate-180 [writing-mode:vertical-lr] tracking-[0.3em] cursor-pointer hover:bg-glass-bg-active hover:text-foreground-hover transition-[background-color,color,transform] duration-[var(--ui-motion-duration-standard)] active:scale-95"
 								>
 									SIDEBAR
 								</button>
@@ -165,7 +165,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 
 						<div className="absolute -top-7 right-0 flex items-center gap-2 pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity">
 							<div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-							<span className="text-[8px] font-bold text-white/40 uppercase tracking-[0.4em]">
+							<span className="text-[8px] font-bold text-foreground-subtle/70 uppercase tracking-[0.4em]">
 								Interactive Layout Builder
 							</span>
 						</div>
@@ -181,7 +181,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 						<div className="bg-glass-bg-base border border-glass-border-base rounded-3xl p-6">
 							<div className="flex items-center justify-between">
 								<div className="space-y-1">
-									<span className="text-xs font-semibold text-white">
+									<span className="text-xs font-semibold text-foreground">
 										Auto-hide Toolbar
 									</span>
 									<p className="text-[10px] text-foreground-muted leading-relaxed">
@@ -203,7 +203,7 @@ export const LayoutTab: React.FC<LayoutTabProps> = ({
 						<div className="p-6 bg-glass-bg-base border border-glass-border-base rounded-3xl">
 							<div className="flex items-center justify-between gap-10">
 								<div className="space-y-1">
-									<span className="text-xs font-semibold text-white">
+									<span className="text-xs font-semibold text-foreground">
 										Grid Opacity
 									</span>
 									<p className="text-[10px] text-foreground-muted leading-relaxed">

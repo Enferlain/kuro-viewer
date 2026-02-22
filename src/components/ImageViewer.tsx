@@ -151,7 +151,8 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 			<div
 				className="absolute inset-0 opacity-10 pointer-events-none"
 				style={{
-					backgroundImage: "radial-gradient(circle, #333 1px, transparent 1px)",
+					backgroundImage:
+						"radial-gradient(circle, var(--color-border-subtle) 1px, transparent 1px)",
 					backgroundSize: "24px 24px",
 				}}
 			/>
@@ -164,7 +165,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 					opacity: isHidden ? 0 : 1,
 				}}
 			>
-				<div className="relative shadow-2xl">
+				<div className="relative shadow-xl">
 					<img
 						ref={imgRef}
 						src={src}

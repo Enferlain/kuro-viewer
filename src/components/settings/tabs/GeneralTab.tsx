@@ -45,7 +45,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 }) => (
 	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 		<div>
-			<h4 className="text-xl font-bold text-white mb-1">General</h4>
+			<h4 className="text-xl font-bold text-foreground mb-1">General</h4>
 			<p className="text-sm text-foreground-muted">
 				System behavior and core performance settings.
 			</p>
@@ -152,7 +152,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 			<Button
 				type="button"
 				variant="secondary"
-				className="text-red-400 hover:text-red-300 hover:bg-red-400/10 border-red-400/20 text-xs"
+				className="text-destructive hover:text-destructive-hover hover:bg-destructive/10 border-destructive/20 text-xs"
 			>
 				Reset to Factory Defaults
 			</Button>

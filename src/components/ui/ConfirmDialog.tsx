@@ -52,7 +52,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			<div
 				role="dialog"
 				aria-modal="true"
-				className="relative w-full max-w-sm bg-background-elevated border border-glass-border-strong rounded-xl shadow-2xl p-6 animate-in zoom-in-95 fade-in duration-[var(--ui-motion-duration-standard)]"
+				className="relative w-full max-w-sm bg-background-elevated border border-glass-border-strong rounded-xl shadow-xl p-6 animate-in zoom-in-95 fade-in duration-[var(--ui-motion-duration-standard)]"
 			>
 				{/* Close Button */}
 				<button

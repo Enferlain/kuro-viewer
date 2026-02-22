@@ -45,6 +45,15 @@ This is the **Entry Point**. It handles:
 | `bg-glass-bg-base`      | `bg-white/[0.03]` |
 | `border-border-subtle`  | `#ffffff0f`       |
 
+- Avoid arbitrary color/shadow utilities in JSX/TSX (for example `bg-black/40`, `text-white/80`, `shadow-[0_8px_32px_rgba(...)]`).
+- If a visual treatment is reusable and not expressible by existing semantic tokens, add or map a semantic token in `design-system.css` first.
+- This applies to inline style strings too (for example `backgroundImage` gradients): use `var(--color-*)`/semantic tokens instead of raw hex values.
+- Semantic token opacity variants are allowed (for example `ring-accent/30`, `bg-accent/10`, `border-glass-border-base/60`) because they still derive from the semantic token surface.
+- Exception: raw hex values are allowed only for non-presentational data/state (for example user-selected values for `input[type=\"color\"]`), not for utility classes or hardcoded presentational styles.
+
+> [!NOTE]
+> Some current bridge names are semantically redundant (for example `border-glass-border-base`). This is valid today, but tracked as naming ergonomics debt for a future aliasing cleanup pass.
+
 ### 2. OKLCH for Color Ramp Perfection
 
 We use **OKLCH** (`oklch(L C H)`) for our color scales. It is mathematically "perceptually uniform," meaning shifting the Hue (H) preserves the perceived brightness (L).

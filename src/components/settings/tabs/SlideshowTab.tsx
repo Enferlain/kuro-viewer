@@ -47,7 +47,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 }) => (
 	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 		<div>
-			<h4 className="text-xl font-bold text-white mb-1">Slideshow</h4>
+			<h4 className="text-xl font-bold text-foreground mb-1">Slideshow</h4>
 			<p className="text-sm text-foreground-muted">
 				Configure automated playback and custom viewing paths.
 			</p>
@@ -154,7 +154,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 							)}
 							<Button
 								variant="icon"
-								className="text-foreground-muted hover:text-red-400 hover:bg-red-400/10 w-7 h-7"
+								className="text-foreground-muted hover:text-destructive hover:bg-destructive/10 w-7 h-7"
 								onClick={(e) => {
 									e.stopPropagation();
 									setPlaylists(playlists.filter((p) => p.id !== playlist.id));
@@ -169,7 +169,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 				))
 			) : (
 				<div className="p-8 text-center flex flex-col items-center gap-2">
-					<ListVideo size={24} className="text-white/10" />
+					<ListVideo size={24} className="text-foreground-subtle/20" />
 					<p className="text-[11px] text-foreground-muted italic">
 						No custom playlists found.
 					</p>

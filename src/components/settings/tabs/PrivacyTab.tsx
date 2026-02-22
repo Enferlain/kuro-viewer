@@ -14,9 +14,52 @@ import type React from "react";
 import { useState } from "react";
 import { Button } from "../../ui/Button";
 import { ConfirmDialog } from "../../ui/ConfirmDialog";
+import { VirtualizedList } from "../../ui/VirtualizedList";
 import { SettingGroup } from "../ui/SettingGroup";
 import { SettingRow } from "../ui/SettingRow";
 import { SettingToggle } from "../ui/SettingToggle";
+
+const MOCK_ACTIVITY_LOGS = Array.from({ length: 50 }).map((_, i) => ({
+	id: `a${i + 1}`,
+	time: `2026-02-21 0${Math.max(1, 4 - Math.floor(i / 10))}:${(59 - (i % 60)).toString().padStart(2, "0")} PM`,
+	action:
+		i % 3 === 0
+			? "Applied Filter"
+			: i % 3 === 1
+				? "Analyzed Image"
+				: "Opened Folder",
+	detail:
+		i % 3 === 0
+			? "Noise Overlay (Strength: 0.8)"
+			: i % 3 === 1
+				? "004_test_v5_upscaled.png (Dwell: 42s)"
+				: "D:\\Projects\\kuro-viewer\\samples\\ai-renders",
+	iconType: i % 3 === 0 ? "zap" : i % 3 === 1 ? "image" : "folder",
+}));
+
+const ActivityIcon = ({ type }: { type: string }) => {
+	switch (type) {
+		case "zap":
+			return <Zap size={12} className="text-accent" />;
+		case "image":
+			return <FileImage size={12} className="text-accent" />;
+		default:
+			return <FolderOpen size={12} className="text-accent" />;
+	}
+};
+
+const MOCK_CONFIG_LOGS = Array.from({ length: 50 }).map((_, i) => ({
+	id: `c${i + 1}`,
+	time: `2026-02-${(21 - Math.floor(i / 10)).toString().padStart(2, "0")} 0${Math.max(1, 9 - (i % 5))}:00 PM`,
+	setting:
+		i % 3 === 0
+			? "Scroll Wheel Behavior"
+			: i % 3 === 1
+				? "Backdrop Style"
+				: "Thumbnail Cache Limit",
+	oldVal: i % 3 === 0 ? "Zoom In/Out" : i % 3 === 1 ? "None" : "512 MB",
+	newVal: i % 3 === 0 ? "Vertical Pan" : i % 3 === 1 ? "Mica" : "2.0 GB",
+}));
 
 interface PrivacyTabProps {
 	telemetryEnabled: boolean;
@@ -32,10 +75,58 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 	const [autoClearOnExit, setAutoClearOnExit] = useState(false);
 	const [storeFullPaths, setStoreFullPaths] = useState(true);
 	const [crashReportsEnabled, setCrashReportsEnabled] = useState(true);
+
+	const [showMoreActivity, setShowMoreActivity] = useState(false);
+	const [showMoreConfig, setShowMoreConfig] = useState(false);
+
+	const renderActivityLog = (log: (typeof MOCK_ACTIVITY_LOGS)[0]) => (
+		<div key={log.id} className="flex items-start gap-3 py-1.5 pr-2">
+			<div className="mt-0.5 shrink-0 bg-glass-bg-subtle p-1.5 rounded-md border border-glass-border-base">
+				<ActivityIcon type={log.iconType} />
+			</div>
+			<div className="flex flex-col py-0.5 overflow-hidden w-full">
+				<div className="flex items-center justify-between gap-4">
+					<span className="text-xs font-medium text-foreground">
+						{log.action}
+					</span>
+					<span className="text-[10px] text-foreground-muted shrink-0">
+						{log.time}
+					</span>
+				</div>
+				<span className="text-[11px] text-foreground-muted truncate mt-0.5">
+					{log.detail}
+				</span>
+			</div>
+		</div>
+	);
+
+	const renderConfigLog = (log: (typeof MOCK_CONFIG_LOGS)[0]) => (
+		<div
+			key={log.id}
+			className="flex items-center justify-between py-1.5 pr-2 border-b border-glass-border-subtle"
+		>
+			<div className="flex flex-col gap-0.5 min-w-[140px] truncate">
+				<span className="text-xs font-medium text-foreground truncate">
+					{log.setting}
+				</span>
+				<span className="text-[10px] text-foreground-muted">{log.time}</span>
+			</div>
+			<div className="flex items-center gap-2 bg-glass-bg-base px-2 py-1 rounded-md border border-glass-border-base shrink-0">
+				<span className="text-[11px] text-foreground-subtle line-through">
+					{log.oldVal}
+				</span>
+				<ArrowRight size={10} className="text-accent" />
+				<span className="text-[11px] text-foreground font-medium">
+					{log.newVal}
+				</span>
+			</div>
+		</div>
+	);
+
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
-				<h4 className="text-xl font-bold text-white mb-1">Privacy</h4>
+				<h4 className="text-xl font-bold text-foreground mb-1">Privacy</h4>
 				<p className="text-sm text-foreground-muted">
 					History management and anonymous telemetry toggles.
 				</p>
@@ -43,55 +134,24 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 			<SettingGroup title="Activity Log" icon={<Clock size={12} />}>
 				<div className="px-4 py-3 space-y-4">
 					<div className="flex flex-col gap-1">
-						{[
-							{
-								id: "a1",
-								time: "2026-02-21 04:32 PM",
-								action: "Applied Filter",
-								detail: "Noise Overlay (Strength: 0.8)",
-								icon: <Zap size={12} className="text-accent" />,
-							},
-							{
-								id: "a2",
-								time: "2026-02-21 04:15 PM",
-								action: "Analyzed Image",
-								detail: "004_test_v5_upscaled.png (Dwell: 42s)",
-								icon: <FileImage size={12} className="text-accent" />,
-							},
-							{
-								id: "a3",
-								time: "2026-02-21 04:12 PM",
-								action: "Opened Folder",
-								detail: "D:\\Projects\\kuro-viewer\\samples\\ai-renders",
-								icon: <FolderOpen size={12} className="text-accent" />,
-							},
-						].map((log) => (
-							<div key={log.id} className="flex items-start gap-3 py-1.5">
-								<div className="mt-0.5 shrink-0 bg-glass-bg-base/50 p-1.5 rounded-md border border-glass-border-base">
-									{log.icon}
-								</div>
-								<div className="flex flex-col py-0.5 overflow-hidden w-full">
-									<div className="flex items-center justify-between gap-4">
-										<span className="text-xs font-medium text-foreground">
-											{log.action}
-										</span>
-										<span className="text-[10px] text-foreground-muted shrink-0">
-											{log.time}
-										</span>
-									</div>
-									<span className="text-[11px] text-foreground-muted truncate mt-0.5">
-										{log.detail}
-									</span>
-								</div>
-							</div>
-						))}
+						{showMoreActivity ? (
+							<VirtualizedList
+								items={MOCK_ACTIVITY_LOGS}
+								itemHeight={48}
+								visibleCount={10}
+								renderItem={renderActivityLog}
+							/>
+						) : (
+							MOCK_ACTIVITY_LOGS.slice(0, 3).map(renderActivityLog)
+						)}
 					</div>
 					<div className="pt-2 flex items-center justify-between">
 						<Button
 							variant="ghost"
+							onClick={() => setShowMoreActivity(!showMoreActivity)}
 							className="text-xs h-8 px-4 text-accent hover:text-accent-bright"
 						>
-							Show More Activity...
+							{showMoreActivity ? "Show Less" : "Show More..."}
 						</Button>
 						<Button
 							variant="destructive"
@@ -107,65 +167,32 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 			<SettingGroup title="Configuration History" icon={<History size={12} />}>
 				<div className="px-4 py-3 space-y-3">
 					<div className="flex flex-col gap-2">
-						{[
-							{
-								id: "1",
-								time: "2026-02-21 03:20 PM",
-								setting: "Scroll Wheel Behavior",
-								oldVal: "Zoom In/Out",
-								newVal: "Vertical Pan",
-							},
-							{
-								id: "2",
-								time: "2026-02-19 11:45 AM",
-								setting: "Backdrop Style",
-								oldVal: "None",
-								newVal: "Mica",
-							},
-							{
-								id: "3",
-								time: "2026-02-14 09:30 PM",
-								setting: "Thumbnail Cache Limit",
-								oldVal: "512 MB",
-								newVal: "2.0 GB",
-							},
-						].map((log) => (
-							<div
-								key={log.id}
-								className="flex items-center justify-between py-1.5 border-b border-glass-border-subtle last:border-0"
-							>
-								<div className="flex flex-col gap-0.5 min-w-[140px]">
-									<span className="text-xs font-medium text-foreground">
-										{log.setting}
-									</span>
-									<span className="text-[10px] text-foreground-muted">
-										{log.time}
-									</span>
-								</div>
-								<div className="flex items-center gap-2 bg-glass-bg-base px-2 py-1 rounded-md border border-glass-border-base">
-									<span className="text-[11px] text-foreground-muted line-through opacity-70">
-										{log.oldVal}
-									</span>
-									<ArrowRight size={10} className="text-accent" />
-									<span className="text-[11px] text-foreground font-medium">
-										{log.newVal}
-									</span>
-								</div>
-							</div>
-						))}
+						{showMoreConfig ? (
+							<VirtualizedList
+								items={MOCK_CONFIG_LOGS}
+								itemHeight={46}
+								visibleCount={10}
+								renderItem={renderConfigLog}
+								className="-mr-2 pr-2"
+							/>
+						) : (
+							MOCK_CONFIG_LOGS.slice(0, 3).map(renderConfigLog)
+						)}
 					</div>
 					<div className="pt-2 flex items-center justify-between">
 						<Button
 							variant="ghost"
+							onClick={() => setShowMoreConfig(!showMoreConfig)}
 							className="text-xs h-8 px-4 text-accent hover:text-accent-bright"
 						>
-							Show More Results...
+							{showMoreConfig ? "Show Less" : "Show More..."}
 						</Button>
 						<Button
 							variant="destructive"
 							onClick={() => setConfirmConfigOpen(true)}
 							className="text-xs h-8 px-4"
 						>
+							<Trash2 size={12} className="mr-2" />
 							Clear Configuration History
 						</Button>
 					</div>

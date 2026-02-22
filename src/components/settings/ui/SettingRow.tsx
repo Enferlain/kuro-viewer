@@ -17,7 +17,7 @@ export const SettingRow: React.FC<{
 		tabIndex={onClick && !disabled ? 0 : undefined}
 	>
 		<div className="flex flex-col gap-0.5">
-			<span className="text-sm font-medium text-foreground group-hover:text-white transition-colors">
+			<span className="text-sm font-medium text-foreground group-hover:text-foreground-hover transition-colors">
 				{label}
 			</span>
 			{description && (

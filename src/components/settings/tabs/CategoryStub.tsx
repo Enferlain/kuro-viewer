@@ -15,7 +15,9 @@ export const CategoryStub: React.FC<CategoryStubProps> = ({
 		<div className="flex flex-col gap-1">
 			<div className="flex items-center gap-3">
 				{icon && <div className="text-foreground-muted">{icon}</div>}
-				<h4 className="text-xl font-bold text-white tracking-tight">{label}</h4>
+				<h4 className="text-xl font-bold text-foreground tracking-tight">
+					{label}
+				</h4>
 			</div>
 			<p className="text-sm text-foreground-muted">{description}</p>
 		</div>
@@ -25,7 +27,7 @@ export const CategoryStub: React.FC<CategoryStubProps> = ({
 				{icon}
 			</div>
 			<div className="text-center">
-				<p className="text-sm text-white font-medium mb-1">Coming Soon</p>
+				<p className="text-sm text-foreground font-medium mb-1">Coming Soon</p>
 				<p className="text-xs text-foreground-muted max-w-[240px] leading-relaxed">
 					We're working on making this section high-fidelity. Stay tuned for
 					updates!

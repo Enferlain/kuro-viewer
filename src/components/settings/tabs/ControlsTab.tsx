@@ -94,7 +94,7 @@ const KeyRecorder: FC<{
         ${
 					listening
 						? "animate-pulse shadow-glow ring-2 ring-accent"
-						: "border-b-2 border-glass-border-hover bg-glass-bg-hover hover:bg-glass-bg-strong text-white/90 shadow-sm"
+						: "border-b-2 border-glass-border-hover bg-glass-bg-hover hover:bg-glass-bg-strong text-foreground shadow-sm"
 				}
       `}
 			onClick={() => setListening(true)}
@@ -134,7 +134,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
-				<h4 className="text-xl font-bold text-white mb-1">Controls</h4>
+				<h4 className="text-xl font-bold text-foreground mb-1">Controls</h4>
 				<p className="text-sm text-foreground-muted">
 					Customize mouse behavior and keyboard shortcuts.
 				</p>
@@ -221,7 +221,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 				<div className="py-2 flex justify-center border-t border-glass-border-subtle">
 					<Button
 						variant="secondary"
-						className="text-[11px] h-8 px-4 text-foreground-muted hover:text-white border-glass-border-subtle hover:bg-glass-bg-hover transition-[background-color,color,border-color] duration-[var(--ui-motion-duration-standard)]"
+						className="text-[11px] h-8 px-4 text-foreground-muted hover:text-foreground-hover border-glass-border-subtle hover:bg-glass-bg-hover transition-[background-color,color,border-color] duration-[var(--ui-motion-duration-standard)]"
 						onClick={() => {
 							// Reset logic would go here
 						}}

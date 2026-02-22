@@ -358,7 +358,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
 			<div
 				className={`
-	          relative bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex
+	          relative bg-background-deep border border-glass-border-strong rounded-2xl shadow-xl overflow-hidden flex
 	          transform transition-[transform,opacity] ease-[var(--ease-decelerate)] transform-gpu
 	          ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
 	          ${isResizing ? "duration-[var(--ui-motion-duration-instant)] transition-none select-none" : "duration-[var(--ui-motion-duration-slow)]"}
@@ -371,7 +371,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 				{/* Sidebar Navigation */}
 				<div className="w-[240px] flex-none border-r border-glass-border-base bg-glass-bg-base flex flex-col">
 					<div className="p-6">
-						<h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+						<h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
 							Settings
 						</h3>
 					</div>
@@ -385,7 +385,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 								className={[
 									"w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-[transform,background-color,color,box-shadow] duration-[var(--ui-motion-duration-standard)] group",
 									activeCategory === cat.id
-										? "bg-accent text-white shadow-glow translate-x-1"
+										? "bg-accent text-accent-foreground shadow-glow translate-x-1"
 										: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-base",
 								].join(" ")}
 							>
@@ -411,7 +411,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 							<span className="text-[10px] text-foreground-muted font-bold uppercase tracking-widest">
 								Kuro Viewer
 							</span>
-							<span className="text-[10px] text-white/20">
+							<span className="text-[10px] text-foreground-subtle/60">
 								Version 0.4.2-alpha
 							</span>
 						</div>
@@ -424,7 +424,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						<button
 							type="button"
 							onClick={onClose}
-							className="p-2 rounded-xl text-foreground-muted hover:text-white hover:bg-glass-bg-hover transition-[background-color,color] duration-[var(--ui-motion-duration-standard)]"
+							className="p-2 rounded-xl text-foreground-muted hover:text-foreground-hover hover:bg-glass-bg-hover transition-[background-color,color] duration-[var(--ui-motion-duration-standard)]"
 						>
 							<X size={18} />
 						</button>

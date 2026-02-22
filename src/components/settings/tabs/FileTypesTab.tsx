@@ -38,7 +38,7 @@ export const FileTypesTab: React.FC<FileTypesTabProps> = ({
 	return (
 		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 			<div>
-				<h4 className="text-xl font-bold text-white mb-1">File Types</h4>
+				<h4 className="text-xl font-bold text-foreground mb-1">File Types</h4>
 				<p className="text-sm text-foreground-muted">
 					Manage system-level extensions and default opener associations.
 				</p>
@@ -57,7 +57,7 @@ export const FileTypesTab: React.FC<FileTypesTabProps> = ({
 								</span>
 								<button
 									type="button"
-									className="text-foreground-muted hover:text-red-400 cursor-pointer transition-colors"
+									className="text-foreground-muted hover:text-destructive cursor-pointer transition-colors"
 									onClick={() => removeExt(ext)}
 									aria-label={`Remove ${ext}`}
 								>

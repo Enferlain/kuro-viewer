@@ -124,7 +124,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 			{/* Modal Window */}
 			<div
 				className={`
-          relative w-full max-w-2xl h-[85vh] bg-background-deep border border-glass-border-strong rounded-2xl shadow-2xl overflow-hidden flex flex-col
+          relative w-full max-w-2xl h-[85vh] bg-background-deep border border-glass-border-strong rounded-2xl shadow-xl overflow-hidden flex flex-col
 	          transform transition-[transform,opacity] duration-[var(--ui-motion-duration-slow)] ease-[var(--ease-decelerate)]
           ${isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"}
         `}
@@ -211,7 +211,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 										{group.entries.map((entry, idx) => (
 											<div
 												key={`${group.id}-${entry.key}-${idx}`}
-												className="flex flex-col sm:flex-row bg-[#0a0a0c] group/row relative"
+												className="flex flex-col sm:flex-row bg-background-deep group/row relative"
 											>
 												{/* Key Column */}
 												<div className="w-full sm:w-48 p-3 sm:py-2 sm:px-4 bg-glass-bg-subtle border-b sm:border-b-0 sm:border-r border-glass-border-subtle flex items-center">
@@ -229,7 +229,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 													</div>
 
 													{/* Copy Action (Visible on Hover) */}
-													<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 transition-opacity bg-[#0a0a0c] shadow-xl rounded-md">
+													<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 transition-opacity bg-background-deep shadow-xl rounded-md">
 														<Button
 															variant="icon"
 															className="h-7 w-7"

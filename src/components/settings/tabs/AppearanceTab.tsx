@@ -20,6 +20,15 @@ interface AppearanceTabProps {
 	setAccentColor: (val: string) => void;
 }
 
+const ACCENT_SWATCHES = [
+	{ value: "#3b82f6", swatchClass: "bg-status-info" },
+	{ value: "#8b5cf6", swatchClass: "bg-accent-bright" },
+	{ value: "#ec4899", swatchClass: "bg-accent-active" },
+	{ value: "#f43f5e", swatchClass: "bg-destructive" },
+	{ value: "#f59e0b", swatchClass: "bg-status-warning" },
+	{ value: "#10b981", swatchClass: "bg-status-success" },
+] as const;
+
 export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 	theme,
 	setTheme,
@@ -34,7 +43,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 }) => (
 	<div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--ui-motion-duration-slow)]">
 		<div>
-			<h4 className="text-xl font-bold text-white mb-1">Appearance</h4>
+			<h4 className="text-xl font-bold text-foreground mb-1">Appearance</h4>
 			<p className="text-sm text-foreground-muted">
 				Personalize the look and feel of your viewer.
 			</p>
@@ -55,7 +64,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 	                py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-[background-color,color,box-shadow] duration-[var(--ui-motion-duration-standard)]
                 ${
 									theme === t
-										? "bg-accent text-white shadow-glow"
+										? "bg-accent text-accent-foreground shadow-glow"
 										: "text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover"
 								}
               `}
@@ -98,7 +107,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 							)}
 							<Button
 								variant="icon"
-								className="text-foreground-muted hover:text-red-400 hover:bg-red-400/10 w-7 h-7"
+								className="text-foreground-muted hover:text-destructive hover:bg-destructive/10 w-7 h-7"
 								onClick={(e) => {
 									e.stopPropagation();
 									setCustomThemes(
@@ -114,7 +123,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 				))
 			) : (
 				<div className="p-8 text-center flex flex-col items-center gap-2">
-					<Puzzle size={24} className="text-white/10" />
+					<Puzzle size={24} className="text-foreground-subtle/20" />
 					<p className="text-[11px] text-foreground-muted italic">
 						No custom themes installed.
 					</p>
@@ -168,23 +177,15 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 				description="Choose the primary highlight color used throughout the interface."
 			>
 				<div className="flex items-center gap-2">
-					{[
-						"#3b82f6", // Blue
-						"#8b5cf6", // Violet
-						"#ec4899", // Pink
-						"#f43f5e", // Rose
-						"#f59e0b", // Amber
-						"#10b981", // Emerald
-					].map((color) => (
+					{ACCENT_SWATCHES.map((swatch) => (
 						<button
 							type="button"
-							key={color}
-							onClick={() => setAccentColor(color)}
+							key={swatch.value}
+							onClick={() => setAccentColor(swatch.value)}
 							className={`
-	                w-6 h-6 rounded-full transition-[transform,border-color,box-shadow] duration-[var(--ui-motion-duration-standard)] border-2
-                ${accentColor === color ? "border-white scale-110 shadow-glow" : "border-transparent hover:scale-105"}
+	                w-6 h-6 rounded-full transition-[transform,border-color,box-shadow] duration-[var(--ui-motion-duration-standard)] border-2 ${swatch.swatchClass}
+                ${accentColor === swatch.value ? "border-foreground-hover scale-110 shadow-glow" : "border-transparent hover:scale-105"}
               `}
-							style={{ backgroundColor: color }}
 						/>
 					))}
 					<div className="w-px h-4 bg-glass-border-strong mx-1" />
