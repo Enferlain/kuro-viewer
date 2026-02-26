@@ -200,6 +200,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
 			</SettingGroup>
 			<SettingGroup title="Telemetry" icon={<ShieldAlert size={12} />}>
 				<SettingRow
+					id="privacy-telemetry"
 					label="Anonymous Usage Statistics"
 					description="Help improve Kuro Viewer by sending anonymous crash reports and basic usage metrics."
 				>

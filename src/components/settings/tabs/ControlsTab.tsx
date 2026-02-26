@@ -142,6 +142,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 
 			<SettingGroup title="Mouse & Scroll" icon={<MousePointer2 size={12} />}>
 				<SettingRow
+					id="controls-scroll"
 					label="Primary Scroll Wheel"
 					description="Default behavior when turning the mouse wheel."
 				>
@@ -154,6 +155,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 				</SettingRow>
 
 				<SettingRow
+					id="controls-middle"
 					label="Middle Click"
 					description="Action performed when pressing the scroll wheel button."
 				>
@@ -166,6 +168,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 				</SettingRow>
 
 				<SettingRow
+					id="controls-invert"
 					label="Invert Scroll Direction"
 					description="Reverses the up/down logic for zooming and scrolling."
 				>
@@ -175,6 +178,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 
 			<SettingGroup title="Modifiers" icon={<Shuffle size={12} />}>
 				<SettingRow
+					id="controls-ctrl"
 					label="Ctrl + Scroll"
 					description="Behavior when holding Ctrl while scrolling."
 				>
@@ -186,6 +190,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 					/>
 				</SettingRow>
 				<SettingRow
+					id="controls-shift"
 					label="Shift + Scroll"
 					description="Behavior when holding Shift while scrolling."
 				>
@@ -197,6 +202,7 @@ export const ControlsTab: FC<ControlsTabProps> = ({
 					/>
 				</SettingRow>
 				<SettingRow
+					id="controls-space"
 					label="Spacebar"
 					description="Action bound to the Spacebar key by default."
 				>

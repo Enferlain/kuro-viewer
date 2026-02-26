@@ -55,6 +55,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 
 		<SettingGroup title="Auto-Play" icon={<Play size={12} />}>
 			<SettingRow
+				id="slideshow-enable"
 				label="Enable Slideshow"
 				description="Automatically cycle through images in the current folder or playlist."
 			>
@@ -65,6 +66,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 			</SettingRow>
 
 			<SettingRow
+				id="slideshow-interval"
 				label="Interval Duration"
 				description="How long each image stays on screen before transitioning."
 				disabled={!slideshowEnabled}
@@ -84,6 +86,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 			</SettingRow>
 
 			<SettingRow
+				id="slideshow-loop"
 				label="Loop Playback"
 				description="Restart from the beginning once the end of the list is reached."
 				disabled={!slideshowEnabled}
@@ -92,6 +95,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 			</SettingRow>
 
 			<SettingRow
+				id="slideshow-shuffle"
 				label="Shuffle Order"
 				description="Randomize the playback order instead of sequential navigation."
 				disabled={!slideshowEnabled}
@@ -105,6 +109,7 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 
 		<SettingGroup title="Transitions" icon={<Sparkles size={12} />}>
 			<SettingRow
+				id="slideshow-transition"
 				label="Transition Style"
 				description="Animation effect used when switching between images."
 			>
@@ -124,57 +129,59 @@ export const SlideshowTab: React.FC<SlideshowTabProps> = ({
 		</SettingGroup>
 
 		<SettingGroup title="Playlists" icon={<ListVideo size={12} />}>
-			{playlists.length > 0 ? (
-				playlists.map((playlist) => (
-					<SettingRow
-						key={playlist.id}
-						label={playlist.name}
-						description={`${playlist.itemCount} items`}
-						onClick={() => setActivePlaylistId(playlist.id)}
-					>
-						<div className="flex items-center gap-2">
-							{activePlaylistId === playlist.id ? (
-								<div className="flex items-center gap-2 px-2 py-1 bg-accent/10 border border-accent/20 rounded-md">
-									<div className="w-1 h-1 rounded-full bg-accent animate-pulse" />
-									<span className="text-[10px] font-bold text-accent uppercase tracking-widest">
-										Active
-									</span>
-								</div>
-							) : (
+			<div id="slideshow-playlist">
+				{playlists.length > 0 ? (
+					playlists.map((playlist) => (
+						<SettingRow
+							key={playlist.id}
+							label={playlist.name}
+							description={`${playlist.itemCount} items`}
+							onClick={() => setActivePlaylistId(playlist.id)}
+						>
+							<div className="flex items-center gap-2">
+								{activePlaylistId === playlist.id ? (
+									<div className="flex items-center gap-2 px-2 py-1 bg-accent/10 border border-accent/20 rounded-md">
+										<div className="w-1 h-1 rounded-full bg-accent animate-pulse" />
+										<span className="text-[10px] font-bold text-accent uppercase tracking-widest">
+											Active
+										</span>
+									</div>
+								) : (
+									<Button
+										variant="secondary"
+										className="text-[10px] h-7 px-3 border-glass-border-subtle"
+										onClick={(e) => {
+											e.stopPropagation();
+											setActivePlaylistId(playlist.id);
+										}}
+									>
+										Play
+									</Button>
+								)}
 								<Button
-									variant="secondary"
-									className="text-[10px] h-7 px-3 border-glass-border-subtle"
+									variant="icon"
+									className="text-foreground-muted hover:text-destructive hover:bg-destructive/10 w-7 h-7"
 									onClick={(e) => {
 										e.stopPropagation();
-										setActivePlaylistId(playlist.id);
+										setPlaylists(playlists.filter((p) => p.id !== playlist.id));
+										if (activePlaylistId === playlist.id)
+											setActivePlaylistId(null);
 									}}
 								>
-									Play
+									<Trash2 size={14} />
 								</Button>
-							)}
-							<Button
-								variant="icon"
-								className="text-foreground-muted hover:text-destructive hover:bg-destructive/10 w-7 h-7"
-								onClick={(e) => {
-									e.stopPropagation();
-									setPlaylists(playlists.filter((p) => p.id !== playlist.id));
-									if (activePlaylistId === playlist.id)
-										setActivePlaylistId(null);
-								}}
-							>
-								<Trash2 size={14} />
-							</Button>
-						</div>
-					</SettingRow>
-				))
-			) : (
-				<div className="p-8 text-center flex flex-col items-center gap-2">
-					<ListVideo size={24} className="text-foreground-subtle/20" />
-					<p className="text-[11px] text-foreground-muted italic">
-						No custom playlists found.
-					</p>
-				</div>
-			)}
+							</div>
+						</SettingRow>
+					))
+				) : (
+					<div className="p-8 text-center flex flex-col items-center gap-2">
+						<ListVideo size={24} className="text-foreground-subtle/20" />
+						<p className="text-[11px] text-foreground-muted italic">
+							No custom playlists found.
+						</p>
+					</div>
+				)}
+			</div>
 			<div className="p-3 border-t border-glass-border-subtle">
 				<Button
 					variant="secondary"

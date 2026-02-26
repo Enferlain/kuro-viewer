@@ -43,6 +43,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
 
 		<SettingGroup title="Language Preferences" icon={<Globe size={12} />}>
 			<SettingRow
+				id="language-display"
 				label="Display Language"
 				description="Primary language for the application interface."
 			>
@@ -62,6 +63,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
 				/>
 			</SettingRow>
 			<SettingRow
+				id="language-fallback"
 				label="Fallback Language"
 				description="Language to use if translations are missing in your primary language."
 			>
@@ -79,6 +81,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
 
 		<SettingGroup title="Regional Formats" icon={<Clock size={12} />}>
 			<SettingRow
+				id="language-date"
 				label="Date Format"
 				description="Format used for file modification dates and metadata."
 			>
@@ -93,18 +96,21 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
 					]}
 				/>
 			</SettingRow>
-			<SettingRow label="Time Format" description="Display format for times.">
-				<Dropdown
-					value={timeFormat}
-					onChange={(val) => setTimeFormat(val as string)}
-					className="min-w-[160px]"
-					options={[
-						{ label: "12-hour (1:30 PM)", value: "12h" },
-						{ label: "24-hour (13:30)", value: "24h" },
-					]}
-				/>
-			</SettingRow>
+			<div id="language-time">
+				<SettingRow label="Time Format" description="Display format for times.">
+					<Dropdown
+						value={timeFormat}
+						onChange={(val) => setTimeFormat(val as string)}
+						className="min-w-[160px]"
+						options={[
+							{ label: "12-hour (1:30 PM)", value: "12h" },
+							{ label: "24-hour (13:30)", value: "24h" },
+						]}
+					/>
+				</SettingRow>
+			</div>
 			<SettingRow
+				id="language-firstday"
 				label="First Day of Week"
 				description="Starting day for calendar views."
 			>

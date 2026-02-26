@@ -72,12 +72,14 @@ export const EditTab: React.FC<EditTabProps> = ({
 
 		<SettingGroup title="File Operations" icon={<AlertTriangle size={12} />}>
 			<SettingRow
+				id="edit-confirm-delete"
 				label="Confirm on Delete"
 				description="Require confirmation before moving files to the trash."
 			>
 				<SettingToggle checked={confirmDelete} onChange={setConfirmDelete} />
 			</SettingRow>
 			<SettingRow
+				id="edit-confirm-overwrite"
 				label="Confirm on Overwrite"
 				description="Require confirmation before saving over an existing image."
 			>
@@ -90,6 +92,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 
 		<SettingGroup title="Save Behavior" icon={<Save size={12} />}>
 			<SettingRow
+				id="edit-default-save"
 				label="Default Save Action"
 				description="Action triggered when saving via hotkey or the primary button."
 			>
@@ -105,6 +108,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 				/>
 			</SettingRow>
 			<SettingRow
+				id="edit-metadata"
 				label="Preserve Metadata"
 				description="Keep EXIF and other embedded metadata when saving modified images."
 			>
@@ -114,6 +118,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 				/>
 			</SettingRow>
 			<SettingRow
+				id="edit-contextual"
 				label="Contextual 'Save As'"
 				description="Always open the Save Dialog in the current image's folder."
 			>
@@ -126,6 +131,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 
 		<SettingGroup title="Core Edit (Crop)" icon={<Target size={12} />}>
 			<SettingRow
+				id="edit-crop-grid"
 				label="Crop Grid Overlay"
 				description="Default overlay shown during crop commands."
 			>
@@ -142,6 +148,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 				/>
 			</SettingRow>
 			<SettingRow
+				id="edit-crop-aspect"
 				label="Preserve Aspect Ratio"
 				description="Lock crop handles to the source image's original ratio by default."
 			>
@@ -157,6 +164,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 			icon={<ClipboardPaste size={12} />}
 		>
 			<SettingRow
+				id="edit-paste"
 				label="Enable Image Pasting"
 				description="Paste copied images (Ctrl+V) directly into the viewer."
 			>
@@ -166,6 +174,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 				/>
 			</SettingRow>
 			<SettingRow
+				id="edit-multi"
 				label="Multi-File Selection"
 				description="Allow selecting multiple items in the gallery or grid for bulk operations."
 			>
@@ -178,6 +187,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 
 		<SettingGroup title="External Editors" icon={<ExternalLink size={12} />}>
 			<SettingRow
+				id="edit-primary-app"
 				label="Primary Application"
 				description="Default app used for 'Edit in...' actions (e.g., Photoshop.exe)."
 			>
@@ -199,6 +209,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 				</div>
 			</SettingRow>
 			<SettingRow
+				id="edit-secondary-app"
 				label="Secondary Application"
 				description="Optional backup editor (e.g., GIMP, MS Paint)."
 			>

@@ -97,8 +97,9 @@ export const FileTypesTab: React.FC<FileTypesTabProps> = ({
 
 			<SettingGroup title="System" icon={<Settings2 size={12} />}>
 				<SettingRow
-					label="Register as Windows Default Viewer"
-					description="Set Kuro Viewer as the default application for all registered image formats in Windows Settings."
+					id="filetypes-associations"
+					label="Register as Default Viewer"
+					description="Set Kuro Viewer as the default application for all registered image formats."
 				>
 					<Button variant="secondary" className="text-xs h-8 px-4">
 						Open System Settings

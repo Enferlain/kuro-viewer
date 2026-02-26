@@ -153,8 +153,9 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 
 		<SettingGroup title="Window Effects" icon={<Monitor size={12} />}>
 			<SettingRow
+				id="appearance-backdrop"
 				label="Backdrop Style"
-				description="Windows 11 system transparency effects for the application window."
+				description="System transparency effects for the application window."
 			>
 				<Dropdown
 					value={backdropStyle}
@@ -173,6 +174,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 
 		<SettingGroup title="Colors" icon={<Palette size={12} />}>
 			<SettingRow
+				id="appearance-accent"
 				label="Accent Color"
 				description="Choose the primary highlight color used throughout the interface."
 			>

@@ -53,18 +53,21 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 
 		<SettingGroup title="System" icon={<Monitor size={12} />}>
 			<SettingRow
+				id="general-startup"
 				label="Launch on Startup"
-				description="Automatically run Kuro Viewer when you log into Windows."
+				description="Automatically run Kuro Viewer when you log in."
 			>
 				<SettingToggle checked={startupRun} onChange={setStartupRun} />
 			</SettingRow>
 			<SettingRow
+				id="general-update"
 				label="Auto-Update"
 				description="Keep the viewer up to date with the latest features and security fixes."
 			>
 				<SettingToggle checked={checkUpdates} onChange={setCheckUpdates} />
 			</SettingRow>
 			<SettingRow
+				id="general-instances"
 				label="Allow Multiple Instances"
 				description="Open images in new windows instead of replacing the current one."
 			>
@@ -74,12 +77,14 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 
 		<SettingGroup title="Files & Monitoring" icon={<Eye size={12} />}>
 			<SettingRow
+				id="general-watch"
 				label="Watch for Changes"
 				description="Real-time monitoring of the current folder. Refreshes list when files are added or removed."
 			>
 				<SettingToggle checked={watchChanges} onChange={setWatchChanges} />
 			</SettingRow>
 			<SettingRow
+				id="general-autoopen"
 				label="Auto-Open New Images"
 				description="Automatically switch to the newest image when it's added to the folder (useful for AI generation)."
 			>
@@ -89,18 +94,21 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 
 		<SettingGroup title="Performance" icon={<Zap size={12} />}>
 			<SettingRow
+				id="general-gpu"
 				label="Hardware Acceleration"
 				description="Use the GPU for image decoding and filter processing. Improves pan/zoom smoothness."
 			>
 				<SettingToggle checked={gpuEnabled} onChange={setGpuEnabled} />
 			</SettingRow>
 			<SettingRow
+				id="general-lowpower"
 				label="Low Power Mode"
 				description="Reduce animation frame rates and background indexing priority to save battery."
 			>
 				<SettingToggle checked={lowPower} onChange={setLowPower} />
 			</SettingRow>
 			<SettingRow
+				id="general-cache"
 				label="Thumbnail Cache Limit"
 				description="Maximum disk space allocated for image previews."
 			>
@@ -128,6 +136,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 
 		<SettingGroup title="Data Management" icon={<Database size={12} />}>
 			<SettingRow
+				id="general-export"
 				label="Export Settings"
 				description="Save your current configuration to a file."
 			>
@@ -136,6 +145,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 				</Button>
 			</SettingRow>
 			<SettingRow
+				id="general-import"
 				label="Import Settings"
 				description="Load a previously saved configuration file."
 			>

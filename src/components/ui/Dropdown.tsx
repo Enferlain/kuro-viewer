@@ -72,7 +72,7 @@ export function Dropdown<T extends string | number>({
 
 			{isOpen && (
 				<div
-					className={`absolute z-[var(--ui-layer-overlay)] top-full left-0 mt-1 w-full max-h-60 overflow-y-auto bg-overlay-blur backdrop-blur-xl border border-glass-border-base rounded-xl shadow-xl py-1 animate-in fade-in zoom-in-95 duration-[var(--ui-motion-duration-standard)] ${listClassName}`}
+					className={`absolute z-[var(--ui-layer-overlay)] top-full left-0 mt-1 w-full max-h-60 overflow-y-auto overflow-x-hidden bg-overlay-blur backdrop-blur-xl border border-glass-border-base rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-[var(--ui-motion-duration-standard)] ${listClassName}`}
 				>
 					{options.map((opt) => (
 						<button

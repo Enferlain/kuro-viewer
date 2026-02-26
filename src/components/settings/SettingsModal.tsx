@@ -17,6 +17,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Keybind, MouseAction } from "../../types";
 import { Button } from "../ui/Button";
+import { SettingsSearch } from "./SettingsSearch";
 import { AppearanceTab } from "./tabs/AppearanceTab";
 import { CategoryStub } from "./tabs/CategoryStub";
 import { ContentTab } from "./tabs/ContentTab";
@@ -491,6 +492,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		}
 	};
 
+	const handleSearchSelect = (category: SettingCategory, elementId: string) => {
+		setActiveCategory(category);
+
+		// Yield execution so the new tab renders before we attempt scrolling
+		setTimeout(() => {
+			const target = document.getElementById(elementId);
+			if (target) {
+				target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+				// Pulse animation mechanism
+				target.setAttribute("data-highlight", "true");
+				setTimeout(() => target.removeAttribute("data-highlight"), 1500);
+			}
+		}, 150);
+	};
+
 	return (
 		<div
 			className={`
@@ -569,7 +586,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
 				{/* Content Area */}
 				<div className="flex-1 flex flex-col min-w-0">
-					<div className="flex-none flex justify-end p-4">
+					<div className="flex-none flex justify-between items-center px-10 py-5">
+						<SettingsSearch onSelect={handleSearchSelect} />
 						<button
 							type="button"
 							onClick={onClose}
@@ -580,19 +598,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					</div>
 
 					{/* Scrollable Content */}
-					<div className="flex-1 overflow-y-auto px-10 pb-10 custom-scrollbar">
+					<div className="flex-1 overflow-y-auto px-10 pb-6 custom-scrollbar scroll-smooth">
 						{renderContent()}
 					</div>
 
 					<div className="flex-none px-10 py-4 border-t border-glass-border-base bg-glass-bg-base flex justify-end gap-3 items-center">
-						<Button variant="secondary" onClick={onClose} className="px-6">
+						<Button variant="secondary" onClick={onClose} className="px-6 h-9">
 							Cancel
 						</Button>
 						<Button
 							variant="primary"
 							onClick={handleApply}
 							disabled={!hasChanges}
-							className={`px-8 transition-[opacity,box-shadow,transform] duration-[var(--ui-motion-duration-standard)] 
+							className={`px-8 h-9 transition-[opacity,box-shadow,transform] duration-[var(--ui-motion-duration-standard)] 
 								${hasChanges ? "shadow-glow opacity-100" : "opacity-40 cursor-not-allowed shadow-none"}`}
 						>
 							Apply Changes

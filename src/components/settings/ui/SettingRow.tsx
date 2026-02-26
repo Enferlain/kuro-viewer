@@ -1,14 +1,19 @@
 import type React from "react";
 
 export const SettingRow: React.FC<{
+	id?: string;
 	label: string;
 	description?: string;
 	disabled?: boolean;
 	children: React.ReactNode;
 	onClick?: () => void;
-}> = ({ label, description, disabled, children, onClick }) => (
+}> = ({ id, label, description, disabled, children, onClick }) => (
 	<section
-		className={`flex items-center justify-between p-4 group transition-[background-color,opacity,filter] duration-[var(--ui-motion-duration-standard)] ${onClick && !disabled ? "cursor-pointer hover:bg-glass-bg-base" : ""} ${disabled ? "opacity-50 pointer-events-none grayscale-50" : ""}`}
+		id={id}
+		className={`flex items-center justify-between p-4 group transition-[background-color,opacity,filter,box-shadow,transform] duration-(--ui-motion-duration-standard)
+			${onClick && !disabled ? "cursor-pointer hover:bg-glass-bg-base" : ""} 
+			${disabled ? "opacity-50 pointer-events-none grayscale-50" : ""}
+			data-[highlight=true]:bg-accent/10 data-[highlight=true]:shadow-glow data-[highlight=true]:border data-[highlight=true]:border-accent/40 data-[highlight=true]:rounded-xl data-[highlight=true]:scale-[1.01]`}
 		onClick={disabled ? undefined : onClick}
 		onKeyDown={(e) =>
 			!disabled && onClick && (e.key === "Enter" || e.key === " ") && onClick()
