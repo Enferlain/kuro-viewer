@@ -21,6 +21,7 @@ import { AppearanceTab } from "./tabs/AppearanceTab";
 import { CategoryStub } from "./tabs/CategoryStub";
 import { ContentTab } from "./tabs/ContentTab";
 import { ControlsTab } from "./tabs/ControlsTab";
+import { EditTab } from "./tabs/EditTab";
 import { FileTypesTab } from "./tabs/FileTypesTab";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { LanguageTab } from "./tabs/LanguageTab";
@@ -175,6 +176,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [firstDayOfWeek, setFirstDayOfWeek] = useState("0");
 	const [numberFormat, setNumberFormat] = useState("dot");
 
+	// Edit & Flow
+	const [confirmDelete, setConfirmDelete] = useState(true);
+	const [confirmOverwrite, setConfirmOverwrite] = useState(true);
+	const [defaultSaveBehavior, setDefaultSaveBehavior] = useState("save_as");
+	const [preserveMetadata, setPreserveMetadata] = useState(true);
+	const [saveAsCurrentFolder, setSaveAsCurrentFolder] = useState(true);
+	const [enableClipboardPasting, setEnableClipboardPasting] = useState(true);
+	const [multiFileSelection, setMultiFileSelection] = useState(false);
+	const [primaryEditorPath, setPrimaryEditorPath] = useState("");
+	const [secondaryEditorPath, setSecondaryEditorPath] = useState("");
+	const [cropGridType, setCropGridType] = useState("thirds");
+	const [preserveCropAspectRatio, setPreserveCropAspectRatio] = useState(true);
+
 	// --- CHANGE TRACKING ---
 	// We snapshot the state when the modal opens to enable/disable the Apply button.
 	const initialStateRef = useRef<Record<string, unknown>>({});
@@ -226,6 +240,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		timeFormat,
 		firstDayOfWeek,
 		numberFormat,
+		confirmDelete,
+		confirmOverwrite,
+		defaultSaveBehavior,
+		preserveMetadata,
+		saveAsCurrentFolder,
+		enableClipboardPasting,
+		multiFileSelection,
+		primaryEditorPath,
+		secondaryEditorPath,
+		cropGridType,
+		preserveCropAspectRatio,
 	};
 
 	// Determine if anything was actually modified
@@ -424,6 +449,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						setFirstDayOfWeek={setFirstDayOfWeek}
 						numberFormat={numberFormat}
 						setNumberFormat={setNumberFormat}
+					/>
+				);
+			case "edit":
+				return (
+					<EditTab
+						confirmDelete={confirmDelete}
+						setConfirmDelete={setConfirmDelete}
+						confirmOverwrite={confirmOverwrite}
+						setConfirmOverwrite={setConfirmOverwrite}
+						defaultSaveBehavior={defaultSaveBehavior}
+						setDefaultSaveBehavior={setDefaultSaveBehavior}
+						preserveMetadata={preserveMetadata}
+						setPreserveMetadata={setPreserveMetadata}
+						saveAsCurrentFolder={saveAsCurrentFolder}
+						setSaveAsCurrentFolder={setSaveAsCurrentFolder}
+						enableClipboardPasting={enableClipboardPasting}
+						setEnableClipboardPasting={setEnableClipboardPasting}
+						multiFileSelection={multiFileSelection}
+						setMultiFileSelection={setMultiFileSelection}
+						primaryEditorPath={primaryEditorPath}
+						setPrimaryEditorPath={setPrimaryEditorPath}
+						secondaryEditorPath={secondaryEditorPath}
+						setSecondaryEditorPath={setSecondaryEditorPath}
+						cropGridType={cropGridType}
+						setCropGridType={setCropGridType}
+						preserveCropAspectRatio={preserveCropAspectRatio}
+						setPreserveCropAspectRatio={setPreserveCropAspectRatio}
 					/>
 				);
 			default: {
