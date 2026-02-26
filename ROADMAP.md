@@ -30,18 +30,42 @@ Also keep in mind function scope and file organization in the repo. The script m
 - **[x] File Types**: System-level extension associations and default opener settings.
 - **[x] Content**: Library monitoring paths and metadata deep-scanning (CLIP semantic search).
 - **[x] Privacy**: History management and anonymous telemetry toggles.
+- **[ ] Language**: Localization preferences, locale fallback behavior, and date/number formatting rules.
+- **[ ] Edit**: Core edit entry points for crop/save/caption workflows.
+- **[ ] Plugins**: Plugin discovery and management surface.
+- **[ ] Persistence Wiring**: Apply/save/load lifecycle for settings and real Export/Import behavior.
 
-## ⚡ Performance & Forensics
+## ✂️ Core Edit MVP (Default Experience)
+
+The default app should provide quick, non-destructive edits without requiring plugins.
+
+- **[ ] Non-destructive Crop**: Crop geometry stored in sidecar/state first, with reversible behavior.
+- **[ ] Save Flows**: `Save As`, `Save Copy`, and `Copy to Clipboard` (no destructive overwrite by default).
+- **[ ] Caption/Notes Baseline**: Lightweight notes persisted via sidecar schema.
+
+## 🔌 Plugin Foundation
+
+Forensics and advanced editing should build on a stable plugin host contract.
+
+- **[ ] Plugin API Surface**: Tab registration, command/hotkey hooks, and UI mount points.
+- **[ ] Theme Contract Enforcement**: Namespace + fallback guarantees for plugin tokens (`--plugin-<id>-*`).
+- **[ ] Internal Reference Plugin**: Ship one sample plugin to validate lifecycle and UI integration.
+
+## ⚡ Performance & Plugin Forensics
 
 - **[ ] Thumbnail Pre-generation**: Rust background job to pre-cache thumbnails using WebP.
-- **[ ] GPU Decoding**: Leverage `opencv` & `ndarray` crates for 120Hz smooth pan/zoom.
-- **[ ] Forensic Comparison**:
-  - Synced Multi-View (Locked zoom/pan).
-  - Rapid Flicker Comparison (Hotkey toggle).
-  - Image Subtraction / Difference Overlays.
+- **[ ] List Virtualization Hardening**: Stress test and stabilize large-library behavior (selection sync, scroll consistency).
+- **[ ] GPU Decoding**: Leverage `opencv` & `ndarray` crates for high refresh rate smooth pan/zoom.
+- **[ ] Forensics Plugin (Optional, Non-Default Experience)**:
+  - Side-by-side synced multi-view (locked zoom/pan).
+  - Rapid flicker comparison (hotkey toggle).
+  - Difference overlays / image subtraction.
 
 ## 📂 UX & Organization
 
 - **[ ] Sidecar Support**: Non-destructive edits saved in `.json` or `.xmp` files.
 - **[ ] Prompt List Virtualization**: Handle 100,000+ files instantly using `react-virtuoso`.
 - **[ ] Embedding Search**: Local CLIP model for searching images by natural language descriptions.
+- **[ ] Frontend Runtime Adapters**: Route file/system behavior through portable adapters for Tauri migration.
+- **[ ] Sidecar Schema Stability**: Define versioning + migration policy for long-term compatibility.
+- **[ ] Rust Parity Plan**: Map current Python analysis/edit pipelines to Rust equivalents with phased cutover.

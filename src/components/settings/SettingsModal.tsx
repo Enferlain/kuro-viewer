@@ -23,6 +23,7 @@ import { ContentTab } from "./tabs/ContentTab";
 import { ControlsTab } from "./tabs/ControlsTab";
 import { FileTypesTab } from "./tabs/FileTypesTab";
 import { GeneralTab } from "./tabs/GeneralTab";
+import { LanguageTab } from "./tabs/LanguageTab";
 import { LayoutTab } from "./tabs/LayoutTab";
 import { PrivacyTab } from "./tabs/PrivacyTab";
 import { type Playlist, SlideshowTab } from "./tabs/SlideshowTab";
@@ -166,6 +167,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	// Privacy
 	const [telemetryEnabled, setTelemetryEnabled] = useState(false);
 
+	// Language
+	const [displayLanguage, setDisplayLanguage] = useState("en-US");
+	const [fallbackLanguage, setFallbackLanguage] = useState("en-US");
+	const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
+	const [timeFormat, setTimeFormat] = useState("12h");
+	const [firstDayOfWeek, setFirstDayOfWeek] = useState("0");
+	const [numberFormat, setNumberFormat] = useState("dot");
+
 	// --- CHANGE TRACKING ---
 	// We snapshot the state when the modal opens to enable/disable the Apply button.
 	const initialStateRef = useRef<Record<string, unknown>>({});
@@ -211,6 +220,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		clipEnabled,
 		extractMetadata,
 		telemetryEnabled,
+		displayLanguage,
+		fallbackLanguage,
+		dateFormat,
+		timeFormat,
+		firstDayOfWeek,
+		numberFormat,
 	};
 
 	// Determine if anything was actually modified
@@ -392,6 +407,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					<PrivacyTab
 						telemetryEnabled={telemetryEnabled}
 						setTelemetryEnabled={setTelemetryEnabled}
+					/>
+				);
+			case "language":
+				return (
+					<LanguageTab
+						displayLanguage={displayLanguage}
+						setDisplayLanguage={setDisplayLanguage}
+						fallbackLanguage={fallbackLanguage}
+						setFallbackLanguage={setFallbackLanguage}
+						dateFormat={dateFormat}
+						setDateFormat={setDateFormat}
+						timeFormat={timeFormat}
+						setTimeFormat={setTimeFormat}
+						firstDayOfWeek={firstDayOfWeek}
+						setFirstDayOfWeek={setFirstDayOfWeek}
+						numberFormat={numberFormat}
+						setNumberFormat={setNumberFormat}
 					/>
 				);
 			default: {

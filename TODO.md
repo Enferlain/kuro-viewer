@@ -17,19 +17,36 @@
 - [x] Settings: Apply only lights up when a setting changes
 - [x] Controls: Default pan is space + drag. Default cursor is normal cursor, not pan cursor. Default zoom is to the cursor, not center of image.
 
+### Near-term Execution
+
+#### Settings Completion
+
+- [ ] Settings: Implement **Language** tab
+- [ ] Settings: Implement **Edit** tab (crop/save/caption entry points)
+- [ ] Settings: Implement **Plugins** tab
+- [ ] Settings: Persist state on Apply (load on startup + baseline reset flow)
+- [ ] Settings: Wire real Export/Import settings behavior (storage/backend bridge)
+
+#### Core Edit MVP (Default Experience)
+
+- [ ] Non-destructive Crop (core)
+- [ ] Save As / Save Copy / Copy to Clipboard (do not overwrite by default)
+- [ ] Caption/Notes baseline with sidecar-backed persistence
+
 ### Future Roadmap & App Transition
 
 #### Performance
 
 - [ ] Thumbnail Pre-generation (Rust background job, WebP)
 - [ ] List Virtualization (Handle 10,000+ files)
+- [ ] Virtualization hardening (selection sync, scroll-to-item reliability, stress profiling)
 - [ ] GPU Decoding (120Hz smooth pan/zoom)
 
-#### Forensic Comparison
+#### Forensics Plugin (Optional, Non-Default Experience)
 
-- [ ] Synced Multi-View (Locked zoom/pan across multiple cards)
-- [ ] Flicker Comparison (Rapid toggle hotkey)
-- [ ] Difference Overlays (Image subtraction)
+- [ ] Plugin: Synced Multi-View (Locked zoom/pan across multiple cards)
+- [ ] Plugin: Flicker Comparison (Rapid toggle hotkey)
+- [ ] Plugin: Difference Overlays (Image subtraction)
 
 #### Metadata & AI
 
@@ -41,6 +58,9 @@
 - [ ] Rust/Tauri Transition (Move away from WebUI to native Desktop App)
 - [ ] Port Scorer/Filters to Rust (Leverage `opencv` & `ndarray` crates)
 - [ ] Sidecar support for non-destructive edits (.json/.xmp)
+- [ ] File/system operation adapters (frontend decoupled from browser-only APIs)
+- [ ] Stabilize sidecar schema versioning and migration strategy
+- [ ] Rust parity plan for current Python image/analysis paths
 
 #### UX & Native Integration
 
@@ -48,10 +68,13 @@
 - [ ] Drag-and-drop bridge to external apps (Photoshop, etc.)
 - [ ] Global hotkey support
 - [ ] Note button/plugin/hotkey for persistent notes for images
-- [ ] Comparison plugin/view (side-by-side, flicker, difference overlays)
+- [ ] Comparison plugin/view (side-by-side, flicker, difference overlays; non-default)
 - [ ] Check for consistent style usage in the components
 
 #### Plugins
 
+- [ ] Plugin foundation: API for tab registration, commands/hotkeys, and UI mounts
+- [ ] Plugin foundation: enforce token namespace/fallback contract (`--plugin-<id>-*`)
+- [ ] Plugin foundation: internal sample plugin scaffold
 - [ ] Workspaces/profiles
-- [ ] Forensics
+- [ ] Forensics (comparison/flicker/diff plugin surface)

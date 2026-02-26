@@ -118,6 +118,7 @@ These rules are required for roadmap work in Tauri/native UX, plugins, workspace
 
 - Difference overlays, heatmaps, and analysis indicators must use semantic analysis tokens (`--color-analysis-*`), not ad-hoc red/green ramps.
 - Never rely on color alone for critical forensic state. Pair color with labels/icons/patterns where possible.
+- Forensic visualization is plugin-scoped by default: treat these surfaces as optional plugin UI, not guaranteed core/default experience.
 
 ### 6. Plugin/Workspace Theme Boundary
 
