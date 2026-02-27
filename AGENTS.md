@@ -72,7 +72,7 @@ kuro-viewer/
 
 - **Plan**: Create/update `implementation_plan.md` before coding.
 - **Task Mode**: Use `task_boundary` for granular steps.
-- **Linting**: Run `npm run check` (Frontend) or `cargo clippy` (Backend).
+- **Linting**: Run `pnpm check` (Frontend) or `cargo clippy` (Backend).
 
 ### 2. UI Development
 
@@ -87,23 +87,24 @@ kuro-viewer/
 
 ### 4. Code Quality
 
-- **Linting (Frontend)**: Run `npm run check` for Biome.
+- **Linting (Frontend)**: Run `pnpm check` for Biome.
 - **Linting (Backend)**: Run `cargo clippy` for Rust lints, `cargo fmt` for formatting.
-- **Global Check**: Run `npm run check` (frontend) + `cargo clippy` (backend) to verify the entire repository.
+- **Global Check**: Run `pnpm check` (frontend) + `cargo clippy` (backend) to verify the entire repository.
 - **Ignoring (Biome)**:
   - Biome is configured with **VCS Integration** (`vcs: { enabled: true, useIgnoreFile: true }`).
   - **Implicit Ignores**: Biome automatically respects all patterns in `.gitignore`. There is no need to manually add `node_modules` or `dist` to Biome's ignore list.
   - **Explicit Ignores**: Use `.biomeignore` (or `files.ignore` in `biome.json`) ONLY for files that are **tracked by Git** but should still be ignored by Biome (e.g., minified libraries, reference code in `ref_*` folders).
 - **Type Checking**:
-  - **Frontend**: Run `npm run typecheck` for `tsc`.
+  - **Frontend**: Run `pnpm typecheck` for `tsc`.
   - **Backend**: `cargo check` for Rust type checking.
 - **Style**: Follow existing styles (Tabs for JS/TS, Spaces for Rust — standard `rustfmt` defaults).
 - **Imports**: Keep imports organized (handled by Biome for JS/TS, `rustfmt` for Rust).
+- **Searching**: Use `rg` (ripgrep) instead of `grep` — it respects `.gitignore`, is faster, and avoids false matches in `node_modules`/`target`.
 
 ## 📝 Common Tasks
 
 - **Adding a dependency**:
-  - Frontend: `npm install <package>`.
+  - Frontend: `pnpm add <package>`.
   - Backend: `cargo add <crate>` in `src-tauri/`.
 - **Plugin development (Python)**:
   - Python plugins are developed externally using **uv** for package management, **Ruff** for linting, and **Ty** for type checking. These tools are not part of the core app.

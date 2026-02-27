@@ -22,32 +22,29 @@ Kuro Viewer is a high-fidelity image viewer designed for rapid forensic comparis
 ## 🛠 Tech Stack
 
 - **Frontend**: [React 19](https://react.dev/), [Vite 7](https://vitejs.dev/), [TypeScript](https://www.typescriptlang.org/), [Lucide React](https://lucide.dev/).
-- **Backend**: [FastAPI](https://fastapi.tiangolo.com/), [OpenCV](https://opencv.org/), [NumPy](https://numpy.org/), [Scikit-Learn](https://scikit-learn.org/).
-- **Package Management**: [uv](https://docs.astral.sh/uv/) (Backend), [npm](https://www.npmjs.com/) (Frontend).
-- **Quality**: [Biome](https://biomejs.dev/) (JS/TS), [Ruff](https://astral.sh/ruff) (Python), [Ty](https://github.com/Yelp/ty) (Python Types).
+- **Backend**: [Rust](https://www.rust-lang.org/) via [Tauri v2](https://v2.tauri.app/).
+- **Package Management**: [Cargo](https://doc.rust-lang.org/cargo/) (Backend), [pnpm](https://pnpm.io/) (Frontend).
+- **Quality**: [Biome](https://biomejs.dev/) (JS/TS), [Clippy](https://doc.rust-lang.org/clippy/) (Rust).
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js (Latest stable)
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/)
+- [pnpm](https://pnpm.io/)
+- [Rust toolchain](https://rustup.rs/) (rustc, cargo)
+- MSVC Build Tools with Windows SDK (Windows only)
 
 ### Setup
 
 1. **Clone the repository**
-2. **Frontend initialization**:
+2. **Install dependencies**:
    ```bash
-   cd frontend
-   npm install
-   npm run dev
+   pnpm install
    ```
-3. **Backend initialization**:
+3. **Run in development mode**:
    ```bash
-   cd backend
-   uv sync
-   python main.py
+   pnpm tauri dev
    ```
 
 ## 📖 Documentation
