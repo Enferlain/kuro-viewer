@@ -95,3 +95,50 @@ Before shipping a theme/profile/plugin UI:
   --ui-border-subtle: oklch(1 0 0 / 10%);
 }
 ```
+
+## 9. Plugin Theming
+
+### 9.1 Automatic Theme Inheritance
+
+Plugin frontend components render inside the host app's DOM and inherit its CSS cascade. Any plugin that uses standard semantic utilities (`bg-glass-bg-base`, `text-foreground-muted`, etc.) will automatically match the active theme with no additional wiring.
+
+### 9.2 CSS Scoping
+
+Plugin-specific styles must be scoped to prevent leaking into the host UI or other plugins:
+
+- Wrap custom classes under a plugin-scoped ancestor: `.plugin-<id> .custom-class { ... }`
+- Namespaced custom properties: `--plugin-<id>-*`
+- Custom properties must always provide a semantic fallback:
+
+```css
+.plugin-sepia .highlight {
+  color: var(--plugin-sepia-highlight, var(--ui-primary));
+}
+```
+
+### 9.3 Contract Version Targeting
+
+Plugins declare which theme contract version they target in `plugin.json`:
+
+```json
+{
+  "id": "sepia-filter",
+  "theme_contract": "1.x"
+}
+```
+
+If the host upgrades to a new major contract version (e.g., `2.0.0`) that removes or renames required tokens, plugins targeting an older major version can be flagged as potentially incompatible. Minor/patch upgrades remain safe per the SemVer rules in Section 4.
+
+### 9.4 Style Injection Order
+
+Plugin styles load **after** the host's design system (since plugin components mount later via `React.lazy`). This means:
+
+1. Host `design-system.css` and `index.css` load at app startup
+2. Plugin `frontend.js` mounts on first use, injecting its styles into the cascade
+3. Plugin styles can reference and override semantic tokens without `!important`
+
+Plugins must **not** redefine core `--ui-*` tokens globally — only within their own scoped selectors.
+
+### 9.5 Themes as Plugins
+
+Community themes can be distributed as plugins. A theme plugin is a frontend-only `.plugin` (no WASM backend) whose `frontend.js` injects a `<style>` block that overrides `--ui-*` tokens under a `[data-theme="<name>"]` scope. The Appearance settings tab shows installed theme plugins alongside built-in themes.

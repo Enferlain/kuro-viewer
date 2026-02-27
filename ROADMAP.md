@@ -1,15 +1,6 @@
 # 🗺️ Kuro Viewer Roadmap
 
-This document outlines the long-term vision and development phases for Kuro Viewer as it transitions from a web-based prototype to a high-performance native desktop application.
-
-## 🚀 Phase 3: Desktop Evolution (Tauri Transition)
-
-The goal is to move away from the Python/React web server model to a self-contained Rust-powered native app.
-
-- **[ ] Rust/Tauri Transition**: Port the backend logic to Rust for better startup speed and memory efficiency.
-- **[ ] Native UX**: Implement Frameless Glass UI (Acrylic/Mica) and system-level window management.
-- **[ ] Global Hotkeys**: Support for viewer controls even when the app is out of focus.
-- **[ ] Drag-and-Drop Bridge**: Native bridge to drag images directly into Photoshop, GIMP, or Discord.
+This document outlines the long-term vision and development phases for Kuro Viewer — a high-performance native desktop image viewer built with Tauri (Rust) and React.
 
 ## ⚙️ Settings Content (High-Fidelity Implementation)
 
@@ -32,8 +23,43 @@ Also keep in mind function scope and file organization in the repo. The script m
 - **[x] Privacy**: History management and anonymous telemetry toggles.
 - **[ ] Language**: Localization preferences, locale fallback behavior, and date/number formatting rules.
 - **[ ] Edit**: Core edit entry points for crop/save/caption workflows.
-- **[ ] Plugins**: Plugin discovery and management surface.
+- **[ ] Plugins**: Plugin discovery, installation, and management surface.
 - **[ ] Persistence Wiring**: Apply/save/load lifecycle for settings and real Export/Import behavior.
+
+## 🚀 Rust/Tauri Core
+
+The backend is pure Rust via Tauri — no Python dependency in the core app.
+
+- **[ ] Tauri Scaffolding**: Initialize `src-tauri/` with Tauri v2, configure IPC commands, and set up the build pipeline.
+- **[ ] Native Image Decoding**: `image` crate for standard formats (JPEG, PNG, WebP, TIFF), `libvips` bindings for RAW/high-performance decoding.
+- **[ ] Native UX**: Frameless Glass UI (Acrylic/Mica) and system-level window management.
+- **[ ] Global Hotkeys**: Support for viewer controls even when the app is out of focus.
+- **[ ] Drag-and-Drop Bridge**: Native bridge to drag images directly into Photoshop, GIMP, or Discord.
+
+## 🔌 Plugin System
+
+Plugins extend the app with any feature — filters, UI panels, AI tools, format converters, or anything else. The core ships with no plugins; all extensions are user-installed.
+
+### Architecture
+
+- **[ ] Plugin Host (`wasmtime`)**: Initialize the WASM engine, load/unload plugins, manage the `PluginBackend::Wasm` and `PluginBackend::PythonSubprocess` dual model.
+- **[ ] `.plugin` Archive Format**: ZIP containing `plugin.json` manifest + `backend.wasm` + `frontend.js`. Unpacked to `AppData/plugins/<id>/` on install.
+- **[ ] Manifest Contract**: Define `plugin.json` schema — id, name, version, slots, permissions, backend type (`wasm` | `python-subprocess`).
+- **[ ] Frontend Plugin Registry**: `PluginRegistry.ts` + `PluginSlot.tsx` + `React.lazy` dynamic loading. Slot types: `toolbar`, `sidebar`, `panel`, `context-menu`.
+- **[ ] Lazy Initialization**: Only read `plugin.json` at startup. Load WASM/JS/Python on first use — zero startup overhead regardless of plugin count.
+
+### Distribution
+
+- **[ ] Sideloading**: Drag-and-drop `.plugin` files onto the app window, or "Install from file…" in settings.
+- **[ ] In-App Marketplace**: Built-in plugin browser in the Plugins settings tab, backed by a remote registry (e.g., GitHub-hosted `index.json`).
+- **[ ] Install/Uninstall Flow**: Tauri commands to unpack, register, and remove plugins with no app restart required.
+
+### Safety & Contracts
+
+- **[ ] Theme Contract Enforcement**: Namespace + fallback guarantees for plugin tokens (`--plugin-<id>-*`).
+- **[ ] WASM Sandbox**: Plugins cannot access filesystem, network, or OS unless explicitly granted via host imports.
+- **[ ] Permissions Model**: Plugins declare required capabilities in `plugin.json`. Shown to user on install.
+- **[ ] Internal Reference Plugin**: Ship one sample WASM plugin to validate the full lifecycle and UI integration.
 
 ## ✂️ Core Edit MVP (Default Experience)
 
@@ -43,29 +69,23 @@ The default app should provide quick, non-destructive edits without requiring pl
 - **[ ] Save Flows**: `Save As`, `Save Copy`, and `Copy to Clipboard` (no destructive overwrite by default).
 - **[ ] Caption/Notes Baseline**: Lightweight notes persisted via sidecar schema.
 
-## 🔌 Plugin Foundation
-
-Forensics and advanced editing should build on a stable plugin host contract.
-
-- **[ ] Plugin API Surface**: Tab registration, command/hotkey hooks, and UI mount points.
-- **[ ] Theme Contract Enforcement**: Namespace + fallback guarantees for plugin tokens (`--plugin-<id>-*`).
-- **[ ] Internal Reference Plugin**: Ship one sample plugin to validate lifecycle and UI integration.
-
-## ⚡ Performance & Plugin Forensics
+## ⚡ Performance
 
 - **[ ] Thumbnail Pre-generation**: Rust background job to pre-cache thumbnails using WebP.
 - **[ ] List Virtualization Hardening**: Stress test and stabilize large-library behavior (selection sync, scroll consistency).
-- **[ ] GPU Decoding**: Leverage `opencv` & `ndarray` crates for high refresh rate smooth pan/zoom.
-- **[ ] Forensics Plugin (Optional, Non-Default Experience)**:
-  - Side-by-side synced multi-view (locked zoom/pan).
-  - Rapid flicker comparison (hotkey toggle).
-  - Difference overlays / image subtraction.
+- **[ ] GPU Decoding**: Leverage Rust `image`/`wgpu` for high refresh rate smooth pan/zoom.
 
 ## 📂 UX & Organization
 
 - **[ ] Sidecar Support**: Non-destructive edits saved in `.json` or `.xmp` files.
-- **[ ] Prompt List Virtualization**: Handle 100,000+ files instantly using `react-virtuoso`.
-- **[ ] Embedding Search**: Local CLIP model for searching images by natural language descriptions.
-- **[ ] Frontend Runtime Adapters**: Route file/system behavior through portable adapters for Tauri migration.
+- **[ ] List Virtualization**: Handle 100,000+ files instantly using `react-virtuoso`.
+- **[ ] Embedding Search**: Local CLIP model (as a plugin) for searching images by natural language descriptions.
 - **[ ] Sidecar Schema Stability**: Define versioning + migration policy for long-term compatibility.
-- **[ ] Rust Parity Plan**: Map current Python analysis/edit pipelines to Rust equivalents with phased cutover.
+
+## 🔬 Forensics Plugin (Optional)
+
+Forensics is a plugin, not a core feature. It builds on the plugin system once stable.
+
+- **[ ] Side-by-side synced multi-view** (locked zoom/pan).
+- **[ ] Rapid flicker comparison** (hotkey toggle).
+- **[ ] Difference overlays / image subtraction**.

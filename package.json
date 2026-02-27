@@ -6,11 +6,10 @@
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
+		"tauri": "tauri",
 		"check": "biome check .",
 		"format": "biome format . --write",
-		"check:backend": "cd backend && ruff check .",
-		"format:backend": "cd backend && ruff format .",
-		"check:all": "npm run check && npm run check:backend",
+		"check:all": "pnpm check",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
@@ -21,10 +20,12 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.3",
 		"@tailwindcss/vite": "^4.1.18",
+		"@tauri-apps/cli": "^2.10.0",
 		"@types/node": "^22.14.0",
 		"@vitejs/plugin-react": "^5.0.0",
 		"tailwindcss": "^4.1.18",
 		"typescript": "~5.8.2",
 		"vite": "^7.3.1"
-	}
+	},
+	"packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
 }

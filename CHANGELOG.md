@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-02-27
+
+### Added
+
+- Architecture: **Tauri v2 Backend** scaffolded (`src-tauri/`) — Rust-native backend replacing the Python/FastAPI prototype.
+- Architecture: Defined **WASM + Python-subprocess dual plugin model** in updated `AGENTS.md` and `ROADMAP.md`.
+- Theming: Added **Plugin Theming** contract (Section 9 in `THEME_CONTRACT.md`) — automatic inheritance, CSS scoping, contract version targeting, injection order, and themes-as-plugins.
+- Tooling: `setup_msvc_env.ps1` helper to permanently configure MSVC build environment for Rust on Windows.
+
+### Changed
+
+- Tooling: Migrated from **npm** to **pnpm** for faster installs and disk efficiency.
+- Architecture: `AGENTS.md` fully rewritten — backend is now Rust/Tauri + `wasmtime`, Python tooling scoped to plugin development only.
+- Architecture: `ROADMAP.md` restructured — Tauri is the active core (not a future migration), Plugin Foundation expanded with Architecture/Distribution/Safety subsections, Forensics moved to a plugin.
+- Tooling: Removed Python backend scripts (`check:backend`, `format:backend`) from `package.json`.
+
+## [Unreleased] - 2026-02-26
+
+### Added
+
+- Frontend: **Settings Search** autocomplete input in the settings modal header.
+- Frontend: Implemented native smooth-scrolling navigation and a temporary glowing pulse animation (`data-highlight`) when jumping to search results.
+- Architecture: Centralized `searchIndex.ts` registry to map search queries efficiently to component IDs.
+
+### Changed
+
+- UX: Standardized helper descriptions across all settings tabs for consistency.
+- Styling: `SettingsSearch` dropdown aligned flush left with the input and matched perfectly to the core `Dropdown` component for consistent glassmorphism.
+
 ## [Unreleased] - 2026-02-22
 
 ### Added
