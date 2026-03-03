@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-03-03
+
+### Changed
+
+- Backend: **Plugin install hardening** (`plugin_install.rs`) — full manifest equality check post-extraction (added `PartialEq` to `PluginManifest` + `PluginBackend`), chunk-by-chunk runtime byte cap during file writes (8 KiB buffer with per-chunk limit enforcement), rollback-safe atomic upgrade with surfaced rollback failure context, fail-closed archive preflight with `checked_add` and early exit, and logged event emission failures.
+- Backend: **Plugin install testability refactor** (`plugin_install.rs`) — extracted pure path-based core functions (`install_plugin_in_dir`, `list_plugins_in_dir`, `uninstall_plugin_in_dir`) with no `AppHandle` dependency. Tauri commands are now thin wrappers that resolve paths and emit events. Fixed extraction loop-brace bug. Changed `&PathBuf` params to idiomatic `&Path`.
+- Backend: **Settings write fallback** (`settings.rs`) — fixed direct-write fallback so a successful fallback no longer returns an error; added temp-file cleanup.
+- Frontend: **localStorage corruption recovery** (`settingsService.ts`) — corrupt JSON in browser fallback is cleared after migration fallback to prevent repeated parse failures.
+
+### Added
+
+- Frontend: **Plugin Contract Inspector** (`PluginsTab.tsx`) — Settings > Plugins tab with installed plugins table (hover-reveal uninstall), "Install Plugin…" button with strict file path validation, drag-and-drop install via Tauri's native `onDragDropEvent` with ref-based drop zone hit-testing (`isDropPositionInZone` using DPI-scaled coordinates), inline status/error banners, and auto-refreshing via race-safe event subscription. Host Contract section is dev-only. Browser mode skips Tauri calls and disables install.
+- Backend: **Plugin install unit tests** (`plugin_install.rs`) — install/list/uninstall roundtrip, same-version install rejection, invalid plugin ID rejection on uninstall, `.staging-*` and `.backup-*` directory filtering in list.
+
+## [Unreleased] - 2026-02-28
+
+### Added
+
+- Contracts: **Plugin Manifest JSON Schema** (`docs/schemas/plugin-manifest.schema.json`) — formal contract for `plugin.json` with conditional validation rules per backend type.
+- Backend: **Rust manifest model + validation** (`plugin_manifest.rs`) — semver checks, plugin ID enforcement, path traversal guards, and security-focused tests (traversal rejection, `backend: none` with `backend_entry` rejection).
+- Backend: **Tauri IPC hooks** for plugin contract info and manifest validation in `lib.rs`.
+- Backend: **Settings persistence** (`settings.rs`) — `read_settings` / `write_settings` Tauri commands with atomic temp-file-rename writes and corrupt-file recovery.
+- Frontend: **Typed settings schema** (`settingsSchema.ts`) — versioned `AppSettingsV1` with defaults, legacy flat-state migration, and V1 fast-path normalization.
+- Frontend: **Settings service boundary** (`settingsService.ts`) — `loadSettings()` / `saveSettings()` abstraction over Tauri IPC, with browser `localStorage` fallback for dev.
+- Frontend: **Settings context** (`SettingsContext.tsx` + `useSettings.ts`) — loads settings at app startup, provides typed access to the entire component tree.
+- Backend: **Plugin install flow** (`plugin_install.rs`) — `install_plugin` (ZIP validation → staged extraction → post-extraction manifest re-validation → rollback-safe atomic upgrade), `list_plugins` (scan installed manifests), `uninstall_plugin` (plugin ID validation + safety-checked removal). Includes archive resource limits (500 entries, 50 MiB cap with fail-closed checks), path traversal protection via `enclosed_name()`, and `plugin-installed`/`plugin-uninstalled` event emission.
+- Dependency: Added `@tauri-apps/api` v2.10.1 and `zip` crate.
+
+### Changed
+
+- Frontend: **SettingsModal refactored** — replaced ~40 individual `useState` calls with context-backed draft pattern using `useField` helper. Apply now persists to disk.
+- Structure: Moved settings data layer from `src/settings/` → `src/stores/settings/` to disambiguate from `src/components/settings/` (UI).
+- Docs: Normalized `ROADMAP.md` and `TODO.md` state language to **UI / Wired / Prod** delivery model; aligned completed UI items.
+
 ## [Unreleased] - 2026-02-27
 
 ### Added

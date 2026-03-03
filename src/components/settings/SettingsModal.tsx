@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import type { Keybind, MouseAction } from "../../types";
+import type { AppSettings } from "../../stores/settings";
+import { useSettings } from "../../stores/settings";
 import { Button } from "../ui/Button";
 import { SettingsSearch } from "./SettingsSearch";
 import { AppearanceTab } from "./tabs/AppearanceTab";
@@ -27,6 +28,7 @@ import { FileTypesTab } from "./tabs/FileTypesTab";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { LanguageTab } from "./tabs/LanguageTab";
 import { LayoutTab } from "./tabs/LayoutTab";
+import { PluginsTab } from "./tabs/PluginsTab";
 import { PrivacyTab } from "./tabs/PrivacyTab";
 import { type Playlist, SlideshowTab } from "./tabs/SlideshowTab";
 
@@ -68,10 +70,32 @@ interface SettingsModalProps {
 	onClose: () => void;
 }
 
+/**
+ * Helper to produce a setter for a nested field inside the draft.
+ * Usage: `field(draft, setDraft, "general", "gpuEnabled")`
+ * returns [currentValue, setter] like useState.
+ */
+function useField<S extends keyof AppSettings, K extends keyof AppSettings[S]>(
+	draft: AppSettings,
+	setDraft: React.Dispatch<React.SetStateAction<AppSettings>>,
+	section: S,
+	key: K,
+): [AppSettings[S][K], (v: AppSettings[S][K]) => void] {
+	const value = draft[section][key];
+	const setter = (v: AppSettings[S][K]) => {
+		setDraft((prev) => ({
+			...prev,
+			[section]: { ...prev[section], [key]: v },
+		}));
+	};
+	return [value, setter];
+}
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
 	isOpen,
 	onClose,
 }) => {
+	const { settings, updateSettings } = useSettings();
 	const [isVisible, setIsVisible] = useState(false);
 	const [activeCategory, setActiveCategory] =
 		useState<SettingCategory>("general");
@@ -80,203 +104,363 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [size, setSize] = useState({ width: 860, height: 680 });
 	const [isResizing, setIsResizing] = useState(false);
 
-	// --- SETTINGS STATE ---
+	// --- DRAFT STATE ---
+	// Clone of persisted settings, mutated locally until Apply.
+	const [draft, setDraft] = useState<AppSettings>(() =>
+		structuredClone(settings),
+	);
+	const baselineRef = useRef<string>("");
+
 	// General
-	const [startupRun, setStartupRun] = useState(false);
-	const [checkUpdates, setCheckUpdates] = useState(true);
-	const [allowInstances, setAllowInstances] = useState(false);
-	const [watchChanges, setWatchChanges] = useState(true);
-	const [autoOpenNew, setAutoOpenNew] = useState(false);
-	const [gpuEnabled, setGpuEnabled] = useState(true);
-	const [lowPower, setLowPower] = useState(false);
-	const [cacheSize, setCacheSize] = useState(512);
+	const [startupRun, setStartupRun] = useField(
+		draft,
+		setDraft,
+		"general",
+		"startupRun",
+	);
+	const [checkUpdates, setCheckUpdates] = useField(
+		draft,
+		setDraft,
+		"general",
+		"checkUpdates",
+	);
+	const [allowInstances, setAllowInstances] = useField(
+		draft,
+		setDraft,
+		"general",
+		"allowInstances",
+	);
+	const [watchChanges, setWatchChanges] = useField(
+		draft,
+		setDraft,
+		"general",
+		"watchChanges",
+	);
+	const [autoOpenNew, setAutoOpenNew] = useField(
+		draft,
+		setDraft,
+		"general",
+		"autoOpenNew",
+	);
+	const [gpuEnabled, setGpuEnabled] = useField(
+		draft,
+		setDraft,
+		"general",
+		"gpuEnabled",
+	);
+	const [lowPower, setLowPower] = useField(
+		draft,
+		setDraft,
+		"general",
+		"lowPower",
+	);
+	const [cacheSize, setCacheSize] = useField(
+		draft,
+		setDraft,
+		"general",
+		"cacheSize",
+	);
 
 	// Appearance
-	const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
-	const [backdropStyle, setBackdropStyle] = useState<
-		"None" | "Acrylic" | "Mica"
-	>("Mica");
-	const [accentColor, setAccentColor] = useState("#3b82f6");
-	const [gridOpacity, setGridOpacity] = useState(20);
+	const [theme, setTheme] = useField(draft, setDraft, "appearance", "theme");
+	const [backdropStyle, setBackdropStyle] = useField(
+		draft,
+		setDraft,
+		"appearance",
+		"backdropStyle",
+	);
+	const [accentColor, setAccentColor] = useField(
+		draft,
+		setDraft,
+		"appearance",
+		"accentColor",
+	);
+	const [gridOpacity, setGridOpacity] = useField(
+		draft,
+		setDraft,
+		"appearance",
+		"gridOpacity",
+	);
+	const [customThemes, setCustomThemes] = useField(
+		draft,
+		setDraft,
+		"appearance",
+		"customThemes",
+	);
+	const [selectedThemeId, setSelectedThemeId] = useField(
+		draft,
+		setDraft,
+		"appearance",
+		"selectedThemeId",
+	);
 
-	// Layout Positioning
-	const [toolbarPos, setToolbarPos] = useState<"Top" | "Bottom" | "Hidden">(
-		"Top",
+	// Layout
+	const [toolbarPos, setToolbarPos] = useField(
+		draft,
+		setDraft,
+		"layout",
+		"toolbarPos",
 	);
-	const [toolbarOrder, _setToolbarOrder] = useState(0);
-	const [galleryPos, setGalleryPos] = useState<"Top" | "Bottom" | "Hidden">(
-		"Bottom",
+	const [galleryPos, setGalleryPos] = useField(
+		draft,
+		setDraft,
+		"layout",
+		"galleryPos",
 	);
-	const [galleryOrder, _setGalleryOrder] = useState(0);
-	const [sidebarPos, setSidebarPos] = useState<"Left" | "Right">("Left");
-	const [autoHideToolbar, setAutoHideToolbar] = useState(true);
+	const [sidebarPos, setSidebarPos] = useField(
+		draft,
+		setDraft,
+		"layout",
+		"sidebarPos",
+	);
+	const [autoHideToolbar, setAutoHideToolbar] = useField(
+		draft,
+		setDraft,
+		"layout",
+		"autoHideToolbar",
+	);
 	const [draggingItem, setDraggingItem] = useState<string | null>(null);
 
 	// Slideshow
-	const [slideshowEnabled, setSlideshowEnabled] = useState(false);
-	const [slideshowInterval, setSlideshowInterval] = useState(5);
-	const [slideshowLoop, setSlideshowLoop] = useState(true);
-	const [slideshowShuffle, setSlideshowShuffle] = useState(false);
-	const [transitionStyle, setTransitionStyle] = useState<
-		"Instant" | "Fade" | "Slide"
-	>("Fade");
+	const [slideshowEnabled, setSlideshowEnabled] = useField(
+		draft,
+		setDraft,
+		"slideshow",
+		"enabled",
+	);
+	const [slideshowInterval, setSlideshowInterval] = useField(
+		draft,
+		setDraft,
+		"slideshow",
+		"intervalSeconds",
+	);
+	const [slideshowLoop, setSlideshowLoop] = useField(
+		draft,
+		setDraft,
+		"slideshow",
+		"loop",
+	);
+	const [slideshowShuffle, setSlideshowShuffle] = useField(
+		draft,
+		setDraft,
+		"slideshow",
+		"shuffle",
+	);
+	const [transitionStyle, setTransitionStyle] = useField(
+		draft,
+		setDraft,
+		"slideshow",
+		"transitionStyle",
+	);
 	const [playlists, setPlaylists] = useState<Playlist[]>([]);
 	const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
 
 	// Controls
-	const [primaryScroll, setPrimaryScroll] = useState<MouseAction>("Zoom");
-	const [middleClick, setMiddleClick] = useState<MouseAction>("Reset Zoom");
-	const [invertScroll, setInvertScroll] = useState(false);
-	const [ctrlScroll, setCtrlScroll] = useState<MouseAction>("Vertical Pan");
-	const [shiftScroll, setShiftScroll] = useState<MouseAction>("Horizontal Pan");
-	const [spacebarAction, setSpacebarAction] =
-		useState<MouseAction>("Drag/Pan Mode");
-
-	const [keybinds, setKeybinds] = useState<Keybind[]>([
-		{ action: "next", label: "Next Image", key: "Right" },
-		{ action: "prev", label: "Previous Image", key: "Left" },
-		{ action: "reset", label: "Reset View", key: "0" },
-		{ action: "noise", label: "Toggle Noise Filter", key: "N" },
-		{ action: "pca", label: "Toggle PCA Filter", key: "P" },
-		{ action: "metadata", label: "Toggle Metadata", key: "I" },
-		{ action: "toolbar", label: "Toggle Toolbar", key: "T" },
-		{ action: "gallery", label: "Toggle Gallery", key: "G" },
-	]);
-
-	// Custom Themes
-	const [customThemes, setCustomThemes] = useState([
-		{ id: "kobe-default", name: "Kobe 9.0", author: "Dương Diệu Pháp" },
-		{ id: "mocha-dark", name: "Mocha Dark", author: "Catppuccin" },
-	]);
-	const [selectedThemeId, setSelectedThemeId] = useState<string | null>(
-		"kobe-default",
+	const [primaryScroll, setPrimaryScroll] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"primaryScroll",
+	);
+	const [middleClick, setMiddleClick] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"middleClick",
+	);
+	const [invertScroll, setInvertScroll] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"invertScroll",
+	);
+	const [ctrlScroll, setCtrlScroll] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"ctrlScroll",
+	);
+	const [shiftScroll, setShiftScroll] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"shiftScroll",
+	);
+	const [spacebarAction, setSpacebarAction] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"spacebarAction",
+	);
+	const [keybinds, setKeybinds] = useField(
+		draft,
+		setDraft,
+		"controls",
+		"keybinds",
 	);
 
 	// File Types
-	const [fileAssociations, setFileAssociations] = useState<string[]>([
-		".png",
-		".jpg",
-		".jpeg",
-		".webp",
-		".gif",
-	]);
+	const [fileAssociations, setFileAssociations] = useField(
+		draft,
+		setDraft,
+		"fileTypes",
+		"associations",
+	);
 
 	// Content
-	const [libraryPaths, setLibraryPaths] = useState<string[]>([]);
-	const [clipEnabled, setClipEnabled] = useState(false);
-	const [extractMetadata, setExtractMetadata] = useState(true);
+	const [libraryPaths, setLibraryPaths] = useField(
+		draft,
+		setDraft,
+		"content",
+		"libraryPaths",
+	);
+	const [clipEnabled, setClipEnabled] = useField(
+		draft,
+		setDraft,
+		"content",
+		"clipEnabled",
+	);
+	const [extractMetadata, setExtractMetadata] = useField(
+		draft,
+		setDraft,
+		"content",
+		"extractMetadata",
+	);
 
 	// Privacy
-	const [telemetryEnabled, setTelemetryEnabled] = useState(false);
+	const [telemetryEnabled, setTelemetryEnabled] = useField(
+		draft,
+		setDraft,
+		"privacy",
+		"telemetryEnabled",
+	);
 
 	// Language
-	const [displayLanguage, setDisplayLanguage] = useState("en-US");
-	const [fallbackLanguage, setFallbackLanguage] = useState("en-US");
-	const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
-	const [timeFormat, setTimeFormat] = useState("12h");
-	const [firstDayOfWeek, setFirstDayOfWeek] = useState("0");
-	const [numberFormat, setNumberFormat] = useState("dot");
+	const [displayLanguage, setDisplayLanguage] = useField(
+		draft,
+		setDraft,
+		"language",
+		"displayLanguage",
+	);
+	const [fallbackLanguage, setFallbackLanguage] = useField(
+		draft,
+		setDraft,
+		"language",
+		"fallbackLanguage",
+	);
+	const [dateFormat, setDateFormat] = useField(
+		draft,
+		setDraft,
+		"language",
+		"dateFormat",
+	);
+	const [timeFormat, setTimeFormat] = useField(
+		draft,
+		setDraft,
+		"language",
+		"timeFormat",
+	);
+	const [firstDayOfWeek, setFirstDayOfWeek] = useField(
+		draft,
+		setDraft,
+		"language",
+		"firstDayOfWeek",
+	);
+	const [numberFormat, setNumberFormat] = useField(
+		draft,
+		setDraft,
+		"language",
+		"numberFormat",
+	);
 
-	// Edit & Flow
-	const [confirmDelete, setConfirmDelete] = useState(true);
-	const [confirmOverwrite, setConfirmOverwrite] = useState(true);
-	const [defaultSaveBehavior, setDefaultSaveBehavior] = useState("save_as");
-	const [preserveMetadata, setPreserveMetadata] = useState(true);
-	const [saveAsCurrentFolder, setSaveAsCurrentFolder] = useState(true);
-	const [enableClipboardPasting, setEnableClipboardPasting] = useState(true);
-	const [multiFileSelection, setMultiFileSelection] = useState(false);
-	const [primaryEditorPath, setPrimaryEditorPath] = useState("");
-	const [secondaryEditorPath, setSecondaryEditorPath] = useState("");
-	const [cropGridType, setCropGridType] = useState("thirds");
-	const [preserveCropAspectRatio, setPreserveCropAspectRatio] = useState(true);
+	// Edit
+	const [confirmDelete, setConfirmDelete] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"confirmDelete",
+	);
+	const [confirmOverwrite, setConfirmOverwrite] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"confirmOverwrite",
+	);
+	const [defaultSaveBehavior, setDefaultSaveBehavior] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"defaultSaveBehavior",
+	);
+	const [preserveMetadata, setPreserveMetadata] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"preserveMetadata",
+	);
+	const [saveAsCurrentFolder, setSaveAsCurrentFolder] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"saveAsCurrentFolder",
+	);
+	const [enableClipboardPasting, setEnableClipboardPasting] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"enableClipboardPasting",
+	);
+	const [multiFileSelection, setMultiFileSelection] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"multiFileSelection",
+	);
+	const [primaryEditorPath, setPrimaryEditorPath] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"primaryEditorPath",
+	);
+	const [secondaryEditorPath, setSecondaryEditorPath] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"secondaryEditorPath",
+	);
+	const [cropGridType, setCropGridType] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"cropGridType",
+	);
+	const [preserveCropAspectRatio, setPreserveCropAspectRatio] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"preserveCropAspectRatio",
+	);
 
 	// --- CHANGE TRACKING ---
-	// We snapshot the state when the modal opens to enable/disable the Apply button.
-	const initialStateRef = useRef<Record<string, unknown>>({});
-
-	// Derived current state representation
-	const currentState = {
-		startupRun,
-		checkUpdates,
-		allowInstances,
-		watchChanges,
-		autoOpenNew,
-		gpuEnabled,
-		lowPower,
-		cacheSize,
-		theme,
-		backdropStyle,
-		accentColor,
-		gridOpacity,
-		toolbarPos,
-		toolbarOrder,
-		galleryPos,
-		galleryOrder,
-		sidebarPos,
-		autoHideToolbar,
-		slideshowEnabled,
-		slideshowInterval,
-		slideshowLoop,
-		slideshowShuffle,
-		transitionStyle,
-		playlists,
-		activePlaylistId,
-		primaryScroll,
-		middleClick,
-		invertScroll,
-		ctrlScroll,
-		shiftScroll,
-		spacebarAction,
-		keybinds,
-		customThemes,
-		selectedThemeId,
-		fileAssociations,
-		libraryPaths,
-		clipEnabled,
-		extractMetadata,
-		telemetryEnabled,
-		displayLanguage,
-		fallbackLanguage,
-		dateFormat,
-		timeFormat,
-		firstDayOfWeek,
-		numberFormat,
-		confirmDelete,
-		confirmOverwrite,
-		defaultSaveBehavior,
-		preserveMetadata,
-		saveAsCurrentFolder,
-		enableClipboardPasting,
-		multiFileSelection,
-		primaryEditorPath,
-		secondaryEditorPath,
-		cropGridType,
-		preserveCropAspectRatio,
-	};
-
-	// Determine if anything was actually modified
 	const hasChanges =
-		Object.keys(initialStateRef.current).length > 0 &&
-		JSON.stringify(initialStateRef.current) !== JSON.stringify(currentState);
-	// We use a ref to hold the derived current state so our effect can read it without
-	// triggering an exhaustive-deps warning or infinite loops when state changes.
-	const currentStateRef = useRef(currentState);
-	currentStateRef.current = currentState;
+		baselineRef.current !== "" && baselineRef.current !== JSON.stringify(draft);
 
-	// Capture baseline state strictly when the modal finishes opening
+	// Snapshot baseline + reset draft when modal opens
 	useEffect(() => {
 		if (isOpen) {
 			setIsVisible(true);
-			initialStateRef.current = structuredClone(currentStateRef.current);
+			const cloned = structuredClone(settings);
+			setDraft(cloned);
+			baselineRef.current = JSON.stringify(cloned);
 		} else {
 			const timer = setTimeout(() => setIsVisible(false), 200);
 			return () => clearTimeout(timer);
 		}
-	}, [isOpen]);
+	}, [isOpen, settings]);
 
 	const handleApply = () => {
-		// Example: Here you would emit the state to a global context or backend
-		initialStateRef.current = structuredClone(currentState); // Reset baseline so "Apply" dims out again
+		updateSettings(draft);
+		baselineRef.current = JSON.stringify(draft);
 		onClose();
 	};
 
@@ -358,16 +542,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					<LayoutTab
 						toolbarPos={toolbarPos}
 						setToolbarPos={setToolbarPos}
-						toolbarOrder={toolbarOrder}
+						toolbarOrder={0}
 						galleryPos={galleryPos}
 						setGalleryPos={setGalleryPos}
-						galleryOrder={galleryOrder}
+						galleryOrder={0}
 						sidebarPos={sidebarPos}
 						setSidebarPos={setSidebarPos}
 						autoHideToolbar={autoHideToolbar}
 						setAutoHideToolbar={setAutoHideToolbar}
 						gridOpacity={gridOpacity}
-						setGridOpacity={setGridOpacity}
+						setGridOpacity={(v: number) => {
+							setDraft((prev) => ({
+								...prev,
+								appearance: { ...prev.appearance, gridOpacity: v },
+							}));
+						}}
 						draggingItem={draggingItem}
 						setDraggingItem={setDraggingItem}
 					/>
@@ -479,6 +668,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						setPreserveCropAspectRatio={setPreserveCropAspectRatio}
 					/>
 				);
+			case "plugins":
+				return <PluginsTab />;
 			default: {
 				const cat = categories.find((c) => c.id === activeCategory);
 				return (

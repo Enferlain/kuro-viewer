@@ -2,6 +2,14 @@
 
 This document outlines the long-term vision and development phases for Kuro Viewer — a high-performance native desktop image viewer built with Tauri (Rust) and React.
 
+## 📊 Delivery State Model
+
+To avoid ambiguous progress tracking, roadmap items use these states:
+
+- **UI**: Screen/interaction implemented in frontend.
+- **Wired**: Connected to real persistence/backend/native behavior.
+- **Prod**: Guardrailed and verified (validation, tests, failure handling).
+
 ## ⚙️ Settings Content (High-Fidelity Implementation)
 
 Each setting tab will be implemented with the "General" tab's premium design standard.
@@ -14,23 +22,23 @@ Also check the equivalent reference image for the current tab you're working on 
 Also keep in mind function scope and file organization in the repo. The script might grow too long, but I'm not familiar with safe/manageable lengths for js code so I'll trust your judgment
 ```
 
-- **[x] Appearance**: Theme selection, Backdrop styles (Acrylic/Mica), and Accent color picking.
-- **[x] Layout**: Grid vs. List behavior, Sidebar positioning, and Auto-hide toolbar logic.
-- **[x] Slideshow**: Detailed transition controls, Shuffle/Loop modes.
-- **[x] Controls**: Shortcut remapping and mouse wheel behavior customization.
-- **[x] File Types**: System-level extension associations and default opener settings.
-- **[x] Content**: Library monitoring paths and metadata deep-scanning (CLIP semantic search).
-- **[x] Privacy**: History management and anonymous telemetry toggles.
-- **[ ] Language**: Localization preferences, locale fallback behavior, and date/number formatting rules.
-- **[ ] Edit**: Core edit entry points for crop/save/caption workflows.
-- **[ ] Plugins**: Plugin discovery, installation, and management surface.
-- **[ ] Persistence Wiring**: Apply/save/load lifecycle for settings and real Export/Import behavior.
+- **[x] Appearance**: Theme selection, Backdrop styles (Acrylic/Mica), and Accent color picking. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Layout**: Grid vs. List behavior, Sidebar positioning, and Auto-hide toolbar logic. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Slideshow**: Detailed transition controls, Shuffle/Loop modes. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Controls**: Shortcut remapping and mouse wheel behavior customization. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] File Types**: System-level extension associations and default opener settings. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Content**: Library monitoring paths and metadata deep-scanning (CLIP semantic search). _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Privacy**: History management and anonymous telemetry toggles. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Language**: Localization preferences, locale fallback behavior, and date/number formatting rules. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Edit**: Core edit entry points for crop/save/caption workflows. _(UI: done, Wired: pending, Prod: pending)_
+- **[x] Plugins**: Plugin installation and management surface in Settings (list/install/uninstall + drop zone). _(UI: done, Wired: partial, Prod: partial; discovery/marketplace pending)_
+- **[ ] Persistence Wiring**: Apply/save/load lifecycle for settings is wired; real Export/Import backend behavior remains. _(UI: done, Wired: partial, Prod: partial)_
 
 ## 🚀 Rust/Tauri Core
 
 The backend is pure Rust via Tauri — no Python dependency in the core app.
 
-- **[ ] Tauri Scaffolding**: Initialize `src-tauri/` with Tauri v2, configure IPC commands, and set up the build pipeline.
+- **[x] Tauri Scaffolding**: Initialize `src-tauri/` with Tauri v2 and build pipeline. _(IPC surface still early-stage)_
 - **[ ] Native Image Decoding**: `image` crate for standard formats (JPEG, PNG, WebP, TIFF), `libvips` bindings for RAW/high-performance decoding.
 - **[ ] Native UX**: Frameless Glass UI (Acrylic/Mica) and system-level window management.
 - **[ ] Global Hotkeys**: Support for viewer controls even when the app is out of focus.
@@ -44,15 +52,15 @@ Plugins extend the app with any feature — filters, UI panels, AI tools, format
 
 - **[ ] Plugin Host (`wasmtime`)**: Initialize the WASM engine, load/unload plugins, manage the `PluginBackend::Wasm` and `PluginBackend::PythonSubprocess` dual model.
 - **[ ] `.plugin` Archive Format**: ZIP containing `plugin.json` manifest + `backend.wasm` + `frontend.js`. Unpacked to `AppData/plugins/<id>/` on install.
-- **[ ] Manifest Contract**: Define `plugin.json` schema — id, name, version, slots, permissions, backend type (`wasm` | `python-subprocess`).
+- **[x] Manifest Contract**: Define `plugin.json` schema — id, name, version, slots, permissions, backend type (`wasm` | `python-subprocess`), API/theme contract targeting. _(Backend validation wired; frontend authoring/docs still evolving)_
 - **[ ] Frontend Plugin Registry**: `PluginRegistry.ts` + `PluginSlot.tsx` + `React.lazy` dynamic loading. Slot types: `toolbar`, `sidebar`, `panel`, `context-menu`.
 - **[ ] Lazy Initialization**: Only read `plugin.json` at startup. Load WASM/JS/Python on first use — zero startup overhead regardless of plugin count.
 
 ### Distribution
 
-- **[ ] Sideloading**: Drag-and-drop `.plugin` files onto the app window, or "Install from file…" in settings.
+- **[x] Sideloading**: "Install from file…" and drag-and-drop `.plugin` install flow in the Plugins settings tab. _(UI: done, Wired: done, Prod: partial)_
 - **[ ] In-App Marketplace**: Built-in plugin browser in the Plugins settings tab, backed by a remote registry (e.g., GitHub-hosted `index.json`).
-- **[ ] Install/Uninstall Flow**: Tauri commands to unpack, register, and remove plugins with no app restart required.
+- **[x] Install/Uninstall Flow**: Tauri commands + Plugins tab integration to unpack, register, and remove plugins with no app restart required. _(UI: done, Wired: done, Prod: partial)_
 
 ### Safety & Contracts
 

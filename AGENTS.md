@@ -4,9 +4,9 @@ This document is a guide for AI Agents working on this codebase. It outlines the
 
 ## 🌟 Design Philosophy
 
-1.  **Premium & Modern UI**: We prioritize a "Wow" factor. The UI uses **glassmorphism**, **smooth transitions**, **dark mode by default**, and **curated color palettes**.
-2.  **Rapid Comparison**: Specialized for pixel-peeping. Direct toggling between original and analysis filters (Noise, PCA) is a core feature.
-3.  **Native-First**: The app is a **Tauri (Rust)** desktop application. The Rust backend handles image decoding, file I/O, and plugin hosting. Keep frontend logic decoupled from browser-specific APIs where possible.
+1. **Premium & Modern UI**: We prioritize a "Wow" factor. The UI uses **glassmorphism**, **smooth transitions**, **dark mode by default**, and **curated color palettes**.
+2. **Rapid Comparison**: Specialized for pixel-peeping. Direct toggling between original and analysis filters (Noise, PCA) is a core feature.
+3. **Native-First**: The app is a **Tauri (Rust)** desktop application. The Rust backend handles image decoding, file I/O, and plugin hosting. Keep frontend logic decoupled from browser-specific APIs where possible.
 
 ## 🛠 Tech Stack
 
@@ -49,7 +49,7 @@ Plugins extend the app with new features — filters, UI panels, AI tools, or an
 
 ### Directory Structure
 
-```
+```plaintext
 kuro-viewer/
 ├── src-tauri/                # Rust Backend (Tauri)
 │   ├── src/

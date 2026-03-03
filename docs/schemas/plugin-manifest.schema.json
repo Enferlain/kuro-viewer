@@ -1,0 +1,151 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://kuro-viewer.dev/schemas/plugin-manifest.schema.json",
+	"title": "Kuro Viewer Plugin Manifest",
+	"description": "Contract for plugin.json files consumed by the Kuro Viewer plugin host.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schema_version",
+		"id",
+		"name",
+		"version",
+		"api_version",
+		"min_host_version",
+		"theme_contract",
+		"backend"
+	],
+	"properties": {
+		"schema_version": {
+			"type": "string",
+			"description": "Manifest schema version implemented by the plugin.",
+			"pattern": "^1\\.[0-9]+\\.[0-9]+$"
+		},
+		"id": {
+			"type": "string",
+			"description": "Stable plugin identifier used for install directory and namespacing.",
+			"pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+			"minLength": 3,
+			"maxLength": 64
+		},
+		"name": {
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 80
+		},
+		"version": {
+			"type": "string",
+			"description": "Plugin semantic version.",
+			"pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+		},
+		"description": {
+			"type": "string",
+			"maxLength": 280
+		},
+		"api_version": {
+			"type": "string",
+			"description": "Plugin host API version targeted by this plugin.",
+			"pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+		},
+		"min_host_version": {
+			"type": "string",
+			"description": "Minimum Kuro Viewer host version required by this plugin.",
+			"pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+		},
+		"theme_contract": {
+			"type": "string",
+			"description": "Theme contract major compatibility line.",
+			"pattern": "^[0-9]+\\.x$"
+		},
+		"backend": {
+			"type": "string",
+			"enum": ["wasm", "python-subprocess", "none"]
+		},
+		"backend_entry": {
+			"type": "string",
+			"description": "Relative path to backend module from the plugin root."
+		},
+		"frontend_entry": {
+			"type": "string",
+			"description": "Relative path to frontend entry module from the plugin root."
+		},
+		"slots": {
+			"type": "array",
+			"uniqueItems": true,
+			"items": {
+				"type": "string",
+				"enum": ["toolbar", "sidebar", "panel", "context-menu"]
+			},
+			"default": []
+		},
+		"permissions": {
+			"type": "array",
+			"uniqueItems": true,
+			"items": {
+				"type": "string",
+				"enum": [
+					"fs.read",
+					"fs.write",
+					"net.http",
+					"clipboard.read",
+					"clipboard.write",
+					"process.spawn",
+					"shell.open",
+					"image.decode"
+				]
+			},
+			"default": []
+		}
+	},
+	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"backend": { "const": "wasm" }
+				}
+			},
+			"then": {
+				"required": ["backend_entry"],
+				"properties": {
+					"backend_entry": { "pattern": "\\.wasm$" }
+				}
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"backend": { "const": "python-subprocess" }
+				}
+			},
+			"then": {
+				"required": ["backend_entry"],
+				"properties": {
+					"backend_entry": { "pattern": "^python/.+" }
+				}
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"backend": { "const": "none" }
+				}
+			},
+			"then": {
+				"not": { "required": ["backend_entry"] }
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"slots": { "minItems": 1 }
+				}
+			},
+			"then": {
+				"required": ["frontend_entry"],
+				"properties": {
+					"frontend_entry": { "pattern": "\\.m?js$" }
+				}
+			}
+		}
+	]
+}

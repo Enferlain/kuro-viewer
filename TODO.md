@@ -1,5 +1,10 @@
 ### Random TODOs
 
+State tags used below:
+- `UI`: Frontend visuals/interactions are implemented.
+- `Wired`: Connected to real backend/native/storage.
+- `Prod`: Validated, tested, and hardened.
+
 - [ ] C hotkey for cropping/editing, save should copy to clipboard or save copy as, not replace
 - [x] biome, ruff, ty for linting
 - [/] docs (Added STYLING_GUIDE.md & updated AGENTS.md)
@@ -22,11 +27,11 @@
 
 #### Settings Completion
 
-- [ ] Settings: Implement **Language** tab
-- [ ] Settings: Implement **Edit** tab (crop/save/caption entry points)
-- [ ] Settings: Implement **Plugins** tab
-- [ ] Settings: Persist state on Apply (load on startup + baseline reset flow)
-- [ ] Settings: Wire real Export/Import settings behavior (storage/backend bridge)
+- [x] Settings: Implement **Language** tab (`UI: done`, `Wired: pending`, `Prod: pending`)
+- [x] Settings: Implement **Edit** tab (crop/save/caption entry points) (`UI: done`, `Wired: pending`, `Prod: pending`)
+- [x] Settings: Implement **Plugins** tab (`UI: done`, `Wired: partial`, `Prod: partial`)
+- [x] Settings: Persist state on Apply (load on startup + baseline reset flow) (`UI: done`, `Wired: done`, `Prod: partial`)
+- [ ] Settings: Wire real Export/Import settings behavior (storage/backend bridge) (`UI: partial`, `Wired: pending`, `Prod: pending`)
 
 #### Core Edit MVP (Default Experience)
 
@@ -56,7 +61,7 @@
 
 #### Technical Stack Evolution
 
-- [ ] Rust/Tauri Transition (Move away from WebUI to native Desktop App)
+- [x] Rust/Tauri Transition baseline (Tauri v2 scaffolding + native shell in place)
 - [ ] Port Scorer/Filters to Rust (Leverage `opencv` & `ndarray` crates)
 - [ ] Sidecar support for non-destructive edits (.json/.xmp)
 - [ ] File/system operation adapters (frontend decoupled from browser-only APIs)
@@ -74,8 +79,9 @@
 
 #### Plugins
 
-- [ ] Plugin foundation: API for tab registration, commands/hotkeys, and UI mounts
-- [ ] Plugin foundation: enforce token namespace/fallback contract (`--plugin-<id>-*`)
-- [ ] Plugin foundation: internal sample plugin scaffold
+- [x] Plugin backend: install/list/uninstall commands with hardened extraction + manifest validation (`UI: done`, `Wired: done`, `Prod: partial`)
+- [ ] Plugin foundation: API for tab registration, commands/hotkeys, and UI mounts (`UI: pending`, `Wired: pending`, `Prod: pending`)
+- [ ] Plugin foundation: enforce token namespace/fallback contract (`--plugin-<id>-*`) (`UI: partial`, `Wired: pending`, `Prod: pending`)
+- [ ] Plugin foundation: internal sample plugin scaffold (`UI: pending`, `Wired: pending`, `Prod: pending`)
 - [ ] Workspaces/profiles
-- [ ] Forensics (comparison/flicker/diff plugin surface)
+- [ ] Forensics (ask for more detail)
