@@ -680,6 +680,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					<PluginsTab
 						pluginSettings={pluginSettings}
 						onPluginSettingsChange={onPluginSettingsChange}
+						hostModalSize={size}
 					/>
 				);
 			default: {

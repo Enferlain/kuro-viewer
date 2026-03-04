@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type {
 	PluginManifestEntry,
 	PluginManifestSummary,
@@ -47,6 +48,10 @@ interface PluginsTabProps {
 	onPluginSettingsChange: React.Dispatch<
 		React.SetStateAction<PluginSettingsStore>
 	>;
+	hostModalSize?: {
+		width: number;
+		height: number;
+	};
 }
 
 const IS_TAURI = "__TAURI_INTERNALS__" in window;
@@ -133,7 +138,10 @@ function pickPluginFilePathWithInput(): Promise<string | null> {
 export const PluginsTab: React.FC<PluginsTabProps> = ({
 	pluginSettings,
 	onPluginSettingsChange,
+	hostModalSize,
 }) => {
+	const modalPortalTarget =
+		typeof document !== "undefined" ? document.body : null;
 	const [contract, setContract] = useState<HostPluginContract | null>(null);
 	const [plugins, setPlugins] = useState<PluginManifestSummary[]>([]);
 	const [status, setStatus] = useState<StatusBanner | null>(null);
@@ -655,6 +663,24 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 		info: "bg-accent/10 border-accent/30 text-accent",
 	};
 
+	const configureModalStyle = useMemo(() => {
+		if (!hostModalSize) {
+			return undefined;
+		}
+
+		// Keep configure modal clearly smaller than host settings modal,
+		// while still adapting to resizes and staying viewport-safe.
+		const parentWidth = Math.max(360, hostModalSize.width - 48);
+		const parentHeight = Math.max(280, hostModalSize.height - 48);
+		const maxWidth = Math.max(420, Math.floor(parentWidth * 0.82));
+		const maxHeight = Math.max(320, Math.floor(parentHeight * 0.86));
+
+		return {
+			maxWidth: `min(calc(100vw - 2rem), ${maxWidth}px)`,
+			maxHeight: `min(calc(100vh - 2rem), ${maxHeight}px)`,
+		};
+	}, [hostModalSize]);
+
 	const aboutField = (value?: string) =>
 		value && value.trim().length > 0 ? value : "Not provided";
 
@@ -970,9 +996,11 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 				</div>
 			</SettingGroup>
 
-			{activeModalManifest &&
+			{modalPortalTarget &&
+				activeModalManifest &&
 				activeModalDefinition &&
-				activeModalValue !== undefined && (
+				activeModalValue !== undefined &&
+				createPortal(
 					<div className="fixed inset-0 z-[var(--ui-layer-modal)] flex items-center justify-center p-4">
 						<button
 							type="button"
@@ -983,7 +1011,8 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 						<div
 							role="dialog"
 							aria-modal="true"
-							className="relative w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border border-glass-border-strong bg-background-elevated shadow-xl p-4 sm:p-5"
+							className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-glass-border-strong bg-background-elevated shadow-xl p-4 sm:p-5"
+							style={configureModalStyle}
 						>
 							<div className="flex items-start justify-between gap-4 mb-4">
 								<div className="min-w-0">
@@ -1020,138 +1049,146 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 								},
 							})}
 						</div>
-					</div>
+					</div>,
+					modalPortalTarget,
 				)}
 
-			{aboutPlugin && (
-				<div className="fixed inset-0 z-[var(--ui-layer-modal)] flex items-center justify-center p-4">
-					<button
-						type="button"
-						className="absolute inset-0 w-full h-full bg-overlay-dim backdrop-blur-sm"
-						onClick={() => setAboutPlugin(null)}
-						aria-label="Close plugin info modal"
-					/>
-					<div
-						role="dialog"
-						aria-modal="true"
-						className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-glass-border-strong bg-background-elevated shadow-xl p-4 sm:p-5"
-					>
-						<div className="flex items-start justify-between gap-4 mb-4">
-							<div className="min-w-0">
-								<h5 className="text-sm font-semibold text-foreground">
-									{aboutPlugin.name}
-								</h5>
-								<p className="text-[10px] text-foreground-subtle font-mono mt-1 break-all">
-									{aboutPlugin.id} · v{aboutPlugin.version}
-								</p>
+			{modalPortalTarget &&
+				aboutPlugin &&
+				createPortal(
+					<div className="fixed inset-0 z-[var(--ui-layer-modal)] flex items-center justify-center p-4">
+						<button
+							type="button"
+							className="absolute inset-0 w-full h-full bg-overlay-dim backdrop-blur-sm"
+							onClick={() => setAboutPlugin(null)}
+							aria-label="Close plugin info modal"
+						/>
+						<div
+							role="dialog"
+							aria-modal="true"
+							className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-glass-border-strong bg-background-elevated shadow-xl p-4 sm:p-5"
+						>
+							<div className="flex items-start justify-between gap-4 mb-4">
+								<div className="min-w-0">
+									<h5 className="text-sm font-semibold text-foreground">
+										{aboutPlugin.name}
+									</h5>
+									<p className="text-[10px] text-foreground-subtle font-mono mt-1 break-all">
+										{aboutPlugin.id} · v{aboutPlugin.version}
+									</p>
+								</div>
+								<button
+									type="button"
+									onClick={() => setAboutPlugin(null)}
+									className="px-2 py-1 text-[10px] rounded-lg border border-glass-border-base text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover cursor-pointer transition-colors"
+								>
+									Close
+								</button>
 							</div>
-							<button
-								type="button"
-								onClick={() => setAboutPlugin(null)}
-								className="px-2 py-1 text-[10px] rounded-lg border border-glass-border-base text-foreground-muted hover:text-foreground hover:bg-glass-bg-hover cursor-pointer transition-colors"
-							>
-								Close
-							</button>
-						</div>
 
-						<div className="space-y-3">
-							<AboutField
-								label="Description"
-								value={aboutField(aboutPlugin.description)}
-							/>
-							<AboutField
-								label="Author"
-								value={aboutField(aboutPlugin.author)}
-							/>
-							<div>
-								<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
-									Source
-								</p>
-								{aboutPlugin.source_url ? (
-									<a
-										href={aboutPlugin.source_url}
-										target="_blank"
-										rel="noreferrer noopener"
-										className="text-xs text-accent hover:underline break-all"
-									>
-										{aboutPlugin.source_url}
-									</a>
-								) : (
-									<p className="text-xs text-foreground-muted">Not provided</p>
-								)}
-							</div>
-							<div>
-								<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
-									Docs
-								</p>
-								{aboutPlugin.docs_url ? (
-									<a
-										href={aboutPlugin.docs_url}
-										target="_blank"
-										rel="noreferrer noopener"
-										className="text-xs text-accent hover:underline break-all"
-									>
-										{aboutPlugin.docs_url}
-									</a>
-								) : (
-									<p className="text-xs text-foreground-muted">Not provided</p>
-								)}
-							</div>
-							<AboutField
-								label="How To Use"
-								value={aboutField(aboutPlugin.usage)}
-								className="whitespace-pre-wrap"
-							/>
-							<div>
-								<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
-									Backend
-								</p>
-								<p className="text-xs text-foreground-muted font-mono">
-									{aboutPlugin.backend}
-								</p>
-							</div>
-							<div>
-								<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
-									Slots
-								</p>
-								<div className="flex flex-wrap gap-1">
-									{aboutPlugin.slots.length > 0 ? (
-										aboutPlugin.slots.map((slot) => (
-											<span
-												key={slot}
-												className="text-[10px] px-2 py-0.5 rounded-full bg-glass-bg-hover text-foreground-muted border border-glass-border-base font-mono"
-											>
-												{slot}
-											</span>
-										))
+							<div className="space-y-3">
+								<AboutField
+									label="Description"
+									value={aboutField(aboutPlugin.description)}
+								/>
+								<AboutField
+									label="Author"
+									value={aboutField(aboutPlugin.author)}
+								/>
+								<div>
+									<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
+										Source
+									</p>
+									{aboutPlugin.source_url ? (
+										<a
+											href={aboutPlugin.source_url}
+											target="_blank"
+											rel="noreferrer noopener"
+											className="text-xs text-accent hover:underline break-all"
+										>
+											{aboutPlugin.source_url}
+										</a>
 									) : (
-										<p className="text-xs text-foreground-muted">None</p>
+										<p className="text-xs text-foreground-muted">
+											Not provided
+										</p>
 									)}
 								</div>
-							</div>
-							<div>
-								<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
-									Permissions
-								</p>
-								<div className="flex flex-wrap gap-1">
-									{aboutPlugin.permissions.length > 0 ? (
-										aboutPlugin.permissions.map((permission) => (
-											<span
-												key={permission}
-												className="text-[10px] px-2 py-0.5 rounded-full bg-glass-bg-hover text-foreground-muted border border-glass-border-base font-mono"
-											>
-												{permission}
-											</span>
-										))
+								<div>
+									<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
+										Docs
+									</p>
+									{aboutPlugin.docs_url ? (
+										<a
+											href={aboutPlugin.docs_url}
+											target="_blank"
+											rel="noreferrer noopener"
+											className="text-xs text-accent hover:underline break-all"
+										>
+											{aboutPlugin.docs_url}
+										</a>
 									) : (
-										<p className="text-xs text-foreground-muted">None</p>
+										<p className="text-xs text-foreground-muted">
+											Not provided
+										</p>
 									)}
+								</div>
+								<AboutField
+									label="How To Use"
+									value={aboutField(aboutPlugin.usage)}
+									className="whitespace-pre-wrap"
+								/>
+								<div>
+									<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
+										Backend
+									</p>
+									<p className="text-xs text-foreground-muted font-mono">
+										{aboutPlugin.backend}
+									</p>
+								</div>
+								<div>
+									<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
+										Slots
+									</p>
+									<div className="flex flex-wrap gap-1">
+										{aboutPlugin.slots.length > 0 ? (
+											aboutPlugin.slots.map((slot) => (
+												<span
+													key={slot}
+													className="text-[10px] px-2 py-0.5 rounded-full bg-glass-bg-hover text-foreground-muted border border-glass-border-base font-mono"
+												>
+													{slot}
+												</span>
+											))
+										) : (
+											<p className="text-xs text-foreground-muted">None</p>
+										)}
+									</div>
+								</div>
+								<div>
+									<p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-bold mb-1">
+										Permissions
+									</p>
+									<div className="flex flex-wrap gap-1">
+										{aboutPlugin.permissions.length > 0 ? (
+											aboutPlugin.permissions.map((permission) => (
+												<span
+													key={permission}
+													className="text-[10px] px-2 py-0.5 rounded-full bg-glass-bg-hover text-foreground-muted border border-glass-border-base font-mono"
+												>
+													{permission}
+												</span>
+											))
+										) : (
+											<p className="text-xs text-foreground-muted">None</p>
+										)}
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-			)}
+					</div>,
+					modalPortalTarget,
+				)}
 
 			{!IS_TAURI && (
 				<div className="flex items-start gap-2 px-4 py-3 rounded-xl border border-accent/20 bg-accent/5 text-xs text-accent">
@@ -1165,22 +1202,26 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 				</div>
 			)}
 
-			<ConfirmDialog
-				isOpen={pendingRemoval !== null}
-				onClose={() => setPendingRemoval(null)}
-				onConfirm={() => {
-					void handleConfirmRemoval();
-				}}
-				title="Remove Plugin?"
-				description={
-					pendingRemoval
-						? `This will uninstall '${pendingRemoval.name}' (${pendingRemoval.id}) from this device.`
-						: ""
-				}
-				confirmText="Remove"
-				cancelText="Cancel"
-				isDestructive
-			/>
+			{modalPortalTarget &&
+				createPortal(
+					<ConfirmDialog
+						isOpen={pendingRemoval !== null}
+						onClose={() => setPendingRemoval(null)}
+						onConfirm={() => {
+							void handleConfirmRemoval();
+						}}
+						title="Remove Plugin?"
+						description={
+							pendingRemoval
+								? `This will uninstall '${pendingRemoval.name}' (${pendingRemoval.id}) from this device.`
+								: ""
+						}
+						confirmText="Remove"
+						cancelText="Cancel"
+						isDestructive
+					/>,
+					modalPortalTarget,
+				)}
 		</div>
 	);
 };
