@@ -22,6 +22,7 @@ State tags used below:
 - [x] Settings: Apply only lights up when a setting changes
 - [x] Controls: Default pan is space + drag. Default cursor is normal cursor, not pan cursor. Default zoom is to the cursor, not center of image.
 - [x] Settings: Global Search mechanism (Highlight & Navigate) and Dropdown styling alignment
+- [ ] Settings: SettingsModal scrollbar doesn't shift contents to left
 
 ### Near-term Execution
 

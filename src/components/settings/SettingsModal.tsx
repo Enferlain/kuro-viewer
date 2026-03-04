@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import type { PluginSettingsStore } from "../../plugin-system/settings";
 import type { AppSettings } from "../../stores/settings";
 import { useSettings } from "../../stores/settings";
 import { Button } from "../ui/Button";
@@ -68,6 +69,10 @@ const categories: CategoryItem[] = [
 interface SettingsModalProps {
 	isOpen: boolean;
 	onClose: () => void;
+	pluginSettings: PluginSettingsStore;
+	onPluginSettingsChange: React.Dispatch<
+		React.SetStateAction<PluginSettingsStore>
+	>;
 }
 
 /**
@@ -94,6 +99,8 @@ function useField<S extends keyof AppSettings, K extends keyof AppSettings[S]>(
 export const SettingsModal: React.FC<SettingsModalProps> = ({
 	isOpen,
 	onClose,
+	pluginSettings,
+	onPluginSettingsChange,
 }) => {
 	const { settings, updateSettings } = useSettings();
 	const [isVisible, setIsVisible] = useState(false);
@@ -175,7 +182,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		"appearance",
 		"accentColor",
 	);
-	const [gridOpacity, setGridOpacity] = useField(
+	const [gridOpacity, _setGridOpacity] = useField(
 		draft,
 		setDraft,
 		"appearance",
@@ -669,7 +676,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 					/>
 				);
 			case "plugins":
-				return <PluginsTab />;
+				return (
+					<PluginsTab
+						pluginSettings={pluginSettings}
+						onPluginSettingsChange={onPluginSettingsChange}
+					/>
+				);
 			default: {
 				const cat = categories.find((c) => c.id === activeCategory);
 				return (

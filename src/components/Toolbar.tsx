@@ -2,6 +2,7 @@ import {
 	Activity,
 	Info,
 	Maximize,
+	Microscope,
 	Settings,
 	Waves,
 	ZoomIn,
@@ -11,9 +12,18 @@ import type React from "react";
 import { FilterType } from "../types";
 import { Button } from "./ui/Button";
 
+interface ModeAction {
+	mode: FilterType;
+	label: string;
+	hotkey: string;
+}
+
 interface ToolbarProps {
 	currentFilter: FilterType;
+	modeActions: ModeAction[];
 	onFilterChange: (filter: FilterType) => void;
+	score: number | null;
+	showScore: boolean;
 	onZoomIn: () => void;
 	onZoomOut: () => void;
 	onReset: () => void;
@@ -25,7 +35,10 @@ interface ToolbarProps {
 
 export const Toolbar: React.FC<ToolbarProps> = ({
 	currentFilter,
+	modeActions,
 	onFilterChange,
+	score,
+	showScore,
 	onZoomIn,
 	onZoomOut,
 	onReset,
@@ -47,40 +60,36 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 					</span>
 				</div>
 			</div>
-
 			{/* Center: Filter Controls */}
 			<div className="flex items-center gap-2 w-1/3 justify-center">
 				<div className="flex items-center bg-background-elevated rounded-lg p-1 border border-glass-border-base shadow-xl">
-					<Button
-						variant="secondary"
-						className="text-xs px-3 py-1"
-						active={currentFilter === FilterType.NONE}
-						onClick={() => onFilterChange(FilterType.NONE)}
-					>
-						Original
-					</Button>
-					<div className="w-px h-4 bg-glass-border-strong mx-1" />
-					<Button
-						variant="secondary"
-						className="text-xs px-3 py-1 flex items-center gap-2"
-						active={currentFilter === FilterType.NOISE}
-						onClick={() => onFilterChange(FilterType.NOISE)}
-						tooltip="Apply Noise Filter (N)"
-					>
-						<Waves size={12} />
-						Noise
-					</Button>
-					<Button
-						variant="secondary"
-						className="text-xs px-3 py-1 flex items-center gap-2"
-						active={currentFilter === FilterType.PCA}
-						onClick={() => onFilterChange(FilterType.PCA)}
-						tooltip="Apply PCA Analysis (P)"
-					>
-						<Activity size={12} />
-						PCA
-					</Button>
+					{modeActions.map((modeAction, index) => (
+						<div key={modeAction.mode} className="flex items-center">
+							{index !== 0 && (
+								<div className="w-px h-4 bg-glass-border-strong mx-1" />
+							)}
+							<Button
+								variant="secondary"
+								className="text-xs px-3 py-1 flex items-center gap-2"
+								active={currentFilter === modeAction.mode}
+								onClick={() => onFilterChange(modeAction.mode)}
+								tooltip={`${modeAction.label} (${modeAction.hotkey})`}
+							>
+								{modeAction.mode === FilterType.NOISE && <Waves size={12} />}
+								{modeAction.mode === FilterType.PCA && <Activity size={12} />}
+								{modeAction.mode === FilterType.TEXTURE && (
+									<Microscope size={12} />
+								)}
+								{modeAction.label}
+							</Button>
+						</div>
+					))}
 				</div>
+				{showScore && currentFilter !== FilterType.NONE && (
+					<div className="px-2 py-1 rounded-lg border border-glass-border-base bg-glass-bg-subtle text-[10px] text-foreground-muted font-mono">
+						Score: {score === null ? "..." : score.toFixed(2)}
+					</div>
+				)}
 			</div>
 
 			{/* Right: View Controls */}

@@ -9,6 +9,7 @@ export enum FilterType {
 	NONE = "NONE",
 	NOISE = "NOISE",
 	PCA = "PCA",
+	TEXTURE = "TEXTURE",
 }
 
 export interface ViewerState {

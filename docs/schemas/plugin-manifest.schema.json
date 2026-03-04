@@ -42,6 +42,24 @@
 			"type": "string",
 			"maxLength": 280
 		},
+		"author": {
+			"type": "string",
+			"maxLength": 80
+		},
+		"source_url": {
+			"type": "string",
+			"maxLength": 2048,
+			"pattern": "^https?://.+"
+		},
+		"docs_url": {
+			"type": "string",
+			"maxLength": 2048,
+			"pattern": "^https?://.+"
+		},
+		"usage": {
+			"type": "string",
+			"maxLength": 2000
+		},
 		"api_version": {
 			"type": "string",
 			"description": "Plugin host API version targeted by this plugin.",

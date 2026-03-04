@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-03-04
+
+### Changed
+
+- Frontend: **Forensics plugin controls expanded** (`forensicsPlugin.ts`, `ForensicsPanel.tsx`, `settingsExtension.tsx`) — added plugin-level behavior toggles (`side-by-side compare`, `show output score`) and plugin-configurable mode hotkeys (`Original/Noise/PCA/Texture`) with duplicate-hotkey warning.
+- Frontend: **Forensics settings UI overhaul** (`ForensicsPanel.tsx`) — flattened the nested "onion" border layout into clean divider-separated sections. Reordered controls logically, added numeric value readouts to sliders, fixed phrasing, and swapped plain-text hotkey inputs for `KeyRecorder`-style buttons that capture keypresses.
+- Frontend: **ImageViewer forensic magnifier fix** (`ImageViewer.tsx`) — removed `mixBlendMode: "screen"` from the magnifier lens and added a solid background to prevent the filtered view from becoming transparent against the background.
+- Frontend: **Forensics defaults/ranges aligned** (`forensicsPlugin.ts`, `ForensicsPanel.tsx`) — Noise amplitude now uses `1..100` (default `1`) and Noise opacity uses `0.00..1.00` (default `0.95`), with normalization/clamping in settings migration.
+- Frontend: **Forensics hotkey runtime wiring** (`App.tsx`, `Toolbar.tsx`) — mode switching now uses configured plugin hotkeys at runtime, and toolbar tooltips/readout reflect configured bindings plus score visibility toggle.
+- Frontend: **ImageViewer forensic presentation update** (`ImageViewer.tsx`) — magnifier lens is now square and offset to the lower-right of cursor; added optional side-by-side filter presentation (right-half overlay with center divider).
+- Docs: **Forensics finish tracker refreshed** (`implementation_plan.md`) — converted to a phase-based checklist covering spec alignment, reference parity against `ref_functions`, packaging readiness, and manual QA matrix.
+- Docs: **Plugin 1.0 authoring contract** (`docs/PLUGIN_CONTRACT_1.0.md`, `docs/schemas/plugin-settings.schema.json`) — added a detailed plugin packaging/manifest/frontend/settings/backend contract, including declarative settings schema format, worked examples, and explicit configure-surface rules (`inline` host expansion vs host modal).
+- Frontend: **Removed hardcoded contract demo plugin registration** (`registry.ts`) — `contract-demo` is no longer injected as a built-in plugin/settings definition and must be tested through the install flow.
+- Frontend/Backend: **Installed plugin Configure now supports declarative schemas** (`PluginsTab.tsx`, `schemaRuntime.tsx`, `plugin_install.rs`) — host loads `settings.schema.json` from installed plugins and renders a contract-driven settings UI (`boolean`, `number`, `enum`, `string`, `keybinding`) for Configure.
+- Frontend: **Plugins tab management actions** (`PluginsTab.tsx`) — added explicit `About` and `Remove` actions per installed plugin. `Remove` now uses shared `ConfirmDialog` for destructive confirmation.
+- Frontend: **Plugin About modal** (`PluginsTab.tsx`, `pluginManifest.ts`) — added a host-owned plugin details modal showing description, author, source/docs links, usage notes, backend, slots, and permissions.
+- Backend/Contracts: **Manifest metadata fields for About view** (`plugin_manifest.rs`, `docs/schemas/plugin-manifest.schema.json`) — added optional `author`, `source_url`, `docs_url`, and `usage` fields with host-side validation.
+
+### Added
+
+- Examples: **Installable contract sample plugin** (`plugins/examples/contract-demo/*`) — added `plugin.json`, `settings.schema.json`, and `frontend.js` stub demonstrating Plugin 1.0 contract + settings schema conventions.
+
+### Changed
+
+- Frontend: **Safer plugin install UX** (`PluginsTab.tsx`) — file-picker and drag-drop flows now inspect manifests first, then require explicit user confirmation before install. The confirmation card shows plugin id/name/version/backend and declared permissions.
+- Backend: **Pre-install manifest inspection command** (`plugin_install.rs`, `lib.rs`) — added `inspect_plugin_manifest` Tauri command for archive preflight manifest validation without extraction/install side effects.
+- Frontend: **Viewer forensic controls extracted into plugin module** (`plugin-system/forensics/`) — introduced typed forensics plugin state/defaults/hotkeys and mode metadata driving toolbar behavior and control panel rendering.
+- Frontend: **Toolbar forensic integration** (`Toolbar.tsx`, `App.tsx`) — mode actions now include `Original/Noise/PCA/Texture` with plugin hotkeys (`O/N/P/M`), mode cycling (`[` and `]`), score readout, and a dedicated forensic controls panel toggle.
+- Frontend: **ImageViewer forensic rendering** (`ImageViewer.tsx`) — added filtered forensic overlay with per-mode opacity, cursor magnifier lens, and heuristic mode scoring pipeline for noise/PCA/texture output.
+
+### Added
+
+- Backend: **Phase 2 hardening tests** (`plugin_install.rs`) — added coverage for archive traversal-entry rejection, archive entry-count cap rejection, archive uncompressed-size cap rejection, duplicate `plugin.json` post-extract mismatch rejection, and rollback restoration behavior when finalize rename fails.
+- Frontend: **Forensics plugin controls panel** (`ForensicsPanel.tsx`) — Noise controls (`rembg` optional, amplitude, equalize histogram, opacity), PCA controls (input, mode, component, linearize, invert, enhancement, opacity), Texture controls (mode, strength, smoothness, enhancement, opacity), and magnifier controls.
+
 ## [Unreleased] - 2026-03-03
 
 ### Changed

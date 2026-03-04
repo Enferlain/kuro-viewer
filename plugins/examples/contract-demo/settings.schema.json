@@ -1,0 +1,95 @@
+{
+	"schema_version": "1.0.0",
+	"plugin_id": "contract-demo",
+	"title": "Contract Demo Settings",
+	"description": "Fake controls to test plugin settings layout consistency.",
+	"presentation": "modal",
+	"sections": [
+		{
+			"id": "diagnostics",
+			"label": "Diagnostics",
+			"fields": [
+				{
+					"id": "diagnostics.enabled",
+					"type": "boolean",
+					"label": "Enable mock diagnostics",
+					"default": true
+				},
+				{
+					"id": "diagnostics.sensitivity",
+					"type": "number",
+					"label": "Sensitivity",
+					"default": 0.35,
+					"min": 0,
+					"max": 1,
+					"step": 0.01,
+					"ui": "slider"
+				},
+				{
+					"id": "diagnostics.mode",
+					"type": "enum",
+					"label": "Mode",
+					"default": "balanced",
+					"options": [
+						{ "value": "fast", "label": "Fast" },
+						{ "value": "balanced", "label": "Balanced" },
+						{ "value": "deep", "label": "Deep" }
+					]
+				},
+				{
+					"id": "diagnostics.showOverlay",
+					"type": "boolean",
+					"label": "Show mock overlay",
+					"default": true
+				}
+			]
+		},
+		{
+			"id": "lab",
+			"label": "Lab",
+			"fields": [
+				{
+					"id": "lab.chaos",
+					"type": "number",
+					"label": "Chaos",
+					"default": 4,
+					"min": 0,
+					"max": 10,
+					"step": 1,
+					"ui": "slider"
+				},
+				{
+					"id": "lab.variant",
+					"type": "enum",
+					"label": "Variant",
+					"default": "alpha",
+					"options": [
+						{ "value": "alpha", "label": "Alpha" },
+						{ "value": "beta", "label": "Beta" },
+						{ "value": "gamma", "label": "Gamma" }
+					]
+				},
+				{
+					"id": "lab.notes",
+					"type": "string",
+					"label": "Notes",
+					"default": "",
+					"max_length": 120
+				}
+			]
+		},
+		{
+			"id": "hotkeys",
+			"label": "Hotkeys",
+			"fields": [
+				{
+					"id": "hotkeys.toggleOverlay",
+					"type": "keybinding",
+					"label": "Toggle Overlay",
+					"default": "K",
+					"scope": "plugin"
+				}
+			]
+		}
+	]
+}

@@ -1,17 +1,195 @@
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	type ForensicsPluginState,
+	modeFilterStyle,
+	modeOverlayOpacity,
+} from "../plugin-system/forensics";
 import { FilterType, type ViewerState } from "../types";
 
 interface ImageViewerProps {
 	src: string;
 	activeFilter: FilterType;
+	forensicsState: ForensicsPluginState;
+	onAnalysisScoreChange?: (score: number | null) => void;
 	viewerState: ViewerState;
 	setViewerState: React.Dispatch<React.SetStateAction<ViewerState>>;
+}
+
+type ImageMetrics = {
+	noise: number;
+	gradient: number;
+	texture: number;
+	colorDivergence: number;
+	luminanceStd: number;
+};
+
+function clamp01(value: number): number {
+	return Math.min(1, Math.max(0, value));
+}
+
+function clampScore(value: number): number {
+	return Math.min(10, Math.max(0, value));
+}
+
+function computeImageMetrics(
+	data: Uint8ClampedArray,
+	width: number,
+	height: number,
+): ImageMetrics {
+	const luminance = new Float32Array(width * height);
+	let luminanceSum = 0;
+	let colorDivergenceSum = 0;
+
+	for (let index = 0, pixel = 0; index < data.length; index += 4, pixel += 1) {
+		const r = data[index];
+		const g = data[index + 1];
+		const b = data[index + 2];
+		const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+		luminance[pixel] = luma;
+		luminanceSum += luma;
+		colorDivergenceSum +=
+			(Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r)) / (3 * 255);
+	}
+
+	const pixelCount = width * height;
+	const meanLuma = luminanceSum / Math.max(pixelCount, 1);
+	let lumaVariance = 0;
+	for (let i = 0; i < luminance.length; i += 1) {
+		const diff = luminance[i] - meanLuma;
+		lumaVariance += diff * diff;
+	}
+	const luminanceStd = Math.sqrt(lumaVariance / Math.max(pixelCount, 1));
+
+	let gradientAccumulator = 0;
+	let gradientSamples = 0;
+	for (let y = 0; y < height - 1; y += 1) {
+		const row = y * width;
+		for (let x = 0; x < width - 1; x += 1) {
+			const index = row + x;
+			const dx = Math.abs(luminance[index] - luminance[index + 1]);
+			const dy = Math.abs(luminance[index] - luminance[index + width]);
+			gradientAccumulator += dx + dy;
+			gradientSamples += 2;
+		}
+	}
+	const gradient = gradientAccumulator / Math.max(gradientSamples, 1);
+	const noise = clamp01(gradient * 1.75);
+
+	let laplacianAccumulator = 0;
+	let laplacianSamples = 0;
+	for (let y = 1; y < height - 1; y += 1) {
+		const row = y * width;
+		for (let x = 1; x < width - 1; x += 1) {
+			const center = row + x;
+			const laplacian =
+				Math.abs(
+					4 * luminance[center] -
+						luminance[center - 1] -
+						luminance[center + 1] -
+						luminance[center - width] -
+						luminance[center + width],
+				) / 4;
+			laplacianAccumulator += laplacian;
+			laplacianSamples += 1;
+		}
+	}
+	const texture = clamp01(
+		(laplacianAccumulator / Math.max(laplacianSamples, 1)) * 2.2,
+	);
+
+	return {
+		noise,
+		gradient,
+		texture,
+		colorDivergence: clamp01(colorDivergenceSum / Math.max(pixelCount, 1)),
+		luminanceStd: clamp01(luminanceStd * 2.2),
+	};
+}
+
+function scoreFromMetrics(
+	mode: FilterType,
+	forensicsState: ForensicsPluginState,
+	metrics: ImageMetrics,
+): number {
+	if (mode === FilterType.NOISE) {
+		const amplitudeNorm = (forensicsState.noise.amplitude - 1) / 99;
+		let score = 10 * (1 - metrics.noise);
+		score -= amplitudeNorm * 2.2;
+		score += forensicsState.noise.equalizeHistogram ? 0.4 : -0.2;
+		score += forensicsState.noise.rembg ? 0.25 : 0;
+		score += (1 - forensicsState.noise.opacity) * 0.6;
+		return clampScore(score);
+	}
+
+	if (mode === FilterType.PCA) {
+		let signal = metrics.luminanceStd;
+		switch (forensicsState.pca.mode) {
+			case "projection":
+				signal = metrics.luminanceStd;
+				break;
+			case "difference":
+				signal = clamp01((metrics.colorDivergence + metrics.noise) * 0.6);
+				break;
+			case "distance":
+				signal = clamp01((metrics.gradient + metrics.colorDivergence) * 0.5);
+				break;
+			case "component":
+				signal =
+					forensicsState.pca.component === 1
+						? metrics.luminanceStd
+						: forensicsState.pca.component === 2
+							? metrics.colorDivergence
+							: metrics.noise;
+				break;
+		}
+		let score = 10 * (1 - signal);
+		if (forensicsState.pca.linearize) score += 0.25;
+		if (forensicsState.pca.invert) score -= 0.15;
+		if (forensicsState.pca.enhancement === "equalize-histogram") score += 0.35;
+		if (forensicsState.pca.enhancement === "stretch-contrast") score += 0.2;
+		if (forensicsState.pca.input === "luminance-gradient") score += 0.1;
+		score += (1 - forensicsState.pca.opacity) * 0.35;
+		return clampScore(score);
+	}
+
+	if (mode === FilterType.TEXTURE) {
+		const edgeBalance = 1 - clamp01(Math.abs(metrics.gradient - 0.22) / 0.22);
+		const residualNoisePenalty = clamp01(metrics.noise * 1.15);
+		const microContrast = clamp01(metrics.texture * 1.1);
+
+		let raw = edgeBalance;
+		switch (forensicsState.texture.mode) {
+			case "edge-balance":
+				raw = edgeBalance;
+				break;
+			case "residual-noise":
+				raw = 1 - residualNoisePenalty;
+				break;
+			case "micro-contrast":
+				raw = microContrast;
+				break;
+		}
+
+		let score = 10 * raw;
+		score += forensicsState.texture.strength * 0.9;
+		score -= forensicsState.texture.smoothness * 0.9;
+		if (forensicsState.texture.enhancement === "equalize-histogram")
+			score += 0.25;
+		if (forensicsState.texture.enhancement === "stretch-contrast")
+			score += 0.15;
+		score += (1 - forensicsState.texture.opacity) * 0.3;
+		return clampScore(score);
+	}
+
+	return 0;
 }
 
 export const ImageViewer: React.FC<ImageViewerProps> = ({
 	src,
 	activeFilter,
+	forensicsState,
+	onAnalysisScoreChange,
 	viewerState,
 	setViewerState,
 }) => {
@@ -21,6 +199,13 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 	const [isSpacePressed, setIsSpacePressed] = useState(false);
 	const [isMouseDown, setIsMouseDown] = useState(false);
+	const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(
+		null,
+	);
+	const [naturalImageSize, setNaturalImageSize] = useState({
+		width: 0,
+		height: 0,
+	});
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -147,6 +332,12 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 	};
 
 	const handleMouseMove = (e: React.MouseEvent) => {
+		const container = containerRef.current;
+		if (container) {
+			const rect = container.getBoundingClientRect();
+			setCursorPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+		}
+
 		if (!isDragging) return;
 		e.preventDefault();
 		setViewerState((prev) => ({
@@ -164,30 +355,130 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 		setIsDragging(false);
 	};
 
-	const getFilterStyle = () => {
-		switch (activeFilter) {
-			case FilterType.NOISE:
-				// Simulating the "Noise Map" (Difference) from the python script
-				// High contrast + grayscale + invert helps highlight pixel noise/grain
-				return {
-					filter: "grayscale(100%) contrast(300%) brightness(0.8) invert(1)",
-					mixBlendMode: "normal" as const,
-				};
-			case FilterType.PCA:
-				// Simulating PCA Component 1 (Structural/Luminance dominance)
-				// High contrast to separate features
-				return {
-					filter: "grayscale(100%) contrast(150%) brightness(1.1)",
-				};
-			default:
-				return {};
+	useEffect(() => {
+		if (activeFilter === FilterType.NONE) {
+			onAnalysisScoreChange?.(null);
+			return;
 		}
-	};
+
+		const source = imgRef.current;
+		if (!source || !source.complete || source.naturalWidth === 0) {
+			onAnalysisScoreChange?.(null);
+			return;
+		}
+
+		let cancelled = false;
+		const frame = window.requestAnimationFrame(() => {
+			try {
+				const maxDimension = 220;
+				const scale = Math.min(
+					1,
+					maxDimension / Math.max(source.naturalWidth, source.naturalHeight),
+				);
+				const width = Math.max(1, Math.floor(source.naturalWidth * scale));
+				const height = Math.max(1, Math.floor(source.naturalHeight * scale));
+				const canvas = document.createElement("canvas");
+				canvas.width = width;
+				canvas.height = height;
+				const context = canvas.getContext("2d", { willReadFrequently: true });
+				if (!context) {
+					onAnalysisScoreChange?.(null);
+					return;
+				}
+				context.drawImage(source, 0, 0, width, height);
+				const imageData = context.getImageData(0, 0, width, height).data;
+				const metrics = computeImageMetrics(imageData, width, height);
+				const score = scoreFromMetrics(activeFilter, forensicsState, metrics);
+
+				if (!cancelled) {
+					onAnalysisScoreChange?.(score);
+				}
+			} catch {
+				if (!cancelled) {
+					onAnalysisScoreChange?.(null);
+				}
+			}
+		});
+
+		return () => {
+			cancelled = true;
+			window.cancelAnimationFrame(frame);
+		};
+	}, [activeFilter, forensicsState, onAnalysisScoreChange]);
 
 	// Handle scale=0 (reset/loading signal) for rendering
 	// If scale is 0, we render at opacity 0 to prevent FOUC until calculation is done
 	const renderScale = viewerState.scale === 0 ? 0.01 : viewerState.scale;
 	const isHidden = viewerState.scale === 0;
+	const overlayOpacity =
+		activeFilter === FilterType.NONE ? 0 : modeOverlayOpacity(forensicsState);
+	const overlayFilterStyle = modeFilterStyle(forensicsState);
+	const sideBySideEnabled =
+		activeFilter !== FilterType.NONE && forensicsState.view.sideBySide;
+	const magnifierSize = 170;
+	const magnifierCenterOffset = magnifierSize / 2;
+	const magnifierCursorOffset = 18;
+
+	const magnifierLens = (() => {
+		if (!forensicsState.magnifier.enabled || activeFilter === FilterType.NONE) {
+			return null;
+		}
+		const container = containerRef.current;
+		if (!container || !cursorPos || naturalImageSize.width === 0 || isHidden) {
+			return null;
+		}
+
+		const rect = container.getBoundingClientRect();
+		const imageWidth = naturalImageSize.width * renderScale;
+		const imageHeight = naturalImageSize.height * renderScale;
+		const imageLeft =
+			rect.width / 2 + viewerState.translation.x - imageWidth / 2;
+		const imageTop =
+			rect.height / 2 + viewerState.translation.y - imageHeight / 2;
+		const insideImage =
+			cursorPos.x >= imageLeft &&
+			cursorPos.x <= imageLeft + imageWidth &&
+			cursorPos.y >= imageTop &&
+			cursorPos.y <= imageTop + imageHeight;
+		if (!insideImage) {
+			return null;
+		}
+
+		const zoom = forensicsState.magnifier.zoom;
+		const bgPosX = -(cursorPos.x - imageLeft) * zoom + magnifierCenterOffset;
+		const bgPosY = -(cursorPos.y - imageTop) * zoom + magnifierCenterOffset;
+		const lensLeft = clamp01(
+			(cursorPos.x + magnifierCursorOffset) /
+				Math.max(rect.width - magnifierSize, 1),
+		);
+		const lensTop = clamp01(
+			(cursorPos.y + magnifierCursorOffset) /
+				Math.max(rect.height - magnifierSize, 1),
+		);
+
+		return (
+			<div
+				className="absolute pointer-events-none border border-accent/50 rounded-md shadow-glow"
+				style={{
+					left: lensLeft * Math.max(rect.width - magnifierSize, 0),
+					top: lensTop * Math.max(rect.height - magnifierSize, 0),
+					width: magnifierSize,
+					height: magnifierSize,
+					backgroundColor: "var(--color-background-deep)",
+					backgroundImage: `url(${src})`,
+					backgroundRepeat: "no-repeat",
+					backgroundSize: `${imageWidth * zoom}px ${imageHeight * zoom}px`,
+					backgroundPosition: `${bgPosX}px ${bgPosY}px`,
+					filter:
+						typeof overlayFilterStyle.filter === "string"
+							? overlayFilterStyle.filter
+							: undefined,
+					opacity: 1,
+					zIndex: 20,
+				}}
+			/>
+		);
+	})();
 
 	return (
 		<section
@@ -205,7 +496,10 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 			onMouseDown={handleMouseDown}
 			onMouseMove={handleMouseMove}
 			onMouseUp={handleMouseUp}
-			onMouseLeave={handleMouseUp}
+			onMouseLeave={() => {
+				handleMouseUp();
+				setCursorPos(null);
+			}}
 		>
 			{/* Grid Background */}
 			<div
@@ -231,12 +525,43 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 						src={src}
 						alt="View"
 						className="max-w-none pointer-events-none"
-						style={getFilterStyle()}
+						style={{}}
+						crossOrigin="anonymous"
 						draggable={false}
-						onLoad={fitToView}
+						onLoad={() => {
+							const img = imgRef.current;
+							if (img) {
+								setNaturalImageSize({
+									width: img.naturalWidth,
+									height: img.naturalHeight,
+								});
+							}
+							fitToView();
+						}}
 					/>
+					{activeFilter !== FilterType.NONE && (
+						<img
+							src={src}
+							alt=""
+							aria-hidden
+							className="absolute inset-0 w-full h-full pointer-events-none select-none"
+							style={{
+								...overlayFilterStyle,
+								opacity: overlayOpacity,
+								clipPath: sideBySideEnabled ? "inset(0 0 0 50%)" : undefined,
+							}}
+							draggable={false}
+						/>
+					)}
+					{sideBySideEnabled && (
+						<div
+							className="absolute top-0 bottom-0 w-px bg-accent/70 pointer-events-none"
+							style={{ left: "50%" }}
+						/>
+					)}
 				</div>
 			</div>
+			{magnifierLens}
 		</section>
 	);
 };

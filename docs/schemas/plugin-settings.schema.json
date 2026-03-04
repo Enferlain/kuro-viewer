@@ -1,0 +1,209 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://kuro-viewer.dev/schemas/plugin-settings.schema.json",
+	"title": "Kuro Viewer Plugin Settings Schema",
+	"description": "Declarative settings contract for plugin-defined settings UIs and persisted plugin settings values.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["schema_version", "plugin_id", "presentation", "sections"],
+	"properties": {
+		"schema_version": {
+			"type": "string",
+			"description": "Settings schema contract version.",
+			"pattern": "^1\\.[0-9]+\\.[0-9]+$"
+		},
+		"plugin_id": {
+			"type": "string",
+			"description": "Plugin id this settings schema belongs to.",
+			"pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+			"minLength": 3,
+			"maxLength": 64
+		},
+		"title": {
+			"type": "string",
+			"maxLength": 80
+		},
+		"description": {
+			"type": "string",
+			"maxLength": 280
+		},
+		"presentation": {
+			"type": "string",
+			"enum": ["inline", "modal"],
+			"description": "Configure surface mode. Host owns outer shell styling; plugin content renders inside inline expansion or host modal."
+		},
+		"sections": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "#/$defs/section"
+			}
+		}
+	},
+	"$defs": {
+		"section": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id", "label", "fields"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+					"minLength": 1,
+					"maxLength": 64
+				},
+				"label": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 80
+				},
+				"description": {
+					"type": "string",
+					"maxLength": 280
+				},
+				"fields": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"$ref": "#/$defs/field"
+					}
+				}
+			}
+		},
+		"field": {
+			"oneOf": [
+				{ "$ref": "#/$defs/booleanField" },
+				{ "$ref": "#/$defs/numberField" },
+				{ "$ref": "#/$defs/enumField" },
+				{ "$ref": "#/$defs/stringField" },
+				{ "$ref": "#/$defs/keybindingField" }
+			]
+		},
+		"fieldBase": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id", "type", "label", "default"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Dot path within plugin settings object (example: 'noise.opacity').",
+					"pattern": "^[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)*$",
+					"minLength": 1,
+					"maxLength": 120
+				},
+				"type": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 80
+				},
+				"description": {
+					"type": "string",
+					"maxLength": 280
+				},
+				"default": {},
+				"required": {
+					"type": "boolean",
+					"default": false
+				}
+			}
+		},
+		"booleanField": {
+			"allOf": [
+				{ "$ref": "#/$defs/fieldBase" },
+				{
+					"properties": {
+						"type": { "const": "boolean" },
+						"default": { "type": "boolean" }
+					}
+				}
+			]
+		},
+		"numberField": {
+			"allOf": [
+				{ "$ref": "#/$defs/fieldBase" },
+				{
+					"required": ["min", "max", "step"],
+					"properties": {
+						"type": { "const": "number" },
+						"default": { "type": "number" },
+						"min": { "type": "number" },
+						"max": { "type": "number" },
+						"step": { "type": "number", "exclusiveMinimum": 0 },
+						"ui": {
+							"type": "string",
+							"enum": ["slider", "input"],
+							"default": "slider"
+						}
+					}
+				}
+			]
+		},
+		"enumField": {
+			"allOf": [
+				{ "$ref": "#/$defs/fieldBase" },
+				{
+					"required": ["options"],
+					"properties": {
+						"type": { "const": "enum" },
+						"default": { "type": "string", "minLength": 1 },
+						"options": {
+							"type": "array",
+							"minItems": 1,
+							"items": {
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["value", "label"],
+								"properties": {
+									"value": {
+										"type": "string",
+										"minLength": 1,
+										"maxLength": 80
+									},
+									"label": { "type": "string", "minLength": 1, "maxLength": 80 }
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"stringField": {
+			"allOf": [
+				{ "$ref": "#/$defs/fieldBase" },
+				{
+					"properties": {
+						"type": { "const": "string" },
+						"default": { "type": "string" },
+						"min_length": { "type": "integer", "minimum": 0 },
+						"max_length": { "type": "integer", "minimum": 1 },
+						"pattern": { "type": "string" }
+					}
+				}
+			]
+		},
+		"keybindingField": {
+			"allOf": [
+				{ "$ref": "#/$defs/fieldBase" },
+				{
+					"properties": {
+						"type": { "const": "keybinding" },
+						"default": {
+							"type": "string",
+							"pattern": "^[A-Za-z0-9\\[\\]\\-_=,.;'/`]+$",
+							"minLength": 1,
+							"maxLength": 24
+						},
+						"scope": {
+							"type": "string",
+							"enum": ["global", "viewer", "plugin"],
+							"default": "plugin"
+						}
+					}
+				}
+			]
+		}
+	}
+}

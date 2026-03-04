@@ -7,11 +7,18 @@ import { SettingsModal } from "./components/settings/SettingsModal";
 import { ThumbnailStrip } from "./components/ThumbnailStrip";
 import { Toolbar } from "./components/Toolbar";
 import {
-	FilterType,
-	type ImageFile,
-	type ImageMetadata,
-	type ViewerState,
-} from "./types";
+	createForensicsModeActions,
+	cycleForensicsMode,
+	FORENSICS_PLUGIN,
+	type ForensicsPluginState,
+	getForensicsModeHotkey,
+	readForensicsStateFromStore,
+} from "./plugin-system/forensics";
+import {
+	createInitialPluginSettingsStore,
+	type PluginSettingsStore,
+} from "./plugin-system/settings";
+import type { ImageFile, ImageMetadata, ViewerState } from "./types";
 
 // Placeholder data generation
 const generateMockImages = (): ImageFile[] => {
@@ -44,7 +51,31 @@ const MOCK_IMAGES = generateMockImages();
 const App: React.FC = () => {
 	const [images] = useState<ImageFile[]>(MOCK_IMAGES);
 	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [activeFilter, setActiveFilter] = useState<FilterType>(FilterType.NONE);
+	const [pluginSettings, setPluginSettings] = useState<PluginSettingsStore>(
+		createInitialPluginSettingsStore,
+	);
+	const forensicsState = useMemo(
+		() => readForensicsStateFromStore(pluginSettings),
+		[pluginSettings],
+	);
+	const forensicsModeActions = useMemo(
+		() => createForensicsModeActions(forensicsState.hotkeys),
+		[forensicsState.hotkeys],
+	);
+	const updateForensicsState = useCallback(
+		(next: React.SetStateAction<ForensicsPluginState>) => {
+			setPluginSettings((prev) => {
+				const current = readForensicsStateFromStore(prev);
+				const resolved = typeof next === "function" ? next(current) : next;
+				return {
+					...prev,
+					[FORENSICS_PLUGIN.id]: resolved,
+				};
+			});
+		},
+		[],
+	);
+	const [analysisScore, setAnalysisScore] = useState<number | null>(null);
 	const [isMetadataOpen, setIsMetadataOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [isToolbarVisible, setIsToolbarVisible] = useState(true);
@@ -61,6 +92,7 @@ const App: React.FC = () => {
 	});
 
 	const currentImage = images[selectedIndex];
+	const activeFilter = forensicsState.mode;
 	const navControlButtonClass =
 		"pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center border border-glass-border-base bg-overlay-dim backdrop-blur-xl text-foreground-secondary shadow-xl transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform hover:bg-glass-bg-hover hover:border-glass-border-hover hover:text-foreground hover:shadow-glow hover:scale-110 active:scale-95";
 
@@ -207,6 +239,13 @@ const App: React.FC = () => {
 			)
 				return;
 
+			const modeAction = getForensicsModeHotkey(e.key, forensicsState.hotkeys);
+			if (modeAction) {
+				e.preventDefault();
+				updateForensicsState((prev) => ({ ...prev, mode: modeAction.mode }));
+				return;
+			}
+
 			switch (e.key) {
 				case "ArrowRight":
 					e.preventDefault();
@@ -216,19 +255,19 @@ const App: React.FC = () => {
 					e.preventDefault();
 					handlePrev();
 					break;
-				case "n":
-				case "N":
+				case "[":
 					e.preventDefault();
-					setActiveFilter((prev) =>
-						prev === FilterType.NOISE ? FilterType.NONE : FilterType.NOISE,
-					);
+					updateForensicsState((prev) => ({
+						...prev,
+						mode: cycleForensicsMode(prev.mode, "prev"),
+					}));
 					break;
-				case "p":
-				case "P":
+				case "]":
 					e.preventDefault();
-					setActiveFilter((prev) =>
-						prev === FilterType.PCA ? FilterType.NONE : FilterType.PCA,
-					);
+					updateForensicsState((prev) => ({
+						...prev,
+						mode: cycleForensicsMode(prev.mode, "next"),
+					}));
 					break;
 				case "0":
 					e.preventDefault();
@@ -275,17 +314,32 @@ const App: React.FC = () => {
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleNext, handlePrev, handleResetView, handleZoomIn, handleZoomOut]);
+	}, [
+		forensicsState.hotkeys,
+		handleNext,
+		handlePrev,
+		handleResetView,
+		handleZoomIn,
+		handleZoomOut,
+		updateForensicsState,
+	]);
 
 	return (
 		<div className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden">
 			{/* 1. Header / Toolbar */}
 			<div
-				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${isToolbarVisible ? "h-toolbar opacity-100" : "h-0 opacity-0"}`}
+				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${
+					isToolbarVisible ? "h-toolbar opacity-100" : "h-0 opacity-0"
+				}`}
 			>
 				<Toolbar
 					currentFilter={activeFilter}
-					onFilterChange={setActiveFilter}
+					modeActions={forensicsModeActions}
+					onFilterChange={(mode) =>
+						updateForensicsState((prev) => ({ ...prev, mode }))
+					}
+					score={analysisScore}
+					showScore={forensicsState.view.outputScore}
 					onZoomIn={handleZoomIn}
 					onZoomOut={handleZoomOut}
 					onReset={handleResetView}
@@ -308,6 +362,8 @@ const App: React.FC = () => {
 						<ImageViewer
 							src={currentImage.url}
 							activeFilter={activeFilter}
+							forensicsState={forensicsState}
+							onAnalysisScoreChange={setAnalysisScore}
 							viewerState={viewerState}
 							setViewerState={setViewerState}
 						/>
@@ -316,7 +372,7 @@ const App: React.FC = () => {
 						<div
 							className={`
                 absolute left-0 top-0 bottom-0 w-32 flex items-center justify-start pl-6 
-	                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
+		                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
                 ${hoverZone === "left" ? "opacity-100" : "opacity-0"}
               `}
 						>
@@ -337,7 +393,7 @@ const App: React.FC = () => {
 						<div
 							className={`
                 absolute right-0 top-0 bottom-0 w-32 flex items-center justify-end pr-6 
-	                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
+		                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
                 ${hoverZone === "right" ? "opacity-100" : "opacity-0"}
               `}
 						>
@@ -383,6 +439,8 @@ const App: React.FC = () => {
 			<SettingsModal
 				isOpen={isSettingsOpen}
 				onClose={() => setIsSettingsOpen(false)}
+				pluginSettings={pluginSettings}
+				onPluginSettingsChange={setPluginSettings}
 			/>
 		</div>
 	);
