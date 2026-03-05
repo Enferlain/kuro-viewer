@@ -15,18 +15,13 @@ pub struct HostPluginContract {
     pub supported_permissions: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum PluginBackend {
+    #[default]
     Wasm,
     PythonSubprocess,
     None,
-}
-
-impl Default for PluginBackend {
-    fn default() -> Self {
-        Self::Wasm
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

@@ -160,6 +160,9 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 	const [dynamicSettingsDefinitions, setDynamicSettingsDefinitions] = useState<
 		Record<string, PluginSettingsDefinition>
 	>({});
+	const [schemaValidationErrors, setSchemaValidationErrors] = useState<
+		Record<string, string>
+	>({});
 	const [aboutPlugin, setAboutPlugin] = useState<PluginManifestEntry | null>(
 		null,
 	);
@@ -280,10 +283,12 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 
 			if (missingStaticDefinition.length === 0) {
 				setDynamicSettingsDefinitions({});
+				setSchemaValidationErrors({});
 				return;
 			}
 
 			const loaded: Record<string, PluginSettingsDefinition> = {};
+			const validationErrors: Record<string, string> = {};
 			for (const plugin of missingStaticDefinition) {
 				try {
 					const schemaJson = await tauriInvoke<string | null>(
@@ -296,18 +301,36 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 						continue;
 					}
 
+					try {
+						await tauriInvoke("validate_plugin_settings_schema", {
+							pluginId: plugin.id,
+						});
+					} catch (err) {
+						const errorMessage =
+							err instanceof Error ? err.message : String(err);
+						validationErrors[plugin.id] =
+							`Invalid settings schema: ${errorMessage}. Update the plugin package and reinstall.`;
+						continue;
+					}
+
 					const definition = createPluginSettingsDefinitionFromSchema(
 						schemaJson,
 						plugin.id,
 					);
 					if (definition) {
 						loaded[plugin.id] = definition;
+						continue;
 					}
+					validationErrors[plugin.id] =
+						"Schema could not be rendered by the host UI runtime. Update the plugin package and reinstall.";
 				} catch (err) {
 					console.warn(
 						`Failed to load settings schema for plugin '${plugin.id}':`,
 						err,
 					);
+					const errorMessage = err instanceof Error ? err.message : String(err);
+					validationErrors[plugin.id] =
+						`Failed to load settings schema: ${errorMessage}`;
 				}
 			}
 
@@ -316,6 +339,7 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 			}
 
 			setDynamicSettingsDefinitions(loaded);
+			setSchemaValidationErrors(validationErrors);
 		};
 
 		void loadDynamicDefinitions();
@@ -626,6 +650,14 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 		setStatus(null);
 		try {
 			await tauriInvoke("uninstall_plugin", { pluginId });
+			onPluginSettingsChange((prev) => {
+				if (!(pluginId in prev)) {
+					return prev;
+				}
+				const next = { ...prev };
+				delete next[pluginId];
+				return next;
+			});
 			setStatus({
 				type: "success",
 				message: `Removed ${pluginName} (${pluginId})`,
@@ -775,6 +807,11 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 								const settingsDefinition =
 									getPluginSettingsDefinition(plugin.id) ??
 									dynamicSettingsDefinitions[plugin.id];
+								const schemaValidationError =
+									plugin.origin === "installed" &&
+									!getPluginSettingsDefinition(plugin.id)
+										? schemaValidationErrors[plugin.id]
+										: undefined;
 								const settingsPresentation =
 									settingsDefinition?.presentation ?? "inline";
 								const hasSettings = settingsDefinition !== undefined;
@@ -816,6 +853,17 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 														</span>
 													)}
 												</div>
+												{schemaValidationError && (
+													<div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1.5 text-[10px] text-destructive flex items-start gap-1.5">
+														<AlertCircle
+															size={12}
+															className="mt-0.5 flex-none"
+														/>
+														<span className="break-words">
+															{schemaValidationError}
+														</span>
+													</div>
+												)}
 											</div>
 											<div className="flex items-center gap-1">
 												<button

@@ -26,6 +26,7 @@ pub fn run() {
             plugin_install::install_plugin,
             plugin_install::list_plugins,
             plugin_install::read_plugin_settings_schema,
+            plugin_install::validate_plugin_settings_schema,
             plugin_install::uninstall_plugin
         ])
         .run(tauri::generate_context!())

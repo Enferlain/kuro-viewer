@@ -24,13 +24,14 @@ Implemented and working today:
 - Installed plugins list + About + Remove actions.
 - Dynamic Configure rendering for installed plugins using `settings.schema.json`.
 - Built-in forensics plugin settings definition.
+- Plugin settings persisted under app settings (`plugins.installedSettings`).
+- Host-side `settings.schema.json` validation with fail-closed Configure behavior.
 
 Known gaps:
 
-- Installed plugin settings are not yet persisted in the app settings snapshot.
-- Settings schema parsing is frontend-only and not fully contract-validated.
 - Plugin lifecycle is still "install/list/uninstall" only (no enable/disable/state/index metadata).
-- Docs mix "target contract" and "currently implemented" behavior.
+- High-count plugin performance/index caching is not implemented yet.
+- Full docs/onboarding quickstart and troubleshooting are still incomplete.
 
 ---
 
@@ -38,16 +39,16 @@ Known gaps:
 
 ### 1) Persist plugin settings end-to-end
 
-Status: Not started
+Status: Implemented (manual QA pending)
 
 Tasks:
 
-- [ ] Extend `AppSettings` with `plugins.installedSettings: Record<string, unknown>` (or equivalent top-level stable field).
-- [ ] Add migration/normalization for this new field in `settingsSchema.ts`.
-- [ ] Replace `App.tsx` local-only plugin settings state with settings-context-backed state.
-- [ ] Wire `SettingsModal` Apply/Cancel behavior so plugin settings follow the same draft semantics as other settings.
-- [ ] On uninstall, remove that plugin's persisted settings entry.
-- [ ] On reinstall/upgrade, preserve settings when plugin ID is unchanged.
+- [x] Extend `AppSettings` with `plugins.installedSettings: Record<string, unknown>` (or equivalent top-level stable field).
+- [x] Add migration/normalization for this new field in `settingsSchema.ts`.
+- [x] Replace `App.tsx` local-only plugin settings state with settings-context-backed state.
+- [x] Wire `SettingsModal` Apply/Cancel behavior so plugin settings follow the same draft semantics as other settings.
+- [x] On uninstall, remove that plugin's persisted settings entry.
+- [x] On reinstall/upgrade, preserve settings when plugin ID is unchanged.
 
 Acceptance criteria:
 
@@ -58,22 +59,22 @@ Acceptance criteria:
 
 ### 2) Validate settings schema against contract (not just parse)
 
-Status: Partial
+Status: Implemented (manual QA pending)
 
 Tasks:
 
-- [ ] Add host-side schema validation command (`validate_plugin_settings_schema`) and call it when loading installed plugin settings schema.
-- [ ] Enforce required contract fields (`schema_version`, `plugin_id`, `presentation`, `sections`) with limits.
-- [ ] Enforce max counts to prevent pathological schemas (example: max sections, max fields per section).
-- [ ] Enforce field-level constraints consistently with `docs/schemas/plugin-settings.schema.json`.
-- [ ] Require `plugin_id` in schema to match installed plugin ID.
-- [ ] Fail closed in UI: when invalid, hide Configure and show actionable error banner.
+- [x] Add host-side schema validation command (`validate_plugin_settings_schema`) and call it when loading installed plugin settings schema.
+- [x] Enforce required contract fields (`schema_version`, `plugin_id`, `presentation`, `sections`) with limits.
+- [x] Enforce max counts to prevent pathological schemas (example: max sections, max fields per section).
+- [x] Enforce field-level constraints consistently with `docs/schemas/plugin-settings.schema.json`.
+- [x] Require `plugin_id` in schema to match installed plugin ID.
+- [x] Fail closed in UI: when invalid, hide Configure and show actionable error banner.
 
 Acceptance criteria:
 
-- [ ] Invalid schema cannot render settings UI.
-- [ ] Error path is clear to user and to logs.
-- [ ] Validation behavior is deterministic and test-covered.
+- [x] Invalid schema cannot render settings UI.
+- [x] Error path is clear to user and to logs.
+- [x] Validation behavior is deterministic and test-covered.
 
 ### 3) Complete plugin security envelope for current scope
 
@@ -83,7 +84,7 @@ Tasks:
 
 - [ ] Enforce `.plugin` extension and MIME assumptions server-side (not only in frontend).
 - [ ] Reject symlink-like archive entries if platform/zip crate exposes them.
-- [ ] Add explicit tests for `read_plugin_settings_schema` security paths:
+- [x] Add explicit tests for `read_plugin_settings_schema` security paths:
   - invalid plugin ID
   - missing plugin.json in install directory
   - oversized settings schema
@@ -202,13 +203,13 @@ Tasks:
 
 ### 11) Split docs into "implemented now" vs "target"
 
-Status: Not started
+Status: Implemented (manual QA pending)
 
 Tasks:
 
-- [ ] In `docs/PLUGIN_CONTRACT_1.0.md`, clearly mark which sections are current host behavior vs forward-looking target.
-- [ ] Add a concise compatibility table (`supported now`, `planned`, `unsupported`).
-- [ ] Document exact fallback behavior when settings schema is invalid or missing.
+- [x] In `docs/PLUGIN_CONTRACT_1.0.md`, clearly mark which sections are current host behavior vs forward-looking target.
+- [x] Add a concise compatibility table (`supported now`, `planned`, `unsupported`).
+- [x] Document exact fallback behavior when settings schema is invalid or missing.
 
 ### 12) Authoring quickstart and reference plugin packaging
 
@@ -254,3 +255,23 @@ Tasks:
 - [ ] Decide whether current CSS overlay path is sufficient or move to real pixel pipeline (canvas/WASM backend).
 - [ ] Decide final `rembg` behavior semantics (visual-only, score-only, or full segmentation).
 - [ ] Add packaging script + release checklist for external forensics `.plugin` artifact.
+
+---
+
+## Forensics Capability Pass (2026-03-05)
+
+Objective: make forensics controls produce real image-processing output (not CSS-only approximations), and close missing runtime behavior wiring.
+
+Scope:
+
+- [x] Replace CSS-filter overlay path in `ImageViewer` with pixel-processing overlays for `Noise`, `PCA`, and `Texture`.
+- [x] Ensure mode-specific controls (amplitude/input/mode/component/linearize/invert/enhancement/strength/smoothness/opacity) directly affect rendered output.
+- [x] Wire `sideBySide` hotkey to toggle split-compare behavior at runtime.
+- [x] Gate score computation behind `view.outputScore` so disabling score also disables compute path.
+- [ ] Validate with `pnpm typecheck` and quick manual behavior checks in viewer.
+
+Acceptance criteria:
+
+- [ ] Visual output changes immediately and materially when each forensics control changes.
+- [ ] Side-by-side toggle works from both settings toggle and configured hotkey.
+- [x] No TypeScript errors introduced.

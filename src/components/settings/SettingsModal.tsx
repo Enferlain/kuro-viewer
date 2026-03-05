@@ -70,9 +70,7 @@ interface SettingsModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	pluginSettings: PluginSettingsStore;
-	onPluginSettingsChange: React.Dispatch<
-		React.SetStateAction<PluginSettingsStore>
-	>;
+	onPluginSettingsCommit: (next: PluginSettingsStore) => void;
 }
 
 /**
@@ -100,7 +98,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	isOpen,
 	onClose,
 	pluginSettings,
-	onPluginSettingsChange,
+	onPluginSettingsCommit,
 }) => {
 	const { settings, updateSettings } = useSettings();
 	const [isVisible, setIsVisible] = useState(false);
@@ -116,7 +114,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 	const [draft, setDraft] = useState<AppSettings>(() =>
 		structuredClone(settings),
 	);
+	const [pluginSettingsDraft, setPluginSettingsDraft] =
+		useState<PluginSettingsStore>(() => structuredClone(pluginSettings));
 	const baselineRef = useRef<string>("");
+	const pluginBaselineRef = useRef<string>("");
+	const wasOpenRef = useRef(false);
 
 	// General
 	const [startupRun, setStartupRun] = useField(
@@ -450,24 +452,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
 	// --- CHANGE TRACKING ---
 	const hasChanges =
-		baselineRef.current !== "" && baselineRef.current !== JSON.stringify(draft);
+		(baselineRef.current !== "" &&
+			baselineRef.current !== JSON.stringify(draft)) ||
+		(pluginBaselineRef.current !== "" &&
+			pluginBaselineRef.current !== JSON.stringify(pluginSettingsDraft));
 
 	// Snapshot baseline + reset draft when modal opens
 	useEffect(() => {
 		if (isOpen) {
 			setIsVisible(true);
-			const cloned = structuredClone(settings);
-			setDraft(cloned);
-			baselineRef.current = JSON.stringify(cloned);
+			if (!wasOpenRef.current) {
+				const cloned = structuredClone(settings);
+				const clonedPluginSettings = structuredClone(pluginSettings);
+				setDraft(cloned);
+				setPluginSettingsDraft(clonedPluginSettings);
+				baselineRef.current = JSON.stringify(cloned);
+				pluginBaselineRef.current = JSON.stringify(clonedPluginSettings);
+			}
 		} else {
 			const timer = setTimeout(() => setIsVisible(false), 200);
+			wasOpenRef.current = false;
 			return () => clearTimeout(timer);
 		}
-	}, [isOpen, settings]);
+		wasOpenRef.current = true;
+	}, [isOpen, settings, pluginSettings]);
 
 	const handleApply = () => {
-		updateSettings(draft);
-		baselineRef.current = JSON.stringify(draft);
+		const nextPluginSettings = structuredClone(pluginSettingsDraft);
+		const nextSettings: AppSettings = {
+			...draft,
+			plugins: {
+				...draft.plugins,
+				installedSettings: nextPluginSettings,
+			},
+		};
+		updateSettings(nextSettings);
+		onPluginSettingsCommit(nextPluginSettings);
+		baselineRef.current = JSON.stringify(nextSettings);
+		pluginBaselineRef.current = JSON.stringify(nextPluginSettings);
 		onClose();
 	};
 
@@ -678,8 +700,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 			case "plugins":
 				return (
 					<PluginsTab
-						pluginSettings={pluginSettings}
-						onPluginSettingsChange={onPluginSettingsChange}
+						pluginSettings={pluginSettingsDraft}
+						onPluginSettingsChange={setPluginSettingsDraft}
 						hostModalSize={size}
 					/>
 				);

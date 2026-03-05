@@ -1,11 +1,22 @@
 # Kuro Viewer Plugin Contract 1.0 (Authoring Guide)
 
 Contract version: `1.0.0`  
-Status: **Target contract for plugin authoring and host implementation hardening**  
-Last updated: `2026-03-04`
+Status: **Mixed: implemented host behavior + 1.0 target contract**  
+Last updated: `2026-03-05`
 
 This document defines a practical, detailed plugin contract for Kuro Viewer 1.0.
 It is designed so plugin authors can build against one clear format while host-side loading continues to mature.
+
+## 0. Current Host Compatibility (As Of 2026-03-05)
+
+| Capability | Status | Notes |
+|---|---|---|
+| Install / inspect / list / uninstall | Supported now | Includes staging+rollback extraction hardening. |
+| Dynamic Configure from `settings.schema.json` | Supported now | `inline` and `modal` presentations are host-rendered. |
+| Host-side schema validation | Supported now | Invalid schema fails closed in UI. |
+| Persisted plugin settings | Supported now | Stored in app settings under `plugins.installedSettings`. |
+| Plugin enable/disable lifecycle | Planned | Not implemented yet; install/remove only. |
+| Startup/index caching for many plugins | Planned | No cached plugin index yet. |
 
 ## 1. Scope
 
@@ -244,6 +255,10 @@ Host persists plugin settings in a plugin-keyed map:
 }
 ```
 
+In app settings, this map is persisted under:
+
+- `plugins.installedSettings`
+
 ### 6.4 Migration Rule
 
 When plugin settings shape changes:
@@ -251,6 +266,24 @@ When plugin settings shape changes:
 - plugin SHOULD provide a `migrate(input)` function in frontend module settings descriptor
 - migration MUST be idempotent for already-current snapshots
 - migration MUST handle unknown/missing fields safely
+
+### 6.5 Host Validation + Fallback Behavior (Implemented Now)
+
+When loading installed plugin settings schemas, the host validates schema content before rendering Configure.
+
+Validation rules currently enforced by host:
+
+- required top-level fields: `schema_version`, `plugin_id`, `presentation`, `sections`
+- `schema_version` major MUST be `1`
+- `plugin_id` MUST exactly match installed plugin id
+- section/field limits: max `24` sections, max `64` fields per section, max `64` enum options
+- field-level validation aligned to `docs/schemas/plugin-settings.schema.json`
+
+Fallback behavior:
+
+- missing `settings.schema.json`: no dynamic Configure UI is shown
+- invalid schema/read/validation error: Configure is hidden for that plugin and host shows an actionable error banner in Plugins tab
+- valid schema: host-generated Configure UI is available
 
 ## 7. Backend Contract (1.0 Target)
 
@@ -301,6 +334,21 @@ See `THEME_CONTRACT.md` for required semantic tokens and namespacing rules.
 6. Verify defaults exist for every settings field.
 7. Verify plugin loads with zero warnings in dev host.
 8. Build archive with `plugin.json` at root.
+
+## 10.1 Compatibility Summary
+
+### Supported now
+
+- manifest validation and install hardening
+- dynamic Configure via declarative schema
+- host-side schema validation + fail-closed behavior
+- persisted plugin settings (`plugins.installedSettings`)
+
+### Planned
+
+- plugin enable/disable runtime lifecycle
+- plugin index cache for high plugin counts
+- centralized hotkey conflict resolver
 
 ## 11. Forensics Plugin Mapping (Current Example)
 

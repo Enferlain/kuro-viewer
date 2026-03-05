@@ -86,6 +86,7 @@ export interface AppSettingsV1 {
 		pluginDirectory: string;
 		autoLoadPlugins: boolean;
 		devMode: boolean;
+		installedSettings: Record<string, unknown>;
 	};
 }
 
@@ -181,6 +182,7 @@ export const defaultAppSettings: AppSettings = {
 		pluginDirectory: "",
 		autoLoadPlugins: true,
 		devMode: false,
+		installedSettings: {},
 	},
 };
 
@@ -441,13 +443,31 @@ function migrateLegacyFlatSettings(
 		source.pluginDevMode,
 		settings.plugins.devMode,
 	);
+	settings.plugins.installedSettings = readUnknownRecord(
+		source.pluginSettings,
+		settings.plugins.installedSettings,
+	);
 
 	return settings;
 }
 
 function normalizeV1(source: LegacyFlatSettings): AppSettings {
 	if (isAppSettingsV1(source)) {
-		return structuredClone(source);
+		const cloned = structuredClone(source);
+		const normalizedPlugins: Record<string, unknown> = isRecord(cloned.plugins)
+			? cloned.plugins
+			: {};
+		return {
+			...cloned,
+			plugins: {
+				...defaultAppSettings.plugins,
+				...normalizedPlugins,
+				installedSettings: readUnknownRecord(
+					normalizedPlugins.installedSettings,
+					defaultAppSettings.plugins.installedSettings,
+				),
+			},
+		};
 	}
 
 	const migrated = migrateLegacyFlatSettings(source);
@@ -511,6 +531,16 @@ function readNullableString(
 function readStringArray(value: unknown, fallback: string[]): string[] {
 	if (!Array.isArray(value)) return fallback;
 	return value.filter((entry): entry is string => typeof entry === "string");
+}
+
+function readUnknownRecord(
+	value: unknown,
+	fallback: Record<string, unknown>,
+): Record<string, unknown> {
+	if (!isRecord(value)) {
+		return { ...fallback };
+	}
+	return { ...value };
 }
 
 function readThemeDescriptors(

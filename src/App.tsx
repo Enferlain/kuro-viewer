@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImageViewer } from "./components/ImageViewer";
 import { MetadataModal } from "./components/MetadataModal";
 import { SettingsModal } from "./components/settings/SettingsModal";
@@ -18,7 +18,19 @@ import {
 	createInitialPluginSettingsStore,
 	type PluginSettingsStore,
 } from "./plugin-system/settings";
+import { useSettings } from "./stores/settings";
 import type { ImageFile, ImageMetadata, ViewerState } from "./types";
+
+const IS_TAURI = "__TAURI_INTERNALS__" in window;
+
+function createHydratedPluginSettingsStore(
+	stored: Record<string, unknown> | undefined,
+): PluginSettingsStore {
+	return {
+		...createInitialPluginSettingsStore(),
+		...(stored ?? {}),
+	};
+}
 
 // Placeholder data generation
 const generateMockImages = (): ImageFile[] => {
@@ -49,11 +61,80 @@ const generateMockImages = (): ImageFile[] => {
 const MOCK_IMAGES = generateMockImages();
 
 const App: React.FC = () => {
+	const { settings, updateSettings } = useSettings();
+	const settingsRef = useRef(settings);
+	useEffect(() => {
+		settingsRef.current = settings;
+	}, [settings]);
+
 	const [images] = useState<ImageFile[]>(MOCK_IMAGES);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [pluginSettings, setPluginSettings] = useState<PluginSettingsStore>(
-		createInitialPluginSettingsStore,
+		() => createHydratedPluginSettingsStore(settings.plugins.installedSettings),
 	);
+	useEffect(() => {
+		setPluginSettings(
+			createHydratedPluginSettingsStore(settings.plugins.installedSettings),
+		);
+	}, [settings.plugins.installedSettings]);
+
+	const persistInstalledPluginSettings = useCallback(
+		(nextStore: PluginSettingsStore) => {
+			const currentSettings = settingsRef.current;
+			updateSettings({
+				...currentSettings,
+				plugins: {
+					...currentSettings.plugins,
+					installedSettings: structuredClone(nextStore),
+				},
+			});
+		},
+		[updateSettings],
+	);
+
+	useEffect(() => {
+		if (!IS_TAURI) {
+			return;
+		}
+
+		let disposed = false;
+		let unlisten: (() => void) | null = null;
+
+		void (async () => {
+			try {
+				const { listen } = await import("@tauri-apps/api/event");
+				const teardown = await listen<string>("plugin-uninstalled", (event) => {
+					if (disposed || typeof event.payload !== "string") {
+						return;
+					}
+					const pluginId = event.payload;
+					setPluginSettings((prev) => {
+						if (!(pluginId in prev)) {
+							return prev;
+						}
+						const next = { ...prev };
+						delete next[pluginId];
+						persistInstalledPluginSettings(next);
+						return next;
+					});
+				});
+
+				if (disposed) {
+					teardown();
+					return;
+				}
+				unlisten = teardown;
+			} catch (error) {
+				console.warn("Failed to subscribe to plugin-uninstalled event:", error);
+			}
+		})();
+
+		return () => {
+			disposed = true;
+			unlisten?.();
+		};
+	}, [persistInstalledPluginSettings]);
+
 	const forensicsState = useMemo(
 		() => readForensicsStateFromStore(pluginSettings),
 		[pluginSettings],
@@ -243,6 +324,20 @@ const App: React.FC = () => {
 			if (modeAction) {
 				e.preventDefault();
 				updateForensicsState((prev) => ({ ...prev, mode: modeAction.mode }));
+				return;
+			}
+
+			if (
+				e.key.toLowerCase() === forensicsState.hotkeys.sideBySide.toLowerCase()
+			) {
+				e.preventDefault();
+				updateForensicsState((prev) => ({
+					...prev,
+					view: {
+						...prev.view,
+						sideBySide: !prev.view.sideBySide,
+					},
+				}));
 				return;
 			}
 
@@ -440,7 +535,7 @@ const App: React.FC = () => {
 				isOpen={isSettingsOpen}
 				onClose={() => setIsSettingsOpen(false)}
 				pluginSettings={pluginSettings}
-				onPluginSettingsChange={setPluginSettings}
+				onPluginSettingsCommit={setPluginSettings}
 			/>
 		</div>
 	);
