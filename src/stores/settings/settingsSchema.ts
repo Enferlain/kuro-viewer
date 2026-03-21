@@ -86,6 +86,7 @@ export interface AppSettingsV1 {
 		pluginDirectory: string;
 		autoLoadPlugins: boolean;
 		devMode: boolean;
+		disabledPlugins: string[];
 		installedSettings: Record<string, unknown>;
 	};
 }
@@ -182,6 +183,7 @@ export const defaultAppSettings: AppSettings = {
 		pluginDirectory: "",
 		autoLoadPlugins: true,
 		devMode: false,
+		disabledPlugins: [],
 		installedSettings: {},
 	},
 };
@@ -443,6 +445,10 @@ function migrateLegacyFlatSettings(
 		source.pluginDevMode,
 		settings.plugins.devMode,
 	);
+	settings.plugins.disabledPlugins = readStringArray(
+		source.disabledPlugins,
+		settings.plugins.disabledPlugins,
+	);
 	settings.plugins.installedSettings = readUnknownRecord(
 		source.pluginSettings,
 		settings.plugins.installedSettings,
@@ -462,6 +468,10 @@ function normalizeV1(source: LegacyFlatSettings): AppSettings {
 			plugins: {
 				...defaultAppSettings.plugins,
 				...normalizedPlugins,
+				disabledPlugins: readStringArray(
+					normalizedPlugins.disabledPlugins,
+					defaultAppSettings.plugins.disabledPlugins,
+				),
 				installedSettings: readUnknownRecord(
 					normalizedPlugins.installedSettings,
 					defaultAppSettings.plugins.installedSettings,

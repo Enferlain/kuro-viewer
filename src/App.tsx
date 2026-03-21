@@ -19,9 +19,39 @@ import {
 	type PluginSettingsStore,
 } from "./plugin-system/settings";
 import { useSettings } from "./stores/settings";
-import type { ImageFile, ImageMetadata, ViewerState } from "./types";
+import {
+	FilterType,
+	type ImageFile,
+	type ImageMetadata,
+	type ViewerState,
+} from "./types";
 
 const IS_TAURI = "__TAURI_INTERNALS__" in window;
+
+function isPluginDisabled(
+	disabledPlugins: string[],
+	pluginId: string,
+): boolean {
+	return disabledPlugins.includes(pluginId);
+}
+
+function createRuntimeDisabledForensicsState(
+	state: ForensicsPluginState,
+): ForensicsPluginState {
+	return {
+		...state,
+		mode: FilterType.NONE,
+		magnifier: {
+			...state.magnifier,
+			enabled: false,
+		},
+		view: {
+			...state.view,
+			sideBySide: false,
+			outputScore: false,
+		},
+	};
+}
 
 function createHydratedPluginSettingsStore(
 	stored: Record<string, unknown> | undefined,
@@ -78,14 +108,31 @@ const App: React.FC = () => {
 		);
 	}, [settings.plugins.installedSettings]);
 
-	const persistInstalledPluginSettings = useCallback(
-		(nextStore: PluginSettingsStore) => {
+	const removePluginFromPersistedState = useCallback(
+		(pluginId: string) => {
 			const currentSettings = settingsRef.current;
+			const hasInstalledSettings =
+				pluginId in currentSettings.plugins.installedSettings;
+			const hasDisabledState =
+				currentSettings.plugins.disabledPlugins.includes(pluginId);
+
+			if (!hasInstalledSettings && !hasDisabledState) {
+				return;
+			}
+
+			const nextInstalledSettings = {
+				...currentSettings.plugins.installedSettings,
+			};
+			delete nextInstalledSettings[pluginId];
+
 			updateSettings({
 				...currentSettings,
 				plugins: {
 					...currentSettings.plugins,
-					installedSettings: structuredClone(nextStore),
+					disabledPlugins: currentSettings.plugins.disabledPlugins.filter(
+						(id) => id !== pluginId,
+					),
+					installedSettings: nextInstalledSettings,
 				},
 			});
 		},
@@ -114,9 +161,9 @@ const App: React.FC = () => {
 						}
 						const next = { ...prev };
 						delete next[pluginId];
-						persistInstalledPluginSettings(next);
 						return next;
 					});
+					removePluginFromPersistedState(pluginId);
 				});
 
 				if (disposed) {
@@ -133,15 +180,30 @@ const App: React.FC = () => {
 			disposed = true;
 			unlisten?.();
 		};
-	}, [persistInstalledPluginSettings]);
+	}, [removePluginFromPersistedState]);
+
+	const isForensicsDisabled = isPluginDisabled(
+		settings.plugins.disabledPlugins,
+		FORENSICS_PLUGIN.id,
+	);
 
 	const forensicsState = useMemo(
 		() => readForensicsStateFromStore(pluginSettings),
 		[pluginSettings],
 	);
+	const runtimeForensicsState = useMemo(
+		() =>
+			isForensicsDisabled
+				? createRuntimeDisabledForensicsState(forensicsState)
+				: forensicsState,
+		[forensicsState, isForensicsDisabled],
+	);
 	const forensicsModeActions = useMemo(
-		() => createForensicsModeActions(forensicsState.hotkeys),
-		[forensicsState.hotkeys],
+		() =>
+			isForensicsDisabled
+				? []
+				: createForensicsModeActions(runtimeForensicsState.hotkeys),
+		[runtimeForensicsState.hotkeys, isForensicsDisabled],
 	);
 	const updateForensicsState = useCallback(
 		(next: React.SetStateAction<ForensicsPluginState>) => {
@@ -173,7 +235,7 @@ const App: React.FC = () => {
 	});
 
 	const currentImage = images[selectedIndex];
-	const activeFilter = forensicsState.mode;
+	const activeFilter = runtimeForensicsState.mode;
 	const navControlButtonClass =
 		"pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center border border-glass-border-base bg-overlay-dim backdrop-blur-xl text-foreground-secondary shadow-xl transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform hover:bg-glass-bg-hover hover:border-glass-border-hover hover:text-foreground hover:shadow-glow hover:scale-110 active:scale-95";
 
@@ -321,13 +383,14 @@ const App: React.FC = () => {
 				return;
 
 			const modeAction = getForensicsModeHotkey(e.key, forensicsState.hotkeys);
-			if (modeAction) {
+			if (!isForensicsDisabled && modeAction) {
 				e.preventDefault();
 				updateForensicsState((prev) => ({ ...prev, mode: modeAction.mode }));
 				return;
 			}
 
 			if (
+				!isForensicsDisabled &&
 				e.key.toLowerCase() === forensicsState.hotkeys.sideBySide.toLowerCase()
 			) {
 				e.preventDefault();
@@ -351,6 +414,7 @@ const App: React.FC = () => {
 					handlePrev();
 					break;
 				case "[":
+					if (isForensicsDisabled) break;
 					e.preventDefault();
 					updateForensicsState((prev) => ({
 						...prev,
@@ -358,6 +422,7 @@ const App: React.FC = () => {
 					}));
 					break;
 				case "]":
+					if (isForensicsDisabled) break;
 					e.preventDefault();
 					updateForensicsState((prev) => ({
 						...prev,
@@ -410,6 +475,7 @@ const App: React.FC = () => {
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [
+		isForensicsDisabled,
 		forensicsState.hotkeys,
 		handleNext,
 		handlePrev,
@@ -434,7 +500,7 @@ const App: React.FC = () => {
 						updateForensicsState((prev) => ({ ...prev, mode }))
 					}
 					score={analysisScore}
-					showScore={forensicsState.view.outputScore}
+					showScore={runtimeForensicsState.view.outputScore}
 					onZoomIn={handleZoomIn}
 					onZoomOut={handleZoomOut}
 					onReset={handleResetView}
@@ -457,7 +523,7 @@ const App: React.FC = () => {
 						<ImageViewer
 							src={currentImage.url}
 							activeFilter={activeFilter}
-							forensicsState={forensicsState}
+							forensicsState={runtimeForensicsState}
 							onAnalysisScoreChange={setAnalysisScore}
 							viewerState={viewerState}
 							setViewerState={setViewerState}

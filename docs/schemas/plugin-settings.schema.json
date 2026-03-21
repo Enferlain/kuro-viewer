@@ -181,8 +181,7 @@
 						"type": { "const": "string" },
 						"default": { "type": "string" },
 						"min_length": { "type": "integer", "minimum": 0 },
-						"max_length": { "type": "integer", "minimum": 1 },
-						"pattern": { "type": "string", "maxLength": 256 }
+						"max_length": { "type": "integer", "minimum": 1 }
 					}
 				}
 			]

@@ -79,6 +79,10 @@ fn installed_manifest_version(plugins_root: &Path, plugin_id: &str) -> String {
     manifest.version
 }
 
+fn read_install_index(plugins_root: &Path) -> PluginInstallIndex {
+    read_plugin_index(plugins_root).expect("plugin install index should be readable")
+}
+
 fn manifest_json(version: &str) -> String {
     format!(
         r#"{{
@@ -110,6 +114,19 @@ fn install_list_uninstall_roundtrip() {
         .join("sepia-filter")
         .join("plugin.json")
         .exists());
+    let install_index = read_install_index(&plugins_root);
+    let install_record = install_index
+        .plugins
+        .get("sepia-filter")
+        .expect("install index should contain installed plugin");
+    assert_eq!(install_record.id, "sepia-filter");
+    assert_eq!(install_record.version, "1.0.0");
+    assert_eq!(install_record.source_filename, "test.plugin");
+    assert_eq!(
+        install_record.archive_sha256,
+        sha256_file(&archive_path).expect("archive hash should be readable")
+    );
+    assert!(install_record.installed_at_unix_ms > 0);
 
     let listed = list_plugins_in_dir(&plugins_root);
     assert_eq!(listed.len(), 1);
@@ -117,6 +134,9 @@ fn install_list_uninstall_roundtrip() {
 
     uninstall_plugin_in_dir(&plugins_root, "sepia-filter").expect("uninstall should succeed");
     assert!(!plugins_root.join("sepia-filter").exists());
+    assert!(!read_install_index(&plugins_root)
+        .plugins
+        .contains_key("sepia-filter"));
 
     cleanup_dir(&root);
 }
@@ -135,6 +155,37 @@ fn install_rejects_same_version_when_already_installed() {
 
     let second = install_plugin_in_dir(&plugins_root, &archive_path);
     assert!(second.is_err());
+
+    cleanup_dir(&root);
+}
+
+#[test]
+fn inspect_rejects_non_plugin_extension() {
+    let root = unique_temp_dir("plugin-inspect-invalid-extension");
+    let archive_path = root.join("invalid.zip");
+    write_plugin_archive(&archive_path, &manifest_json("1.0.0"));
+
+    let result = inspect_plugin_manifest_path(&archive_path);
+    assert!(result.is_err());
+    let error = result.expect_err("inspect should fail invalid extension");
+    assert!(error.contains("extension must be .plugin"));
+
+    cleanup_dir(&root);
+}
+
+#[test]
+fn install_rejects_non_plugin_extension() {
+    let root = unique_temp_dir("plugin-install-invalid-extension");
+    let plugins_root = root.join("plugins");
+    fs::create_dir_all(&plugins_root).expect("failed to create plugins root");
+    let archive_path = root.join("invalid.zip");
+    write_plugin_archive(&archive_path, &manifest_json("1.0.0"));
+
+    let result = install_plugin_in_dir(&plugins_root, &archive_path);
+    assert!(result.is_err());
+    let error = result.expect_err("install should fail invalid extension");
+    assert!(error.contains("extension must be .plugin"));
+    assert!(!plugins_root.join("sepia-filter").exists());
 
     cleanup_dir(&root);
 }
@@ -235,6 +286,34 @@ fn install_rejects_archive_with_too_many_entries() {
 }
 
 #[test]
+fn install_rejects_archive_with_symlink_entry() {
+    let root = unique_temp_dir("plugin-install-symlink-entry");
+    let plugins_root = root.join("plugins");
+    fs::create_dir_all(&plugins_root).expect("failed to create plugins root");
+    let archive_path = root.join("symlink.plugin");
+
+    let file = fs::File::create(&archive_path).expect("failed to create archive file");
+    let mut zip = ZipWriter::new(file);
+    let options = SimpleFileOptions::default();
+
+    zip.start_file("plugin.json", options)
+        .expect("failed to create plugin.json entry");
+    zip.write_all(manifest_json("1.0.0").as_bytes())
+        .expect("failed to write plugin.json");
+    zip.add_symlink("linked-dir", "../outside", options)
+        .expect("failed to create symlink entry");
+    zip.finish().expect("failed to finalize archive");
+
+    let result = install_plugin_in_dir(&plugins_root, &archive_path);
+    assert!(result.is_err());
+    let error = result.expect_err("install should fail symlink entry");
+    assert!(error.contains("symlink entry"));
+    assert!(!plugins_root.join("sepia-filter").exists());
+
+    cleanup_dir(&root);
+}
+
+#[test]
 fn install_rejects_archive_over_uncompressed_size_cap() {
     let root = unique_temp_dir("plugin-install-size-limit");
     let plugins_root = root.join("plugins");
@@ -311,6 +390,43 @@ fn install_rolls_back_previous_version_on_finalize_failure() {
         installed_manifest_version(&plugins_root, "sepia-filter"),
         "1.0.0"
     );
+
+    cleanup_dir(&root);
+}
+
+#[test]
+fn install_updates_plugin_index_for_upgrades() {
+    let root = unique_temp_dir("plugin-install-index-upgrade");
+    let plugins_root = root.join("plugins");
+    fs::create_dir_all(&plugins_root).expect("failed to create plugins root");
+
+    let first_archive = root.join("first.plugin");
+    let second_archive = root.join("second.plugin");
+    write_plugin_archive(&first_archive, &manifest_json("1.0.0"));
+    write_plugin_archive(&second_archive, &manifest_json("1.1.0"));
+
+    install_plugin_in_dir(&plugins_root, &first_archive).expect("first install should work");
+    let first_record = read_install_index(&plugins_root)
+        .plugins
+        .get("sepia-filter")
+        .cloned()
+        .expect("first record should exist");
+
+    install_plugin_in_dir(&plugins_root, &second_archive).expect("upgrade should work");
+    let second_record = read_install_index(&plugins_root)
+        .plugins
+        .get("sepia-filter")
+        .cloned()
+        .expect("second record should exist");
+
+    assert_eq!(second_record.version, "1.1.0");
+    assert_eq!(second_record.source_filename, "second.plugin");
+    assert_eq!(
+        second_record.archive_sha256,
+        sha256_file(&second_archive).expect("second archive hash should be readable")
+    );
+    assert_ne!(first_record.archive_sha256, second_record.archive_sha256);
+    assert!(second_record.installed_at_unix_ms >= first_record.installed_at_unix_ms);
 
     cleanup_dir(&root);
 }
@@ -402,6 +518,35 @@ fn validate_settings_schema_rejects_plugin_id_mismatch() {
     assert!(result.is_err());
     let error = result.expect_err("schema should fail plugin id mismatch");
     assert!(error.contains("does not match installed plugin id"));
+}
+
+#[test]
+fn validate_settings_schema_rejects_string_pattern() {
+    let schema = r#"{
+        "schema_version": "1.0.0",
+        "plugin_id": "sepia-filter",
+        "presentation": "inline",
+        "sections": [
+            {
+                "id": "core",
+                "label": "Core",
+                "fields": [
+                    {
+                        "id": "noise.label",
+                        "type": "string",
+                        "label": "Label",
+                        "default": "preview",
+                        "pattern": "^[a-z]+$"
+                    }
+                ]
+            }
+        ]
+    }"#;
+
+    let result = validate_plugin_settings_schema_json(schema, "sepia-filter");
+    assert!(result.is_err());
+    let error = result.expect_err("schema should reject string pattern");
+    assert!(error.contains(".pattern is not supported"));
 }
 
 #[test]

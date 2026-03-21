@@ -44,6 +44,8 @@ type PendingInstall = {
 };
 
 interface PluginsTabProps {
+	disabledPlugins: string[];
+	onDisabledPluginsChange: React.Dispatch<React.SetStateAction<string[]>>;
 	pluginSettings: PluginSettingsStore;
 	onPluginSettingsChange: React.Dispatch<
 		React.SetStateAction<PluginSettingsStore>
@@ -136,6 +138,8 @@ function pickPluginFilePathWithInput(): Promise<string | null> {
 }
 
 export const PluginsTab: React.FC<PluginsTabProps> = ({
+	disabledPlugins,
+	onDisabledPluginsChange,
 	pluginSettings,
 	onPluginSettingsChange,
 	hostModalSize,
@@ -169,6 +173,10 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 	const [pendingRemoval, setPendingRemoval] =
 		useState<PluginManifestEntry | null>(null);
 	const dropZoneRef = useRef<HTMLDivElement | null>(null);
+	const disabledPluginIds = useMemo(
+		() => new Set(disabledPlugins),
+		[disabledPlugins],
+	);
 
 	const displayPlugins = useMemo<PluginManifestEntry[]>(() => {
 		const installedEntries = plugins.map((plugin) => ({
@@ -476,6 +484,30 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 		[dynamicSettingsDefinitions],
 	);
 
+	const handleToggleDisabled = useCallback(
+		(pluginId: string) => {
+			const isCurrentlyDisabled = disabledPluginIds.has(pluginId);
+			const nextDisabled = !isCurrentlyDisabled;
+
+			onDisabledPluginsChange((prev) => {
+				if (nextDisabled) {
+					return prev.includes(pluginId) ? prev : [...prev, pluginId];
+				}
+				return prev.filter((id) => id !== pluginId);
+			});
+
+			if (nextDisabled) {
+				setActiveInlinePluginId((current) =>
+					current === pluginId ? null : current,
+				);
+				setActiveModalPluginId((current) =>
+					current === pluginId ? null : current,
+				);
+			}
+		},
+		[disabledPluginIds, onDisabledPluginsChange],
+	);
+
 	const installFromPath = useCallback(async (path: string) => {
 		setIsInstalling(true);
 		try {
@@ -650,6 +682,7 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 		setStatus(null);
 		try {
 			await tauriInvoke("uninstall_plugin", { pluginId });
+			onDisabledPluginsChange((prev) => prev.filter((id) => id !== pluginId));
 			onPluginSettingsChange((prev) => {
 				if (!(pluginId in prev)) {
 					return prev;
@@ -804,6 +837,7 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 					) : (
 						<div className="space-y-2">
 							{displayPlugins.map((plugin) => {
+								const isDisabled = disabledPluginIds.has(plugin.id);
 								const settingsDefinition =
 									getPluginSettingsDefinition(plugin.id) ??
 									dynamicSettingsDefinitions[plugin.id];
@@ -816,6 +850,7 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 									settingsDefinition?.presentation ?? "inline";
 								const hasSettings = settingsDefinition !== undefined;
 								const showInlineSettings =
+									!isDisabled &&
 									hasSettings &&
 									settingsPresentation === "inline" &&
 									activeInlinePluginId === plugin.id;
@@ -828,44 +863,70 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 								return (
 									<div
 										key={`${plugin.origin}-${plugin.id}`}
-										className="rounded-xl bg-glass-bg-subtle border border-glass-border-base group hover:border-glass-border-strong transition-colors"
+										className={[
+											"rounded-xl border group transition-colors",
+											isDisabled
+												? "bg-transparent border-glass-border-subtle"
+												: "bg-glass-bg-subtle border-glass-border-base hover:border-glass-border-strong",
+										].join(" ")}
 									>
 										<div className="flex items-center justify-between px-3 py-2.5">
-											<div className="min-w-0">
-												<div className="flex items-center gap-2">
-													<span className="text-xs font-semibold text-foreground truncate">
-														{plugin.name}
-													</span>
-													<span className="text-[10px] text-foreground-muted font-mono">
-														v{plugin.version}
-													</span>
-												</div>
-												<div className="flex items-center gap-2 mt-0.5">
-													<span className="text-[10px] text-foreground-subtle font-mono">
-														{plugin.id}
-													</span>
-													<span className="text-[10px] px-1.5 py-0 rounded bg-glass-bg-hover text-foreground-muted">
-														{plugin.backend}
-													</span>
-													{plugin.origin === "builtin" && (
-														<span className="text-[10px] px-1.5 py-0 rounded border border-accent/20 bg-accent/10 text-accent">
-															built-in
+											<div className="flex items-center gap-2.5 min-w-0">
+												<ToggleSwitch
+													checked={!isDisabled}
+													onChange={() => handleToggleDisabled(plugin.id)}
+													title={
+														isDisabled
+															? `Enable ${plugin.name}`
+															: `Disable ${plugin.name}`
+													}
+												/>
+												<div
+													className={[
+														"min-w-0 transition-opacity",
+														isDisabled ? "opacity-35" : "",
+													].join(" ")}
+												>
+													<div className="flex items-center gap-2">
+														<span className="text-xs font-semibold text-foreground truncate">
+															{plugin.name}
 														</span>
-													)}
-												</div>
-												{schemaValidationError && (
-													<div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1.5 text-[10px] text-destructive flex items-start gap-1.5">
-														<AlertCircle
-															size={12}
-															className="mt-0.5 flex-none"
-														/>
-														<span className="break-words">
-															{schemaValidationError}
+														<span className="text-[10px] text-foreground-muted font-mono">
+															v{plugin.version}
 														</span>
 													</div>
-												)}
+													<div className="flex items-center gap-2 mt-0.5">
+														<span className="text-[10px] text-foreground-subtle font-mono">
+															{plugin.id}
+														</span>
+														<span className="text-[10px] px-1.5 py-0 rounded bg-glass-bg-hover text-foreground-muted">
+															{plugin.backend}
+														</span>
+														{plugin.origin === "builtin" && (
+															<span className="text-[10px] px-1.5 py-0 rounded border border-accent/20 bg-accent/10 text-accent">
+																built-in
+															</span>
+														)}
+													</div>
+													{schemaValidationError && (
+														<div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-2 py-1.5 text-[10px] text-destructive flex items-start gap-1.5">
+															<AlertCircle
+																size={12}
+																className="mt-0.5 flex-none"
+															/>
+															<span className="break-words">
+																{schemaValidationError}
+															</span>
+														</div>
+													)}
+												</div>
 											</div>
-											<div className="flex items-center gap-1">
+											<div
+												className={[
+													"flex items-center gap-1",
+													isDisabled ? "opacity-50" : "",
+												].join(" ")}
+											>
 												<button
 													type="button"
 													onClick={() => showPluginAbout(plugin)}
@@ -874,7 +935,8 @@ export const PluginsTab: React.FC<PluginsTabProps> = ({
 												>
 													About
 												</button>
-												{hasSettings && (
+
+												{hasSettings && !isDisabled && (
 													<button
 														type="button"
 														onClick={() => handleConfigurePlugin(plugin.id)}
@@ -1320,4 +1382,33 @@ const TagRow: React.FC<{ label: string; items: string[] }> = ({
 			))}
 		</div>
 	</div>
+);
+
+const ToggleSwitch: React.FC<{
+	checked: boolean;
+	onChange: () => void;
+	title?: string;
+}> = ({ checked, onChange, title }) => (
+	<button
+		type="button"
+		role="switch"
+		aria-checked={checked}
+		onClick={onChange}
+		title={title}
+		className={[
+			"relative inline-flex h-[18px] w-[32px] flex-none items-center rounded-full cursor-pointer transition-colors duration-(--ui-motion-duration-standard)",
+			checked
+				? "bg-accent hover:bg-accent-bright"
+				: "bg-foreground-subtle/20 hover:bg-foreground-subtle/30",
+		].join(" ")}
+	>
+		<span
+			className={[
+				"inline-block h-[14px] w-[14px] rounded-full shadow-sm transition-transform duration-(--ui-motion-duration-standard)",
+				checked
+					? "translate-x-[16px] bg-foreground"
+					: "translate-x-[2px] bg-foreground-muted",
+			].join(" ")}
+		/>
+	</button>
 );

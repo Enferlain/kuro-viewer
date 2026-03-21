@@ -1,9 +1,14 @@
 mod schema_validation;
 
+use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::fs;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use tauri::{Emitter, Manager};
 use zip::ZipArchive;
 
@@ -22,6 +27,32 @@ const MAX_UNCOMPRESSED_BYTES: u64 = 50 * BYTES_PER_MIB;
 const MAX_SETTINGS_SCHEMA_BYTES: u64 = 512 * 1024;
 
 const BYTES_PER_MIB: u64 = 1024 * 1024;
+const PLUGIN_INDEX_SCHEMA_VERSION: u32 = 1;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default)]
+struct PluginInstallIndex {
+    schema_version: u32,
+    plugins: BTreeMap<String, PluginInstallRecord>,
+}
+
+impl Default for PluginInstallIndex {
+    fn default() -> Self {
+        Self {
+            schema_version: PLUGIN_INDEX_SCHEMA_VERSION,
+            plugins: BTreeMap::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+struct PluginInstallRecord {
+    id: String,
+    version: String,
+    installed_at_unix_ms: u64,
+    source_filename: String,
+    archive_sha256: String,
+}
 
 fn plugins_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let dir = app
@@ -29,6 +60,154 @@ fn plugins_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
         .app_data_dir()
         .map_err(|e| format!("failed to resolve app data dir: {e}"))?;
     Ok(dir.join("plugins"))
+}
+
+fn plugin_index_path(plugins_root: &Path) -> PathBuf {
+    plugins_root.join("index.json")
+}
+
+fn current_unix_timestamp_ms() -> Result<u64, String> {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|e| format!("system clock error: {e}"))
+        .map(|duration| duration.as_millis() as u64)
+}
+
+fn hex_encode_lower(bytes: &[u8]) -> String {
+    let mut output = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        let _ = write!(&mut output, "{byte:02x}");
+    }
+    output
+}
+
+fn sha256_file(path: &Path) -> Result<String, String> {
+    let mut file =
+        fs::File::open(path).map_err(|e| format!("failed to open archive for hashing: {e}"))?;
+    let mut hasher = Sha256::new();
+    let mut buffer = [0_u8; 8192];
+
+    loop {
+        let bytes_read = file
+            .read(&mut buffer)
+            .map_err(|e| format!("failed to hash archive {}: {e}", path.display()))?;
+        if bytes_read == 0 {
+            break;
+        }
+        hasher.update(&buffer[..bytes_read]);
+    }
+
+    Ok(hex_encode_lower(&hasher.finalize()))
+}
+
+fn read_plugin_index(plugins_root: &Path) -> Result<PluginInstallIndex, String> {
+    let index_path = plugin_index_path(plugins_root);
+    if !index_path.exists() {
+        return Ok(PluginInstallIndex::default());
+    }
+
+    let json = fs::read_to_string(&index_path)
+        .map_err(|e| format!("failed to read plugin install index: {e}"))?;
+    let index: PluginInstallIndex = serde_json::from_str(&json)
+        .map_err(|e| format!("plugin install index is invalid JSON: {e}"))?;
+
+    if index.schema_version != PLUGIN_INDEX_SCHEMA_VERSION {
+        return Err(format!(
+            "plugin install index schema_version '{}' is unsupported; expected {}",
+            index.schema_version, PLUGIN_INDEX_SCHEMA_VERSION
+        ));
+    }
+
+    for (id, record) in &index.plugins {
+        if id != &record.id {
+            return Err(format!(
+                "plugin install index entry key '{id}' does not match embedded id '{}'",
+                record.id
+            ));
+        }
+    }
+
+    Ok(index)
+}
+
+fn write_plugin_index(plugins_root: &Path, index: &PluginInstallIndex) -> Result<(), String> {
+    fs::create_dir_all(plugins_root)
+        .map_err(|e| format!("failed to ensure plugin index directory exists: {e}"))?;
+
+    let index_path = plugin_index_path(plugins_root);
+    let temp_path = plugins_root.join(".index.json.tmp");
+    let json = serde_json::to_vec_pretty(index)
+        .map_err(|e| format!("failed to serialize plugin install index: {e}"))?;
+
+    fs::write(&temp_path, json)
+        .map_err(|e| format!("failed to write temporary plugin install index: {e}"))?;
+
+    if index_path.exists() {
+        fs::remove_file(&index_path)
+            .map_err(|e| format!("failed to replace plugin install index: {e}"))?;
+    }
+
+    if let Err(error) = fs::rename(&temp_path, &index_path) {
+        let _ = fs::remove_file(&temp_path);
+        return Err(format!("failed to finalize plugin install index: {error}"));
+    }
+
+    Ok(())
+}
+
+fn update_plugin_index_after_install(
+    plugins_root: &Path,
+    archive_path: &Path,
+    manifest: &PluginManifest,
+) -> Result<(), String> {
+    let mut index = read_plugin_index(plugins_root)?;
+    let installed_at_unix_ms = current_unix_timestamp_ms()?;
+    let archive_sha256 = sha256_file(archive_path)?;
+    let source_filename = archive_path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned)
+        .unwrap_or_else(|| archive_path.display().to_string());
+
+    index.plugins.insert(
+        manifest.id.clone(),
+        PluginInstallRecord {
+            id: manifest.id.clone(),
+            version: manifest.version.clone(),
+            installed_at_unix_ms,
+            source_filename,
+            archive_sha256,
+        },
+    );
+
+    write_plugin_index(plugins_root, &index)
+}
+
+fn update_plugin_index_after_uninstall(plugins_root: &Path, plugin_id: &str) -> Result<(), String> {
+    let mut index = read_plugin_index(plugins_root)?;
+    if index.plugins.remove(plugin_id).is_none() && !plugin_index_path(plugins_root).exists() {
+        return Ok(());
+    }
+
+    write_plugin_index(plugins_root, &index)
+}
+
+fn require_plugin_archive_extension(path: &Path) -> Result<(), String> {
+    let has_plugin_extension = path
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.eq_ignore_ascii_case("plugin"))
+        .unwrap_or(false);
+
+    if !has_plugin_extension {
+        return Err(format!(
+            "invalid plugin archive '{}': file extension must be .plugin",
+            path.display()
+        ));
+    }
+
+    Ok(())
 }
 
 /// Validate a plugin ID for safe use in filesystem paths.
@@ -88,6 +267,10 @@ fn extract_archive<R: std::io::Read + std::io::Seek>(
         let mut entry = archive
             .by_index(i)
             .map_err(|e| format!("failed to read archive entry: {e}"))?;
+
+        if entry.is_symlink() {
+            return Err("archive contains symlink entry".to_string());
+        }
 
         let entry_name = entry
             .enclosed_name()
@@ -212,6 +395,8 @@ fn read_manifest_from_archive<R: std::io::Read + std::io::Seek>(
 }
 
 fn inspect_plugin_manifest_path(archive_path: &Path) -> Result<PluginManifest, String> {
+    require_plugin_archive_extension(archive_path)?;
+
     if !archive_path.exists() {
         return Err(format!("file not found: {}", archive_path.display()));
     }
@@ -240,6 +425,8 @@ fn install_plugin_in_dir_with_rename<F>(
 where
     F: FnMut(&Path, &Path) -> std::io::Result<()>,
 {
+    require_plugin_archive_extension(archive_path)?;
+
     if !archive_path.exists() {
         return Err(format!("file not found: {}", archive_path.display()));
     }
@@ -328,6 +515,8 @@ where
         })?;
     }
 
+    update_plugin_index_after_install(plugins_root, archive_path, &manifest)?;
+
     Ok(manifest)
 }
 
@@ -380,6 +569,7 @@ fn uninstall_plugin_in_dir(plugins_root: &Path, plugin_id: &str) -> Result<(), S
 
     fs::remove_dir_all(&install_dir)
         .map_err(|e| format!("failed to uninstall plugin '{plugin_id}': {e}"))?;
+    update_plugin_index_after_uninstall(plugins_root, plugin_id)?;
 
     Ok(())
 }

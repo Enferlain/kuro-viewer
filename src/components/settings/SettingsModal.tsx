@@ -14,7 +14,7 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PluginSettingsStore } from "../../plugin-system/settings";
 import type { AppSettings } from "../../stores/settings";
 import { useSettings } from "../../stores/settings";
@@ -450,6 +450,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		"preserveCropAspectRatio",
 	);
 
+	// Plugins
+	const [disabledPlugins, setDisabledPlugins] = useField(
+		draft,
+		setDraft,
+		"plugins",
+		"disabledPlugins",
+	);
+	const updateDisabledPlugins = useCallback(
+		(next: React.SetStateAction<string[]>) => {
+			setDisabledPlugins(
+				typeof next === "function" ? next(disabledPlugins) : next,
+			);
+		},
+		[disabledPlugins, setDisabledPlugins],
+	);
+
 	// --- CHANGE TRACKING ---
 	const hasChanges =
 		(baselineRef.current !== "" &&
@@ -700,6 +716,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 			case "plugins":
 				return (
 					<PluginsTab
+						disabledPlugins={disabledPlugins}
+						onDisabledPluginsChange={updateDisabledPlugins}
 						pluginSettings={pluginSettingsDraft}
 						onPluginSettingsChange={setPluginSettingsDraft}
 						hostModalSize={size}

@@ -15,7 +15,8 @@ It is designed so plugin authors can build against one clear format while host-s
 | Dynamic Configure from `settings.schema.json` | Supported now | `inline` and `modal` presentations are host-rendered. |
 | Host-side schema validation | Supported now | Invalid schema fails closed in UI. |
 | Persisted plugin settings | Supported now | Stored in app settings under `plugins.installedSettings`. |
-| Plugin enable/disable lifecycle | Planned | Not implemented yet; install/remove only. |
+| Host-owned install metadata | Supported now | Stored in app data under `plugins/index.json`. |
+| Plugin enable/disable lifecycle | Supported now | Enabled by default, persisted via host settings, and runtime-gated when disabled. |
 | Startup/index caching for many plugins | Planned | No cached plugin index yet. |
 
 ## 1. Scope
@@ -259,6 +260,18 @@ In app settings, this map is persisted under:
 
 - `plugins.installedSettings`
 
+Host-owned install metadata is stored separately in:
+
+- `plugins/index.json`
+
+Current install index entries record:
+
+- `id`
+- `version`
+- `installed_at_unix_ms`
+- `source_filename`
+- `archive_sha256`
+
 ### 6.4 Migration Rule
 
 When plugin settings shape changes:
@@ -277,6 +290,7 @@ Validation rules currently enforced by host:
 - `schema_version` major MUST be `1`
 - `plugin_id` MUST exactly match installed plugin id
 - section/field limits: max `24` sections, max `64` fields per section, max `64` enum options
+- string field `pattern` is not supported in host 1.0; schemas using regex-style validation fail closed
 - field-level validation aligned to `docs/schemas/plugin-settings.schema.json`
 
 Fallback behavior:
@@ -340,13 +354,14 @@ See `THEME_CONTRACT.md` for required semantic tokens and namespacing rules.
 ### Supported now
 
 - manifest validation and install hardening
+- host-owned install metadata in `plugins/index.json`
+- plugin enable/disable lifecycle with persisted disabled state
 - dynamic Configure via declarative schema
 - host-side schema validation + fail-closed behavior
 - persisted plugin settings (`plugins.installedSettings`)
 
 ### Planned
 
-- plugin enable/disable runtime lifecycle
 - plugin index cache for high plugin counts
 - centralized hotkey conflict resolver
 

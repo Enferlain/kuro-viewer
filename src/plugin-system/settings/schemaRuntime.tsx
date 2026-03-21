@@ -41,7 +41,6 @@ type StringField = FieldBase & {
 	default: string;
 	minLength?: number;
 	maxLength?: number;
-	pattern?: string;
 };
 
 type KeybindingField = FieldBase & {
@@ -173,15 +172,6 @@ function sanitizeByField(field: SchemaField, input: unknown): unknown {
 				source.length < field.minLength
 			) {
 				return field.default;
-			}
-			if (field.pattern) {
-				try {
-					if (!new RegExp(field.pattern).test(source)) {
-						return field.default;
-					}
-				} catch {
-					return source;
-				}
 			}
 			return source;
 		}
@@ -315,15 +305,12 @@ function parseStringField(
 		typeof field.max_length === "number" && Number.isInteger(field.max_length)
 			? Math.max(1, field.max_length)
 			: undefined;
-	const pattern = typeof field.pattern === "string" ? field.pattern : undefined;
-
 	return {
 		...base,
 		type: "string",
 		default: defaultValue,
 		minLength,
 		maxLength,
-		pattern,
 	};
 }
 

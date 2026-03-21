@@ -459,6 +459,9 @@ pub(super) fn validate_plugin_settings_schema_json(
                             MAX_SETTINGS_PATTERN_LEN,
                             &format!("{field_path}.pattern"),
                         )?;
+                        return Err(format!(
+                            "{field_path}.pattern is not supported in host 1.0; regex validation is disabled for safety"
+                        ));
                     }
                     if let Some(max_length) = string_field.max_length {
                         if string_field.default.len() > max_length as usize {

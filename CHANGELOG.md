@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-03-21
+
+### Changed
+
+- Frontend/Settings: **Plugin enable/disable lifecycle is now persisted in app settings** (`settingsSchema.ts`, `SettingsModal.tsx`, `PluginsTab.tsx`) — disabled plugins now live under `plugins.disabledPlugins`, follow the same Apply/Cancel flow as other settings, hide Configure when inactive, and present clearer state in the Plugins tab.
+- Frontend/Runtime: **Built-in forensics plugin disable now affects real app behavior** (`App.tsx`) — disabling the plugin now neutralizes active forensic modes, suppresses plugin hotkeys/runtime actions, and removes stale plugin-owned state instead of only changing settings UI.
+- Backend: **Install metadata is now host-owned and centralized** (`plugin_install.rs`) — installs/upgrades/uninstalls now maintain `plugins/index.json` with plugin id, version, source filename, install timestamp, and archive SHA-256.
+- Backend: **Settings schema string regex validation is now explicitly unsupported in 1.0** (`plugin_install/schema_validation.rs`, `schemaRuntime.tsx`) — the host now rejects string-field `pattern` in `settings.schema.json` and no longer executes plugin-supplied regex in the frontend runtime.
+
+### Added
+
+- Backend tests: **Plugin lifecycle/install metadata coverage** (`plugin_install/tests.rs`) — added regression coverage for symlink-entry archive rejection, string-pattern schema rejection, and `plugins/index.json` creation/update/cleanup across install and upgrade flows.
+
+- Docs: **Settings schema 1.0 surface tightened** (`docs/schemas/plugin-settings.schema.json`, `docs/PLUGIN_CONTRACT_1.0.md`) — string-field `pattern` is now documented as unsupported in host 1.0, and install metadata plus lifecycle support are reflected in the contract.
+- Docs: **Plugin Phase 1 closeout docs refreshed** (`plugin_system_implementation_plan.md`, `conductor/tracks/plugin_system_20260321/*`) — synced the remaining plan and track state with shipped lifecycle, hardening, and install-metadata behavior.
+
+## [Unreleased] - 2026-03-05
+
+### Changed
+
+- Frontend/Settings: **Installed plugin settings persistence is now host-backed** (`App.tsx`, `settingsSchema.ts`, `SettingsModal.tsx`, `PluginsTab.tsx`) — plugin settings now persist under `plugins.installedSettings`, follow Apply/Cancel draft semantics, and are pruned on uninstall.
+- Frontend/Backend: **Settings schema validation is now host-enforced** (`plugin_install.rs`, `PluginsTab.tsx`) — added `validate_plugin_settings_schema` command and fail-closed UI behavior (invalid schemas hide Configure and show an actionable error banner).
+- Backend: **Plugin install module refactor** (`plugin_install.rs`, `plugin_install/schema_validation.rs`, `plugin_install/tests.rs`) — split installer runtime logic, schema contract validation, and unit tests into focused submodules for maintainability.
+- Backend: **Server-side archive extension guard** (`plugin_install.rs`, `plugin_install/tests.rs`) — inspect/install paths now reject non-`.plugin` archives before extraction and include explicit tests for invalid extension rejection.
+- Backend: **Clippy cleanup** (`plugin_install.rs`, `plugin_manifest.rs`) — removed needless borrows and replaced manual `Default` impl for `PluginBackend` with derive + `#[default]`.
+
+### Added
+
+- Backend tests: **Schema/security coverage expansion** (`plugin_install/tests.rs`) — added validation-path tests for settings schema contract and explicit read-path security checks (invalid plugin id, missing `plugin.json`, oversized `settings.schema.json`).
+- Docs: **Plugin contract status split + fallback behavior** (`docs/PLUGIN_CONTRACT_1.0.md`) — now explicitly marks implemented vs planned capabilities and documents invalid/missing schema fallback behavior.
+- Docs: **Settings schema limits updated** (`docs/schemas/plugin-settings.schema.json`) — added host-aligned `maxItems` caps for sections/fields/options and `pattern.maxLength`.
+
 ## [Unreleased] - 2026-03-04
 
 ### Changed
