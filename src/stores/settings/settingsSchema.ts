@@ -140,8 +140,6 @@ export const defaultAppSettings: AppSettings = {
 			{ action: "next", label: "Next Image", key: "Right" },
 			{ action: "prev", label: "Previous Image", key: "Left" },
 			{ action: "reset", label: "Reset View", key: "0" },
-			{ action: "noise", label: "Toggle Noise Filter", key: "N" },
-			{ action: "pca", label: "Toggle PCA Filter", key: "P" },
 			{ action: "metadata", label: "Toggle Metadata", key: "I" },
 			{ action: "toolbar", label: "Toggle Toolbar", key: "T" },
 			{ action: "gallery", label: "Toggle Gallery", key: "G" },

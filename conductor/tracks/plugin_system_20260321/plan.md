@@ -28,17 +28,18 @@ Still remaining:
   - [x] Add clear status labels in the Plugins settings tab.
   - [ ] Keep a separate host command and event lifecycle contract deferred until a generic plugin runtime exists.
 
-- [ ] Task: Complete the remaining plugin security envelope
+- [x] Task: Complete the remaining plugin security envelope
   - [x] Add central host-owned install metadata in `plugins/index.json`.
   - [x] Reject symlink-like archive entries if supported by the archive layer.
   - [x] Explicitly disallow regex-style schema inputs for host-rendered string settings.
   - [x] Verify security-sensitive paths are covered by backend tests rather than frontend-only assumptions.
 
 - [ ] Task: Manual Verification - Shipping Blockers
-  - [ ] Verify enable and disable behavior survives restart.
-  - [ ] Verify uninstall removes plugin settings for the removed plugin.
-  - [ ] Verify invalid schema paths fail closed with a clear user-facing message.
+  - [x] Verify enable and disable behavior survives restart.
+  - [x] Verify uninstall removes plugin settings for the removed plugin.
+  - [x] Verify invalid schema paths fail closed with a clear user-facing message.
   - [ ] Verify `plugins/index.json` is created, updated on upgrade, and cleaned up on uninstall.
+  - [x] Verify uninstall removes the installed plugin folder from app data.
 
 ## Phase 2: Scale And Interaction Quality
 
@@ -49,10 +50,11 @@ Still remaining:
   - [ ] Add lightweight instrumentation around list, install, and configure flows.
 
 - [ ] Task: Add cross-plugin hotkey conflict management
-  - [ ] Create a central registry for app and plugin hotkeys.
-  - [ ] Detect conflicts before applying settings.
-  - [ ] Surface conflict warnings in the relevant settings surfaces.
-  - [ ] Define explicit precedence rules.
+  - [ ] Create a central registry for app-core, built-in plugin, and installed-plugin hotkeys.
+  - [ ] Start with built-in forensics plus app-core bindings before generalizing to arbitrary plugin runtime slots.
+  - [ ] Detect conflicts in draft settings before Apply, not only at runtime.
+  - [ ] Surface conflict warnings in both plugin Configure and app Controls surfaces.
+  - [ ] Define precedence rules and blocked bindings behavior.
 
 - [ ] Task: Polish schema-driven Configure UI consistency
   - [ ] Improve field rendering parity where needed.

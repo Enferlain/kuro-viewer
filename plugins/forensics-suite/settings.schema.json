@@ -1,0 +1,251 @@
+{
+	"schema_version": "1.0.0",
+	"plugin_id": "forensics-suite",
+	"title": "Forensics Suite Settings",
+	"description": "Configure analysis overlays and magnifier behavior.",
+	"presentation": "inline",
+	"sections": [
+		{
+			"id": "noise",
+			"label": "Noise",
+			"fields": [
+				{
+					"id": "noise.amplitude",
+					"type": "number",
+					"label": "Amplitude",
+					"default": 1,
+					"min": 1,
+					"max": 100,
+					"step": 1,
+					"ui": "slider"
+				},
+				{
+					"id": "noise.opacity",
+					"type": "number",
+					"label": "Opacity",
+					"default": 0.95,
+					"min": 0,
+					"max": 1,
+					"step": 0.01,
+					"ui": "slider"
+				},
+				{
+					"id": "noise.equalizeHistogram",
+					"type": "boolean",
+					"label": "Equalize histogram",
+					"default": true
+				},
+				{
+					"id": "noise.rembg",
+					"type": "boolean",
+					"label": "Use rembg mask",
+					"default": false
+				}
+			]
+		},
+		{
+			"id": "pca",
+			"label": "PCA",
+			"fields": [
+				{
+					"id": "pca.input",
+					"type": "enum",
+					"label": "Input",
+					"default": "color",
+					"options": [
+						{ "value": "color", "label": "Color" },
+						{ "value": "luminance-gradient", "label": "Luminance Gradient" }
+					]
+				},
+				{
+					"id": "pca.mode",
+					"type": "enum",
+					"label": "Mode",
+					"default": "projection",
+					"options": [
+						{ "value": "projection", "label": "Projection" },
+						{ "value": "difference", "label": "Difference" },
+						{ "value": "distance", "label": "Distance" },
+						{ "value": "component", "label": "Component" }
+					]
+				},
+				{
+					"id": "pca.component",
+					"type": "number",
+					"label": "Component",
+					"default": 1,
+					"min": 1,
+					"max": 3,
+					"step": 1,
+					"ui": "slider"
+				},
+				{
+					"id": "pca.linearize",
+					"type": "boolean",
+					"label": "Linearize",
+					"default": false
+				},
+				{
+					"id": "pca.invert",
+					"type": "boolean",
+					"label": "Invert",
+					"default": false
+				},
+				{
+					"id": "pca.enhancement",
+					"type": "enum",
+					"label": "Enhancement",
+					"default": "equalize-histogram",
+					"options": [
+						{ "value": "none", "label": "None" },
+						{ "value": "equalize-histogram", "label": "Equalize Histogram" },
+						{ "value": "stretch-contrast", "label": "Stretch Contrast" }
+					]
+				},
+				{
+					"id": "pca.opacity",
+					"type": "number",
+					"label": "Opacity",
+					"default": 0.75,
+					"min": 0.1,
+					"max": 1,
+					"step": 0.01,
+					"ui": "slider"
+				}
+			]
+		},
+		{
+			"id": "texture",
+			"label": "Texture",
+			"fields": [
+				{
+					"id": "texture.mode",
+					"type": "enum",
+					"label": "Mode",
+					"default": "edge-balance",
+					"options": [
+						{ "value": "edge-balance", "label": "Edge Balance" },
+						{ "value": "residual-noise", "label": "Residual Noise" },
+						{ "value": "micro-contrast", "label": "Micro Contrast" }
+					]
+				},
+				{
+					"id": "texture.strength",
+					"type": "number",
+					"label": "Strength",
+					"default": 0.55,
+					"min": 0,
+					"max": 1,
+					"step": 0.01,
+					"ui": "slider"
+				},
+				{
+					"id": "texture.smoothness",
+					"type": "number",
+					"label": "Smoothness",
+					"default": 0.3,
+					"min": 0,
+					"max": 1,
+					"step": 0.01,
+					"ui": "slider"
+				},
+				{
+					"id": "texture.enhancement",
+					"type": "enum",
+					"label": "Enhancement",
+					"default": "equalize-histogram",
+					"options": [
+						{ "value": "none", "label": "None" },
+						{ "value": "equalize-histogram", "label": "Equalize Histogram" },
+						{ "value": "stretch-contrast", "label": "Stretch Contrast" }
+					]
+				},
+				{
+					"id": "texture.opacity",
+					"type": "number",
+					"label": "Opacity",
+					"default": 0.65,
+					"min": 0.1,
+					"max": 1,
+					"step": 0.01,
+					"ui": "slider"
+				}
+			]
+		},
+		{
+			"id": "view",
+			"label": "View",
+			"fields": [
+				{
+					"id": "magnifier.enabled",
+					"type": "boolean",
+					"label": "Enable magnifier",
+					"default": true
+				},
+				{
+					"id": "magnifier.zoom",
+					"type": "number",
+					"label": "Magnifier zoom",
+					"default": 2.25,
+					"min": 1.25,
+					"max": 4,
+					"step": 0.05,
+					"ui": "slider"
+				},
+				{
+					"id": "view.sideBySide",
+					"type": "boolean",
+					"label": "Side-by-side compare",
+					"default": false
+				},
+				{
+					"id": "view.outputScore",
+					"type": "boolean",
+					"label": "Compute scores",
+					"default": false
+				}
+			]
+		},
+		{
+			"id": "hotkeys",
+			"label": "Hotkeys",
+			"fields": [
+				{
+					"id": "hotkeys.original",
+					"type": "keybinding",
+					"label": "Original",
+					"default": "O",
+					"scope": "plugin"
+				},
+				{
+					"id": "hotkeys.noise",
+					"type": "keybinding",
+					"label": "Noise",
+					"default": "N",
+					"scope": "plugin"
+				},
+				{
+					"id": "hotkeys.pca",
+					"type": "keybinding",
+					"label": "PCA",
+					"default": "P",
+					"scope": "plugin"
+				},
+				{
+					"id": "hotkeys.texture",
+					"type": "keybinding",
+					"label": "Texture",
+					"default": "M",
+					"scope": "plugin"
+				},
+				{
+					"id": "hotkeys.sideBySide",
+					"type": "keybinding",
+					"label": "Split",
+					"default": "S",
+					"scope": "plugin"
+				}
+			]
+		}
+	]
+}

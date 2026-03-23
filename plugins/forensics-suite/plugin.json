@@ -1,0 +1,18 @@
+{
+	"schema_version": "1.0.0",
+	"id": "forensics-suite",
+	"name": "Forensics Suite",
+	"version": "0.2.0-workspace",
+	"description": "Pixel-level forensic tools for noise, PCA, and texture analysis with interactive overlays.",
+	"author": "Kuro Viewer Team",
+	"source_url": "https://github.com/kuro-viewer/kuro-viewer",
+	"docs_url": "https://github.com/kuro-viewer/kuro-viewer/blob/main/docs/PLUGIN_CONTRACT_1.0.md",
+	"usage": "Open Configure from Settings > Plugins to tune magnifier, hotkeys, and mode-specific controls.",
+	"api_version": "1.0.0",
+	"min_host_version": "0.1.0",
+	"theme_contract": "1.x",
+	"backend": "none",
+	"frontend_entry": "frontend.js",
+	"slots": ["toolbar", "panel"],
+	"permissions": []
+}

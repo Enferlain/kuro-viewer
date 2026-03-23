@@ -1,57 +1,34 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { ImageViewer } from "./components/ImageViewer";
 import { MetadataModal } from "./components/MetadataModal";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { ThumbnailStrip } from "./components/ThumbnailStrip";
 import { Toolbar } from "./components/Toolbar";
 import {
-	createForensicsModeActions,
-	cycleForensicsMode,
-	FORENSICS_PLUGIN,
-	type ForensicsPluginState,
-	getForensicsModeHotkey,
-	readForensicsStateFromStore,
-} from "./plugin-system/forensics";
-import {
 	createInitialPluginSettingsStore,
 	type PluginSettingsStore,
 } from "./plugin-system/settings";
 import { useSettings } from "./stores/settings";
-import {
-	FilterType,
-	type ImageFile,
-	type ImageMetadata,
-	type ViewerState,
-} from "./types";
+import type { ImageFile, ImageMetadata, ViewerState } from "./types";
+
+const DevTools = import.meta.env.DEV
+	? lazy(() =>
+			import("./components/devtools/DevTools").then((m) => ({
+				default: m.DevTools,
+			})),
+		)
+	: null;
 
 const IS_TAURI = "__TAURI_INTERNALS__" in window;
-
-function isPluginDisabled(
-	disabledPlugins: string[],
-	pluginId: string,
-): boolean {
-	return disabledPlugins.includes(pluginId);
-}
-
-function createRuntimeDisabledForensicsState(
-	state: ForensicsPluginState,
-): ForensicsPluginState {
-	return {
-		...state,
-		mode: FilterType.NONE,
-		magnifier: {
-			...state.magnifier,
-			enabled: false,
-		},
-		view: {
-			...state.view,
-			sideBySide: false,
-			outputScore: false,
-		},
-	};
-}
 
 function createHydratedPluginSettingsStore(
 	stored: Record<string, unknown> | undefined,
@@ -62,7 +39,6 @@ function createHydratedPluginSettingsStore(
 	};
 }
 
-// Placeholder data generation
 const generateMockImages = (): ImageFile[] => {
 	const images = [];
 	const subjects = [
@@ -73,12 +49,11 @@ const generateMockImages = (): ImageFile[] => {
 		"technology",
 		"space",
 	];
-	for (let i = 0; i < 15; i++) {
-		const id = i + 1;
-		// Varying aspect ratios for testing fit
+	for (let index = 0; index < 15; index += 1) {
+		const id = index + 1;
 		const width = 1200 + Math.floor(Math.random() * 800);
 		const height = 800 + Math.floor(Math.random() * 800);
-		const subject = subjects[i % subjects.length];
+		const subject = subjects[index % subjects.length];
 		images.push({
 			id: `img-${id}`,
 			url: `https://picsum.photos/seed/${id + 50}/${width}/${height}`,
@@ -102,6 +77,7 @@ const App: React.FC = () => {
 	const [pluginSettings, setPluginSettings] = useState<PluginSettingsStore>(
 		() => createHydratedPluginSettingsStore(settings.plugins.installedSettings),
 	);
+
 	useEffect(() => {
 		setPluginSettings(
 			createHydratedPluginSettingsStore(settings.plugins.installedSettings),
@@ -182,52 +158,12 @@ const App: React.FC = () => {
 		};
 	}, [removePluginFromPersistedState]);
 
-	const isForensicsDisabled = isPluginDisabled(
-		settings.plugins.disabledPlugins,
-		FORENSICS_PLUGIN.id,
-	);
-
-	const forensicsState = useMemo(
-		() => readForensicsStateFromStore(pluginSettings),
-		[pluginSettings],
-	);
-	const runtimeForensicsState = useMemo(
-		() =>
-			isForensicsDisabled
-				? createRuntimeDisabledForensicsState(forensicsState)
-				: forensicsState,
-		[forensicsState, isForensicsDisabled],
-	);
-	const forensicsModeActions = useMemo(
-		() =>
-			isForensicsDisabled
-				? []
-				: createForensicsModeActions(runtimeForensicsState.hotkeys),
-		[runtimeForensicsState.hotkeys, isForensicsDisabled],
-	);
-	const updateForensicsState = useCallback(
-		(next: React.SetStateAction<ForensicsPluginState>) => {
-			setPluginSettings((prev) => {
-				const current = readForensicsStateFromStore(prev);
-				const resolved = typeof next === "function" ? next(current) : next;
-				return {
-					...prev,
-					[FORENSICS_PLUGIN.id]: resolved,
-				};
-			});
-		},
-		[],
-	);
-	const [analysisScore, setAnalysisScore] = useState<number | null>(null);
 	const [isMetadataOpen, setIsMetadataOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
 	const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 	const [isGalleryVisible, setIsGalleryVisible] = useState(true);
-
-	// Hover zone state for navigation arrows
 	const [hoverZone, setHoverZone] = useState<"left" | "right" | null>(null);
-
-	// Initialize scale with 0 to indicate "uncalculated" or "fit to view pending"
 	const [viewerState, setViewerState] = useState<ViewerState>({
 		scale: 0,
 		translation: { x: 0, y: 0 },
@@ -235,16 +171,12 @@ const App: React.FC = () => {
 	});
 
 	const currentImage = images[selectedIndex];
-	const activeFilter = runtimeForensicsState.mode;
 	const navControlButtonClass =
 		"pointer-events-auto h-[var(--spacing-nav-control)] w-[var(--spacing-nav-control)] rounded-full flex items-center justify-center border border-glass-border-base bg-overlay-dim backdrop-blur-xl text-foreground-secondary shadow-xl transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--ui-motion-duration-standard)] ease-[var(--ease-decelerate)] transform-gpu will-change-transform hover:bg-glass-bg-hover hover:border-glass-border-hover hover:text-foreground hover:shadow-glow hover:scale-110 active:scale-95";
 
-	// Generate deterministic mock metadata for the current image (Simulating Stable Diffusion / Gen AI metadata)
-	const currentMetadata: ImageMetadata = useMemo(() => {
+	const currentMetadata: ImageMetadata = (() => {
 		if (!currentImage) return [];
-		const seed = parseInt(currentImage.id.replace(/\D/g, ""), 10) || 1;
-
-		// Simulate realistic varied data
+		const seed = Number.parseInt(currentImage.id.replace(/\D/g, ""), 10) || 1;
 		const steps = 20 + (seed % 4) * 10;
 		const cfg = 7 + (seed % 5) * 0.5;
 		const width = 1024;
@@ -310,12 +242,9 @@ const App: React.FC = () => {
 				],
 			},
 		];
-	}, [currentImage]);
-
-	// -- Handlers --
+	})();
 
 	const handleSelectIndex = useCallback((index: number) => {
-		// Synchronously update both to avoid "popping" where new image is seen at old scale
 		setSelectedIndex(index);
 		setViewerState({ scale: 0, translation: { x: 0, y: 0 }, isFit: true });
 	}, []);
@@ -328,7 +257,6 @@ const App: React.FC = () => {
 		handleSelectIndex((selectedIndex - 1 + images.length) % images.length);
 	}, [selectedIndex, images.length, handleSelectIndex]);
 
-	// Triggers the ImageViewer to recalculate fit
 	const handleResetView = useCallback(() => {
 		setViewerState({ scale: 0, translation: { x: 0, y: 0 }, isFit: true });
 	}, []);
@@ -349,13 +277,10 @@ const App: React.FC = () => {
 		}));
 	}, []);
 
-	const handleMouseMove = useCallback((e: React.MouseEvent) => {
-		// Only process if we have a valid container width
-		const container = e.currentTarget;
+	const handleMouseMove = useCallback((event: React.MouseEvent) => {
+		const container = event.currentTarget;
 		const width = container.clientWidth;
-		const x = e.clientX;
-
-		// Define the threshold for side zones (15% of screen or max 180px)
+		const x = event.clientX;
 		const threshold = Math.min(width * 0.15, 180);
 
 		if (x < threshold) {
@@ -371,136 +296,86 @@ const App: React.FC = () => {
 		setHoverZone(null);
 	}, []);
 
-	// -- Keyboard Shortcuts --
-
 	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			// Ignore if input is focused
+		const handleKeyDown = (event: KeyboardEvent) => {
 			if (
-				e.target instanceof HTMLInputElement ||
-				e.target instanceof HTMLTextAreaElement
-			)
-				return;
-
-			const modeAction = getForensicsModeHotkey(e.key, forensicsState.hotkeys);
-			if (!isForensicsDisabled && modeAction) {
-				e.preventDefault();
-				updateForensicsState((prev) => ({ ...prev, mode: modeAction.mode }));
-				return;
-			}
-
-			if (
-				!isForensicsDisabled &&
-				e.key.toLowerCase() === forensicsState.hotkeys.sideBySide.toLowerCase()
+				event.target instanceof HTMLInputElement ||
+				event.target instanceof HTMLTextAreaElement
 			) {
-				e.preventDefault();
-				updateForensicsState((prev) => ({
-					...prev,
-					view: {
-						...prev.view,
-						sideBySide: !prev.view.sideBySide,
-					},
-				}));
 				return;
 			}
 
-			switch (e.key) {
+			switch (event.key) {
 				case "ArrowRight":
-					e.preventDefault();
+					event.preventDefault();
 					handleNext();
 					break;
 				case "ArrowLeft":
-					e.preventDefault();
+					event.preventDefault();
 					handlePrev();
 					break;
-				case "[":
-					if (isForensicsDisabled) break;
-					e.preventDefault();
-					updateForensicsState((prev) => ({
-						...prev,
-						mode: cycleForensicsMode(prev.mode, "prev"),
-					}));
-					break;
-				case "]":
-					if (isForensicsDisabled) break;
-					e.preventDefault();
-					updateForensicsState((prev) => ({
-						...prev,
-						mode: cycleForensicsMode(prev.mode, "next"),
-					}));
-					break;
 				case "0":
-					e.preventDefault();
+					event.preventDefault();
 					handleResetView();
 					break;
 				case "+":
 				case "=":
-					e.preventDefault();
+					event.preventDefault();
 					handleZoomIn();
 					break;
 				case "-":
 				case "_":
-					e.preventDefault();
+					event.preventDefault();
 					handleZoomOut();
 					break;
 				case "i":
 				case "I":
 				case "x":
 				case "X":
-					e.preventDefault();
+					event.preventDefault();
 					setIsMetadataOpen((prev) => !prev);
 					break;
 				case "t":
 				case "T":
-					e.preventDefault();
+					event.preventDefault();
 					setIsToolbarVisible((prev) => !prev);
 					break;
 				case "g":
 				case "G":
-					e.preventDefault();
+					event.preventDefault();
 					setIsGalleryVisible((prev) => !prev);
 					break;
 				case ",":
-					e.preventDefault();
+					event.preventDefault();
 					setIsSettingsOpen((prev) => !prev);
 					break;
+				case "F12":
+					if (import.meta.env.DEV) {
+						event.preventDefault();
+						setIsDevToolsOpen((prev) => !prev);
+					}
+					break;
 				case "Escape":
-					e.preventDefault();
+					event.preventDefault();
 					setIsMetadataOpen(false);
 					setIsSettingsOpen(false);
+					setIsDevToolsOpen(false);
 					break;
 			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [
-		isForensicsDisabled,
-		forensicsState.hotkeys,
-		handleNext,
-		handlePrev,
-		handleResetView,
-		handleZoomIn,
-		handleZoomOut,
-		updateForensicsState,
-	]);
+	}, [handleNext, handlePrev, handleResetView, handleZoomIn, handleZoomOut]);
 
 	return (
 		<div className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden">
-			{/* 1. Header / Toolbar */}
 			<div
 				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${
 					isToolbarVisible ? "h-toolbar opacity-100" : "h-0 opacity-0"
 				}`}
 			>
 				<Toolbar
-					currentFilter={activeFilter}
-					modeActions={forensicsModeActions}
-					onFilterChange={(mode) =>
-						updateForensicsState((prev) => ({ ...prev, mode }))
-					}
-					score={analysisScore}
-					showScore={runtimeForensicsState.view.outputScore}
 					onZoomIn={handleZoomIn}
 					onZoomOut={handleZoomOut}
 					onReset={handleResetView}
@@ -511,7 +386,6 @@ const App: React.FC = () => {
 				/>
 			</div>
 
-			{/* 2. Main Content Area */}
 			<section
 				className="flex-1 flex flex-col relative min-h-0"
 				onMouseMove={handleMouseMove}
@@ -522,25 +396,21 @@ const App: React.FC = () => {
 					<>
 						<ImageViewer
 							src={currentImage.url}
-							activeFilter={activeFilter}
-							forensicsState={runtimeForensicsState}
-							onAnalysisScoreChange={setAnalysisScore}
 							viewerState={viewerState}
 							setViewerState={setViewerState}
 						/>
 
-						{/* Left Navigation Zone Overlay */}
 						<div
 							className={`
-                absolute left-0 top-0 bottom-0 w-32 flex items-center justify-start pl-6 
-		                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
+                absolute left-0 top-0 bottom-0 w-32 flex items-center justify-start pl-6
+                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
                 ${hoverZone === "left" ? "opacity-100" : "opacity-0"}
               `}
 						>
 							<button
 								type="button"
-								onClick={(e) => {
-									e.stopPropagation();
+								onClick={(event) => {
+									event.stopPropagation();
 									handlePrev();
 								}}
 								className={`${navControlButtonClass} pr-1`}
@@ -550,18 +420,17 @@ const App: React.FC = () => {
 							</button>
 						</div>
 
-						{/* Right Navigation Zone Overlay */}
 						<div
 							className={`
-                absolute right-0 top-0 bottom-0 w-32 flex items-center justify-end pr-6 
-		                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
+                absolute right-0 top-0 bottom-0 w-32 flex items-center justify-end pr-6
+                transition-opacity duration-[var(--ui-motion-duration-slow)] pointer-events-none z-[var(--ui-layer-content)]
                 ${hoverZone === "right" ? "opacity-100" : "opacity-0"}
               `}
 						>
 							<button
 								type="button"
-								onClick={(e) => {
-									e.stopPropagation();
+								onClick={(event) => {
+									event.stopPropagation();
 									handleNext();
 								}}
 								className={`${navControlButtonClass} pl-1`}
@@ -578,7 +447,6 @@ const App: React.FC = () => {
 				)}
 			</section>
 
-			{/* 3. Footer / Thumbnails */}
 			<div
 				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${isGalleryVisible ? "h-thumbnail-strip opacity-100" : "h-0 opacity-0"}`}
 			>
@@ -589,13 +457,25 @@ const App: React.FC = () => {
 				/>
 			</div>
 
-			{/* 4. Overlays */}
 			<MetadataModal
 				isOpen={isMetadataOpen}
 				onClose={() => setIsMetadataOpen(false)}
 				filename={currentImage?.name || ""}
 				data={currentMetadata}
 			/>
+
+			{import.meta.env.DEV && DevTools && isDevToolsOpen && (
+				<Suspense>
+					<DevTools
+						onClose={() => setIsDevToolsOpen(false)}
+						host={{
+							currentImageName: currentImage?.name ?? null,
+							viewerState,
+							pluginSettings,
+						}}
+					/>
+				</Suspense>
+			)}
 
 			<SettingsModal
 				isOpen={isSettingsOpen}

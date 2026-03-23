@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-03-23
+
+### Changed
+
+- Frontend: **Forensics is no longer built into the host app** (`App.tsx`, `ImageViewer.tsx`, `Toolbar.tsx`, `src/plugin-system/settings/registry.ts`, `src/stores/settings/settingsSchema.ts`) — removed the in-app forensics runtime, settings registration, and viewer wiring so the base app no longer ships forensics behavior directly.
+- Plugins/Workspace: **Forensics was extracted into a standalone workspace plugin package** (`plugins/forensics-suite/*`) — moved the remaining frontend/plugin-shaped forensics code into its own plugin folder with manifest, schema, and source entrypoints instead of leaving host-owned copies in `src/`.
+- Frontend/Devtools: **Plugin Devtools shell now exists as a separate dev-only surface** (`src/components/devtools/*`, `src/App.tsx`) — added a floating draggable developer panel with workspace-focused `Plugins`, `Inspect`, `State`, and `Logs` tabs rather than overloading the user-facing Settings UI.
+- Frontend/Devtools: **Workspace plugin discovery is now live in the app shell** (`src/components/devtools/useWorkspacePlugins.ts`, `src/components/devtools/tabs/PluginsTab.tsx`) — dev mode can now discover `plugins/*/plugin.json`, summarize manifest/schema health, and expose a first-pass reload/inspection workflow for local plugin development.
+- Docs/Planning: **Plugin development now has its own conductor track** (`conductor/tracks/plugin_devtools_20260322/*`, `conductor/tracks.md`, `implementation_plan.md`) — split plugin authoring/devtools work out from the plugin-system closeout track and documented the initial workspace/devtools direction.
+
 ## [Unreleased] - 2026-03-21
 
 ### Changed

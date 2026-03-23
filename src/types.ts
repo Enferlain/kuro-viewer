@@ -5,13 +5,6 @@ export interface ImageFile {
 	dimensions?: { width: number; height: number };
 }
 
-export enum FilterType {
-	NONE = "NONE",
-	NOISE = "NOISE",
-	PCA = "PCA",
-	TEXTURE = "TEXTURE",
-}
-
 export interface ViewerState {
 	scale: number;
 	translation: { x: number; y: number };

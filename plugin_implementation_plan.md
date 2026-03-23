@@ -1,6 +1,6 @@
 # Plugin System Closeout Plan
 
-Date: 2026-03-22
+Date: 2026-03-04
 Owner: Core app + plugin host
 
 ## Objective
@@ -25,16 +25,13 @@ Implemented and working today:
 - Dynamic Configure rendering for installed plugins using `settings.schema.json`.
 - Built-in forensics plugin settings definition.
 - Plugin settings persisted under app settings (`plugins.installedSettings`).
-- Plugin enable/disable lifecycle persisted under app settings (`plugins.disabledPlugins`).
-- Built-in forensics runtime gating when disabled.
 - Host-side `settings.schema.json` validation with fail-closed Configure behavior.
-- Host-owned install metadata in `plugins/index.json`.
 
 Known gaps:
 
+- Plugin lifecycle is still "install/list/uninstall" only (no enable/disable/state/index metadata).
 - High-count plugin performance/index caching is not implemented yet.
 - Full docs/onboarding quickstart and troubleshooting are still incomplete.
-- Manual QA is mostly complete, but install-metadata creation/update should still be checked explicitly during install/upgrade.
 
 ---
 
@@ -42,7 +39,7 @@ Known gaps:
 
 ### 1) Persist plugin settings end-to-end
 
-Status: Implemented (manual QA in progress)
+Status: Implemented (manual QA pending)
 
 Tasks:
 
@@ -55,10 +52,10 @@ Tasks:
 
 Acceptance criteria:
 
-- [x] Plugin settings survive full app restart.
+- [ ] Plugin settings survive full app restart.
 - [ ] Cancel in settings modal reverts plugin edits.
 - [ ] Apply persists plugin edits.
-- [x] Uninstall removes plugin settings state for removed plugin.
+- [ ] Uninstall removes plugin settings state for removed plugin.
 
 ### 2) Validate settings schema against contract (not just parse)
 
@@ -81,39 +78,39 @@ Acceptance criteria:
 
 ### 3) Complete plugin security envelope for current scope
 
-Status: Implemented, with manual QA follow-up pending
+Status: Partial
 
 Tasks:
 
 - [x] Enforce `.plugin` extension and MIME assumptions server-side (not only in frontend).
-- [x] Reject symlink-like archive entries if platform/zip crate exposes them.
+- [ ] Reject symlink-like archive entries if platform/zip crate exposes them.
 - [x] Add explicit tests for `read_plugin_settings_schema` security paths:
   - invalid plugin ID
   - missing plugin.json in install directory
   - oversized settings schema
-- [x] Add central install metadata (`installed_at`, source filename, archive hash) for audit/debugging via `plugins/index.json`.
-- [x] Add explicit guardrails for user-provided regex in settings schema fields by disallowing runtime regex execution in host 1.0.
+- [ ] Add install provenance metadata (`installed_at`, source filename, archive hash) for audit/debugging.
+- [ ] Add explicit guardrails for user-provided regex in settings schema fields (length/complexity/timeout strategy or disallow runtime regex execution).
 
 Acceptance criteria:
 
-- [x] Security checks exist in backend and are test-covered.
-- [x] No security-critical path depends only on frontend enforcement.
+- [ ] Security checks exist in backend and are test-covered.
+- [ ] No security-critical path depends only on frontend enforcement.
 
 ### 4) Plugin lifecycle correctness beyond install/remove
 
-Status: Implemented, with manual QA follow-up pending
+Status: Not started
 
 Tasks:
 
-- [x] Add per-plugin enabled/disabled state persisted in settings.
-- [x] Ensure disabled plugins do not mount slot UI or hotkeys.
-- [x] Add clear status labels in Plugins tab (`installed`, `disabled`, `builtin`).
+- [ ] Add per-plugin enabled/disabled state persisted in settings.
+- [ ] Ensure disabled plugins do not mount slot UI or hotkeys.
+- [ ] Add clear status labels in Plugins tab (`installed`, `disabled`, `builtin`).
 - [ ] Add command/event contract for enable/disable transitions.
 
 Acceptance criteria:
 
-- [x] Users can disable plugin without uninstalling.
-- [x] Disabled plugin has no runtime effects.
+- [ ] Users can disable plugin without uninstalling.
+- [ ] Disabled plugin has no runtime effects.
 
 ---
 
@@ -121,7 +118,7 @@ Acceptance criteria:
 
 ### 5) Performance and startup behavior
 
-Status: In progress
+Status: Not started
 
 Tasks:
 
@@ -141,10 +138,9 @@ Status: Not started
 
 Tasks:
 
-- [ ] Build a central hotkey registry for app-core viewer bindings plus built-in plugin hotkeys.
-- [ ] Normalize bindings from draft settings so conflicts can be detected before Apply.
-- [ ] Surface conflict warnings in both plugin Configure UI and the Controls tab.
-- [ ] Define precedence and blocked-binding behavior for core-vs-plugin and plugin-vs-plugin collisions.
+- [ ] Build central hotkey registry for app core + built-in plugins + installed plugins.
+- [ ] Surface conflict warnings in plugin Configure UI and Controls tab.
+- [ ] Define resolution precedence policy (core vs plugin, plugin vs plugin).
 
 Acceptance criteria:
 
@@ -192,17 +188,14 @@ Tasks:
 
 ### 10) Manual QA matrix
 
-Status: In progress
+Status: Not started
 
 Tasks:
 
 - [ ] Install/uninstall/upgrade matrix for at least 3 plugin samples.
-- [x] Restart persistence checks for plugin settings.
-- [x] Corrupt/missing schema behavior checks.
+- [ ] Restart persistence checks for plugin settings.
+- [ ] Corrupt/missing schema behavior checks.
 - [ ] Drag-drop + file-picker parity checks.
-- [x] Verify uninstall removes installed plugin folder from app data.
-- [x] Verify invalid schema fails closed after schema re-read/reopen.
-- [ ] Verify `plugins/index.json` creation/update during install and upgrade.
 
 ---
 
@@ -236,36 +229,8 @@ Tasks:
 2. P0.2 schema validation in backend + UI fail-closed path
 3. P0.3 security envelope completion
 4. P0.4 enable/disable lifecycle
-5. P1 hotkey conflict management
-6. P1 performance/index caching
-7. P2 tests and docs polish
-
-## Next Slice: Hotkey Conflict Management
-
-Objective: detect and surface keybinding conflicts before Apply so app-core
-controls and plugin hotkeys cannot silently shadow each other.
-
-Scope for the first pass:
-
-- include app-core viewer bindings from `controls.keybinds`
-- include built-in forensics bindings from `plugins.installedSettings.forensics-suite.hotkeys`
-- exclude arbitrary third-party runtime hotkeys until a generic plugin runtime
-  registration path exists
-
-Implementation shape:
-
-- add a central hotkey registry builder that normalizes all known bindings into a
-  shared model
-- compute conflicts from the settings draft, not only from live runtime state
-- show warnings in both the Controls surface and plugin Configure UI
-- block Apply only for direct collisions, while allowing harmless duplicates to
-  remain informational if we decide that is less disruptive
-
-Recommended precedence rule:
-
-- app-core bindings win by default
-- built-in plugin bindings must not silently override app-core bindings
-- plugin-plugin collisions are blocked unless one side changes
+5. P1 performance + hotkey registry
+6. P2 tests and docs polish
 
 ---
 

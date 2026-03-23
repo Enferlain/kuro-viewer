@@ -1,0 +1,8 @@
+{
+	"track_id": "plugin_devtools_20260322",
+	"type": "feature",
+	"status": "in_progress",
+	"created_at": "2026-03-22T00:00:00Z",
+	"updated_at": "2026-03-23T00:00:00Z",
+	"description": "Plugin workspace discovery, plugin devtools, reload tooling, and author workflow support"
+}

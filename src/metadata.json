@@ -1,5 +1,5 @@
 {
 	"name": "Kuro Viewer",
-	"description": "A high-performance image viewer for rapid comparison and filter analysis with a precision-first design system.",
+	"description": "A high-performance image viewer with a performance focus and plugin support.",
 	"requestFramePermissions": []
 }
