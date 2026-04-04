@@ -12,8 +12,8 @@ Already true in the repo:
 Still missing:
 
 - [x] Workspace plugin discovery
-- [ ] Plugin workspace scaffolding and registration
-- [ ] Reload workflow for workspace plugins
+- [~] Plugin workspace scaffolding and registration
+- [~] Reload workflow for workspace plugins
 - [x] Dev-only plugin tooling surface
 - [~] In-app inspection support for plugin authors
 - [ ] Workspace build/package author workflow docs
@@ -31,26 +31,27 @@ Legend:
   - [x] Keep workspace plugins distinct from installed app-data plugins.
   - [x] Validate manifest shape before surfacing the plugin.
   - [x] Show actionable errors for invalid workspaces.
-  - [ ] Expand validation beyond the current lightweight devtools checks.
+  - [x] Expand validation beyond the current lightweight devtools checks.
 
 - [ ] Task: Support workspace plugin registration
   - [ ] Allow the app to register an existing plugin folder created outside the app.
   - [ ] Decide whether registration is implicit from discovery or explicit via a saved list.
   - [ ] Keep this dev-only and separate from installed plugin state.
 
-- [ ] Task: Add plugin scaffolding
-  - [ ] Create a dev-only “Create Plugin” flow.
-  - [ ] Offer lightweight starter shapes such as:
-    - [ ] panel-first
-    - [ ] toolbar-first
-    - [ ] python-backed
-    - [ ] blank
-  - [ ] Generate only a minimal practical folder:
-    - [ ] `plugin.json`
-    - [ ] `settings.schema.json`
-    - [ ] `src/`
-    - [ ] optional `python/`
-    - [ ] optional `README.md`
+- [~] Task: Add plugin scaffolding
+  - [x] Create a dev-only “Create Plugin” flow.
+  - [x] Offer lightweight starter shapes such as:
+    - [x] panel-first
+    - [x] toolbar-first
+    - [x] python-backed
+    - [x] blank
+  - [x] Generate only a minimal practical folder:
+    - [x] `plugin.json`
+    - [x] `settings.schema.json`
+    - [x] `src/`
+    - [x] optional `python/`
+    - [x] optional `README.md`
+  - [ ] Add build/package helper scripts for scaffolded workspaces.
 
 ## Phase 2: Devtools Surface
 
@@ -71,15 +72,15 @@ Legend:
   - [x] reload
   - [x] view manifest
   - [x] view schema errors
-  - [~] open folder
-  - [ ] open source in editor
-  - [ ] make non-implemented actions explicit or disable them cleanly
+  - [x] open folder
+  - [x] open source in editor
+  - [x] make non-implemented actions explicit or disable them cleanly
 
 ## Phase 3: Inspection And Reload Loop
 
 - [~] Task: Add workspace plugin reload flow
   - [x] Re-read workspace manifest/module discovery state via explicit rescan.
-  - [x] Revalidate `settings.schema.json` at the current lightweight level.
+  - [x] Revalidate `settings.schema.json` via the host-side contract validator.
   - [ ] Reload plugin frontend artifacts if present.
   - [x] Surface load failures clearly.
   - [x] Start with explicit reload before considering file watching.
@@ -110,7 +111,7 @@ Legend:
   - [ ] Keep dev-only behavior hidden when dev mode is off.
 
 - [ ] Task: Manual Verification
-  - [ ] Verify a new plugin scaffold can be created and discovered.
+  - [x] Verify a new plugin scaffold can be created and discovered. _(Covered by backend scaffold tests + devtools filesystem scan path.)_
   - [ ] Verify an external existing plugin folder can be surfaced.
   - [ ] Verify invalid manifest and schema cases produce clear errors.
   - [ ] Verify reload updates the devtools state cleanly.
@@ -125,8 +126,8 @@ Legend:
 
 ## Done Criteria
 
-- [ ] Dev mode supports workspace plugin discovery and validation.
-- [ ] A plugin author can start from either scaffolded or existing plugin folders.
+- [x] Dev mode supports workspace plugin discovery and validation.
+- [~] A plugin author can start from either scaffolded or existing plugin folders.
 - [ ] A separate dev-only Plugin Devtools surface exists.
 - [ ] Reload and inspection materially reduce the need to touch base app files during plugin work.
 - [ ] The supported author workflow is documented and matches reality.

@@ -2,7 +2,7 @@
 	"schema_version": "1.0.0",
 	"id": "forensics-suite",
 	"name": "Forensics Suite",
-	"version": "0.2.0-workspace",
+	"version": "0.2.0",
 	"description": "Pixel-level forensic tools for noise, PCA, and texture analysis with interactive overlays.",
 	"author": "Kuro Viewer Team",
 	"source_url": "https://github.com/kuro-viewer/kuro-viewer",

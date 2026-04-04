@@ -109,7 +109,7 @@ export function DevTools({
 			</div>
 
 			{!isMinimized && (
-				<div className="flex flex-1 overflow-hidden">
+				<div className="flex min-h-0 flex-1 overflow-hidden">
 					<div className="w-36 flex flex-col border-r border-glass-border-base bg-glass-bg-base p-2 gap-1">
 						<div className="px-2 py-2 rounded-xl border border-glass-border-base bg-background-deep/60 text-[10px] uppercase tracking-wider text-foreground-subtle">
 							{summary.ready} ready / {summary.total} total
@@ -135,7 +135,7 @@ export function DevTools({
 						})}
 					</div>
 
-					<div className="flex-1 flex flex-col overflow-y-auto bg-background-deep">
+					<div className="flex-1 flex min-h-0 flex-col overflow-hidden bg-background-deep">
 						{activeTab === "plugins" ? (
 							<PluginsTab
 								plugins={plugins}

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-04-05
+
+### Changed
+
+- Frontend/Devtools: **Plugin cards now expand on click to reveal action buttons** (`PluginsTab.tsx`) — Reload, Folder, Source, and Manifest buttons are hidden by default and appear when a plugin card is clicked, with a rotating chevron indicator and accent border highlight on the selected card.
+- Frontend/Devtools: **Create panel no longer pushes content out of scrollable view** (`PluginsTab.tsx`, `DevTools.tsx`) — fixed nested flex overflow chain by propagating `min-h-0` through all ancestor flex containers and changing the tab content wrapper from `overflow-y-auto` to `overflow-hidden` so the inner scroll area properly constrains. Opening the Create panel now also auto-scrolls to top.
+- Frontend/Devtools: **Plugin card actions bar simplified** (`PluginsTab.tsx`) — removed the redundant "Actions" label and nested `justify-between` layout that was cramping buttons and pushing Manifest off-screen; replaced with a flat `flex-wrap` row.
+
+### Fixed
+
+- Frontend/Devtools: **Plugin action buttons were invisible when card was selected** (`PluginsTab.tsx`) — removed `overflow-hidden` from plugin cards that was clipping the dynamically-rendered actions bar; rounded corners are preserved via `border-radius` alone.
+
+## [Unreleased] - 2026-04-04
+
+### Changed
+
+- Frontend/Devtools: **Plugin Devtools now supports real workspace authoring actions** (`src/components/devtools/tabs/PluginsTab.tsx`, `src/components/devtools/useWorkspacePlugins.ts`) — the `Plugins` tab can now create starter workspace plugins, open their folders/source, and makes the still-unimplemented registration path explicitly disabled instead of logging placeholder text.
+- Backend/Devtools: **Workspace plugin scanning and scaffold generation are now host-backed** (`src-tauri/src/devtools.rs`, `src-tauri/src/lib.rs`, `src-tauri/src/plugin_install.rs`, `src-tauri/src/plugin_install/schema_validation.rs`) — dev mode now scans `plugins/` from the filesystem, validates workspace manifests plus settings schemas through the host contract, and exposes Tauri commands for scaffold creation plus folder/editor opening.
+- Docs/Planning: **Plugin devtools planning was advanced to the scaffold/open-source loop** (`implementation_plan.md`, `conductor/tracks/plugin_devtools_20260322/plan.md`, `conductor/tracks/plugin_devtools_20260322/metadata.json`) — updated the active implementation slice and marked the scaffold/action work as in progress/completed where applicable.
+
 ## [Unreleased] - 2026-03-23
 
 ### Changed

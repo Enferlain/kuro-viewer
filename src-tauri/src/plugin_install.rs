@@ -13,7 +13,7 @@ use tauri::{Emitter, Manager};
 use zip::ZipArchive;
 
 use crate::plugin_manifest::{is_valid_plugin_id, validate_plugin_manifest_json, PluginManifest};
-use schema_validation::validate_plugin_settings_schema_json;
+pub(crate) use schema_validation::validate_plugin_settings_schema_json;
 #[cfg(test)]
 use schema_validation::MAX_SETTINGS_SCHEMA_SECTIONS;
 

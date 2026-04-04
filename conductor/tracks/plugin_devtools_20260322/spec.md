@@ -41,11 +41,10 @@ The repo already has:
 
 The repo does not yet have:
 
-- plugin scaffolding from inside the app
-- existing-folder registration from inside the app
-- source-opening/editor integration from inspection or workspace rows
 - full plugin frontend/backend reload beyond the current workspace rescan
-- plugin scaffolding from inside the app
+- existing-folder registration from inside the app
+- source-opening/editor integration from inspection
+- full author workflow docs for scaffold/build/package
 - a supported local build/package workflow for plugin workspaces
 
 ## Desired Outcome
@@ -145,7 +144,10 @@ Current implementation:
 
 - workspace discovery currently focuses on direct child folders under
   `plugins/`
-- validation is currently lightweight and app-specific rather than a full host
-  contract execution path
-- “Open in editor”, create scaffold, and register existing folder are still
-  explicit placeholders rather than implemented flows
+- workspace scanning now runs through a Tauri filesystem command in dev mode so
+  explicit rescan can discover newly scaffolded plugins without restarting the
+  app
+- manifest and `settings.schema.json` validation now reuse the host-side
+  contract validators during workspace scans
+- existing-folder registration and inspection-to-source mapping are still not
+  implemented

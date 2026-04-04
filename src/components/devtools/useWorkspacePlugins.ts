@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { PluginManifestSummary } from "../../plugin-system/pluginManifest";
-import type {
-	DevLogEntry,
-	WorkspacePluginIssue,
-	WorkspacePluginRecord,
-} from "./types";
+import type { DevLogEntry, WorkspacePluginRecord } from "./types";
+
+const IS_TAURI = "__TAURI_INTERNALS__" in window;
 
 const manifestModules = import.meta.glob("../../../plugins/*/plugin.json", {
 	eager: true,
@@ -82,7 +80,7 @@ function createTimestamp(): string {
 	return new Date().toLocaleTimeString("en-GB", { hour12: false });
 }
 
-function buildWorkspacePlugins(): WorkspacePluginRecord[] {
+function buildWorkspacePluginsFallback(): WorkspacePluginRecord[] {
 	const records = Object.entries(manifestModules)
 		.map(([manifestPath, manifestValue]) => {
 			const match = manifestPath.match(/plugins\/([^/]+)\/plugin\.json$/);
@@ -128,7 +126,7 @@ function buildWorkspacePlugins(): WorkspacePluginRecord[] {
 					path.endsWith(`/plugins/${directory}/src/index.ts`),
 				) ?? null;
 
-			const issues: WorkspacePluginIssue[] = [];
+			const issues: WorkspacePluginRecord["issues"] = [];
 			if (directory !== manifest.id) {
 				issues.push({
 					level: "warning",
@@ -213,12 +211,28 @@ function createScanLogs(plugins: WorkspacePluginRecord[]): DevLogEntry[] {
 	return entries;
 }
 
+async function tauriInvoke<T>(
+	command: string,
+	args?: Record<string, unknown>,
+): Promise<T> {
+	const { invoke } = await import("@tauri-apps/api/core");
+	return invoke<T>(command, args);
+}
+
+async function loadWorkspacePlugins(): Promise<WorkspacePluginRecord[]> {
+	if (!IS_TAURI) {
+		return buildWorkspacePluginsFallback();
+	}
+
+	return tauriInvoke<WorkspacePluginRecord[]>("list_workspace_plugins");
+}
+
 export function useWorkspacePlugins() {
 	const [plugins, setPlugins] = useState<WorkspacePluginRecord[]>(() =>
-		buildWorkspacePlugins(),
+		IS_TAURI ? [] : buildWorkspacePluginsFallback(),
 	);
 	const [logs, setLogs] = useState<DevLogEntry[]>(() =>
-		createScanLogs(buildWorkspacePlugins()),
+		IS_TAURI ? [] : createScanLogs(buildWorkspacePluginsFallback()),
 	);
 
 	const appendLog = useCallback((entry: Omit<DevLogEntry, "id" | "time">) => {
@@ -233,41 +247,76 @@ export function useWorkspacePlugins() {
 	}, []);
 
 	const reloadWorkspacePlugins = useCallback(
-		(targetPluginId?: string) => {
-			const nextPlugins = buildWorkspacePlugins();
-			setPlugins(nextPlugins);
-
-			if (targetPluginId) {
-				const target = nextPlugins.find(
-					(plugin) => plugin.id === targetPluginId,
+		async (targetPluginId?: string) => {
+			try {
+				const nextPlugins = await loadWorkspacePlugins();
+				setPlugins(nextPlugins);
+				setLogs((prev) =>
+					prev.length === 0 ? createScanLogs(nextPlugins) : prev,
 				);
-				if (!target) {
+
+				if (targetPluginId) {
+					const target = nextPlugins.find(
+						(plugin) =>
+							plugin.id === targetPluginId ||
+							plugin.directory === targetPluginId,
+					);
+					if (!target) {
+						appendLog({
+							type: "error",
+							message: `Reload failed: workspace plugin '${targetPluginId}' was not found.`,
+						});
+						return;
+					}
+
 					appendLog({
-						type: "error",
-						message: `Reload failed: workspace plugin '${targetPluginId}' was not found.`,
+						type: target.status === "error" ? "error" : "success",
+						message:
+							target.status === "ready"
+								? `Reloaded workspace plugin '${target.id}'.`
+								: `Reloaded '${target.id}' with issues: ${target.issues
+										.map((issue) => issue.message)
+										.join(" ")}`,
 					});
 					return;
 				}
 
 				appendLog({
-					type: target.status === "error" ? "error" : "success",
-					message:
-						target.status === "ready"
-							? `Reloaded workspace plugin '${target.id}'.`
-							: `Reloaded '${target.id}' with issues: ${target.issues
-									.map((issue) => issue.message)
-									.join(" ")}`,
+					type: "info",
+					message: `Reloaded ${nextPlugins.length} workspace plugin${nextPlugins.length === 1 ? "" : "s"}.`,
 				});
-				return;
+			} catch (error) {
+				appendLog({
+					type: "error",
+					message: `Workspace scan failed: ${error instanceof Error ? error.message : String(error)}`,
+				});
 			}
-
-			appendLog({
-				type: "info",
-				message: `Reloaded ${nextPlugins.length} workspace plugin${nextPlugins.length === 1 ? "" : "s"}.`,
-			});
 		},
 		[appendLog],
 	);
+
+	useEffect(() => {
+		if (!IS_TAURI) {
+			return;
+		}
+
+		void (async () => {
+			try {
+				const initialPlugins = await loadWorkspacePlugins();
+				setPlugins(initialPlugins);
+				setLogs(createScanLogs(initialPlugins));
+			} catch (error) {
+				setLogs([
+					{
+						id: 1,
+						type: "error",
+						time: createTimestamp(),
+						message: `Workspace scan failed: ${error instanceof Error ? error.message : String(error)}`,
+					},
+				]);
+			}
+		})();
+	}, []);
 
 	const summary = useMemo(
 		() => ({

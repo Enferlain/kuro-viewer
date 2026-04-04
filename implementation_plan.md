@@ -1,5 +1,33 @@
 # Plugin System Closeout Plan
 
+## Current Active Slice: Plugin Devtools Author Loop
+
+Date: 2026-04-04
+Track: `conductor/tracks/plugin_devtools_20260322`
+
+This repo is currently focused on the plugin devtools track rather than the
+remaining end-user plugin-system closeout items.
+
+Immediate goal for this slice:
+
+- add a real dev-only plugin scaffold flow from the in-app Plugin Devtools
+- replace placeholder workspace row actions with real folder/source opening
+- keep the workflow clearly separate from installed plugin management
+
+Planned implementation for this pass:
+
+- add Tauri commands for dev-only workspace actions
+- create minimal scaffold templates that satisfy the current plugin contract
+- wire the `Plugins` devtools tab to create a workspace and jump straight into it
+- make action failures/logging explicit so the author loop is understandable
+
+Out of scope for this pass:
+
+- full plugin frontend runtime hot-reload
+- file watching
+- arbitrary external-folder registration
+- in-app source editing
+
 Date: 2026-03-22
 Owner: Core app + plugin host
 

@@ -231,7 +231,7 @@ fn validate_field_common(
     Ok(())
 }
 
-pub(super) fn validate_plugin_settings_schema_json(
+pub(crate) fn validate_plugin_settings_schema_json(
     schema_json: &str,
     expected_plugin_id: &str,
 ) -> Result<(), String> {

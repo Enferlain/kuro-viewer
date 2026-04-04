@@ -1,3 +1,4 @@
+mod devtools;
 mod plugin_install;
 mod plugin_manifest;
 mod settings;
@@ -18,6 +19,11 @@ fn validate_plugin_manifest(manifest_json: String) -> Result<(), String> {
 pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            devtools::create_workspace_plugin_scaffold,
+            devtools::list_workspace_plugins,
+            devtools::open_workspace_plugin_folder,
+            devtools::open_workspace_plugin_manifest,
+            devtools::open_workspace_plugin_source,
             plugin_contract_info,
             validate_plugin_manifest,
             settings::read_settings,
