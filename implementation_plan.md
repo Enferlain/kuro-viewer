@@ -1,6 +1,6 @@
 # Plugin System Closeout Plan
 
-## Current Active Slice: Plugin Devtools Packaging Loop
+## Current Active Slice: Plugin Devtools Inspect Editor Loop
 
 Date: 2026-04-05
 Track: `conductor/tracks/plugin_devtools_20260322`
@@ -10,22 +10,22 @@ remaining end-user plugin-system closeout items.
 
 Immediate goal for this slice:
 
-- add a supported workspace build/package path for scaffolded plugins
-- document the author workflow end-to-end from workspace to `.plugin` archive
-- keep the workflow clearly separate from installed plugin management
+- make Inspect "Open in Editor" jump to the tagged source line when possible
+- support both common editor auto-detection and configurable custom setups
+- keep the fallback open behavior safe when line-jump launchers are unavailable
 
 Planned implementation for this pass:
 
-- add repo-native `plugin:build` and `plugin:pack` helpers for workspaces
-- reuse host manifest/schema validation before producing archives
-- update generated scaffold guidance so the next steps match reality
-- document the supported workspace packaging loop in `docs/`
+- extend editor settings with optional launch argument templates
+- pass richer editor launch preferences from the frontend inspect flow
+- teach the Rust devtools opener common editor families plus template expansion
+- add focused tests for editor-family detection and template parsing
 
 Out of scope for this pass:
 
 - arbitrary external-folder registration
-- in-app source editing
-- additional devtools UI reshaping
+- live workspace plugin code reload
+- in-app source editing beyond launching the configured editor
 
 Date: 2026-03-22
 Owner: Core app + plugin host

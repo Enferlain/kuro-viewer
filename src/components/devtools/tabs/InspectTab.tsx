@@ -75,6 +75,11 @@ type OpenWorkspacePathResult = {
 	method: string;
 };
 
+export type EditorLaunchPreference = {
+	path: string;
+	argsTemplate: string;
+};
+
 async function tauriInvoke<T>(
 	command: string,
 	args?: Record<string, unknown>,
@@ -163,10 +168,12 @@ export function InspectTab({
 	onLog,
 	selectedElement,
 	onSelectedElementChange,
+	preferredEditors,
 }: {
 	onLog: (entry: Omit<DevLogEntry, "id" | "time">) => void;
 	selectedElement: SelectedElementInfo | null;
 	onSelectedElementChange: (el: SelectedElementInfo | null) => void;
+	preferredEditors: EditorLaunchPreference[];
 }) {
 	const [isInspecting, setIsInspecting] = useState(false);
 	const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
@@ -309,6 +316,11 @@ export function InspectTab({
 				"open_repo_source_path",
 				{
 					repoPath: selectedElement.owner.sourcePath,
+					line: selectedElement.owner.sourceLine,
+					column: selectedElement.owner.sourceColumn,
+					preferredEditors: preferredEditors.filter(
+						(editor) => editor.path.trim().length > 0,
+					),
 				},
 			);
 			onLog({

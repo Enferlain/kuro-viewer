@@ -49,6 +49,14 @@ pub struct OpenWorkspacePathResult {
     pub method: String,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PreferredEditorLaunch {
+    pub path: String,
+    #[serde(default)]
+    pub args_template: String,
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspacePluginIssue {
@@ -717,48 +725,370 @@ fn resolve_workspace_dir(workspace_directory: &str) -> Result<PathBuf, String> {
 }
 
 fn open_path_in_file_manager(path: &Path) -> Result<OpenWorkspacePathResult, String> {
+    let launch_path = normalize_launch_path(path);
     let status = if cfg!(target_os = "windows") {
-        Command::new("explorer").arg(path).spawn()
+        Command::new("explorer").arg(&launch_path).spawn()
     } else if cfg!(target_os = "macos") {
-        Command::new("open").arg(path).spawn()
+        Command::new("open").arg(&launch_path).spawn()
     } else {
-        Command::new("xdg-open").arg(path).spawn()
+        Command::new("xdg-open").arg(&launch_path).spawn()
     };
 
     status
-        .map_err(|e| format!("failed to open '{}': {e}", path.display()))
+        .map_err(|e| format!("failed to open '{}': {e}", launch_path.display()))
         .map(|_| OpenWorkspacePathResult {
-            opened_path: path.display().to_string(),
+            opened_path: launch_path.display().to_string(),
             method: "file-manager".to_string(),
         })
 }
 
-fn open_path_in_editor(path: &Path) -> Result<OpenWorkspacePathResult, String> {
-    let editor_candidates: [(&str, &[&str]); 7] = [
-        ("code", &["--goto"]),
-        ("code-insiders", &["--goto"]),
-        ("codium", &["--goto"]),
-        ("cursor", &["--goto"]),
-        ("windsurf", &["--goto"]),
-        ("zed", &[]),
-        ("subl", &[]),
+fn format_editor_target(path: &Path, line: Option<u32>, column: Option<u32>) -> String {
+    let normalized_path = normalize_launch_path(path);
+    let path_string = normalized_path.display().to_string();
+    match line {
+        Some(line) if line > 0 => match column {
+            Some(column) if column > 0 => format!("{path_string}:{line}:{column}"),
+            _ => format!("{path_string}:{line}"),
+        },
+        _ => path_string,
+    }
+}
+
+fn normalize_launch_path(path: &Path) -> PathBuf {
+    #[cfg(target_os = "windows")]
+    {
+        let raw = path.to_string_lossy();
+        if let Some(stripped) = raw.strip_prefix(r"\\?\UNC\") {
+            return PathBuf::from(format!(r"\\{stripped}"));
+        }
+        if let Some(stripped) = raw.strip_prefix(r"\\?\") {
+            return PathBuf::from(stripped);
+        }
+    }
+
+    path.to_path_buf()
+}
+
+fn editor_path_string(path: &Path) -> String {
+    normalize_launch_path(path).display().to_string()
+}
+
+fn editor_line_value(line: Option<u32>) -> String {
+    line.unwrap_or(1).to_string()
+}
+
+fn editor_column_value(column: Option<u32>) -> String {
+    column.unwrap_or(1).to_string()
+}
+
+#[derive(Debug, Clone, Copy)]
+enum EditorFamily {
+    CodeLike,
+    Sublime,
+    JetBrains,
+    NotepadPlusPlus,
+    Zed,
+    Generic,
+}
+
+fn normalized_editor_name(path_or_command: &Path) -> String {
+    path_or_command
+        .file_stem()
+        .or_else(|| path_or_command.file_name())
+        .map(|value| value.to_string_lossy().to_lowercase())
+        .unwrap_or_default()
+        .replace(" - ", "-")
+        .replace([' ', '_'], "-")
+        .replace(".exe", "")
+}
+
+fn detect_editor_family(path_or_command: &Path) -> EditorFamily {
+    let normalized = normalized_editor_name(path_or_command);
+    if [
+        "code",
+        "code-insiders",
+        "codium",
+        "cursor",
+        "windsurf",
+        "vscodium",
+    ]
+    .iter()
+    .any(|candidate| normalized.contains(candidate))
+    {
+        return EditorFamily::CodeLike;
+    }
+    if normalized.contains("subl") || normalized.contains("sublime") {
+        return EditorFamily::Sublime;
+    }
+    if normalized.contains("notepad++") || normalized.contains("notepad-plus-plus") {
+        return EditorFamily::NotepadPlusPlus;
+    }
+    if normalized.contains("zed") {
+        return EditorFamily::Zed;
+    }
+    if [
+        "idea",
+        "webstorm",
+        "pycharm",
+        "goland",
+        "rider",
+        "clion",
+        "phpstorm",
+        "rubymine",
+    ]
+    .iter()
+    .any(|candidate| normalized.contains(candidate))
+    {
+        return EditorFamily::JetBrains;
+    }
+
+    EditorFamily::Generic
+}
+
+fn direct_editor_candidates() -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+
+    if cfg!(target_os = "windows") {
+        if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
+            let base = PathBuf::from(local_app_data).join("Programs");
+            candidates.push(base.join("Microsoft VS Code").join("Code.exe"));
+            candidates.push(
+                base.join("Microsoft VS Code Insiders")
+                    .join("Code - Insiders.exe"),
+            );
+            candidates.push(base.join("VSCodium").join("VSCodium.exe"));
+            candidates.push(base.join("Cursor").join("Cursor.exe"));
+            candidates.push(base.join("Windsurf").join("Windsurf.exe"));
+            candidates.push(base.join("Zed").join("Zed.exe"));
+        }
+
+        for env_key in ["ProgramFiles", "ProgramFiles(x86)"] {
+            if let Ok(program_files) = std::env::var(env_key) {
+                let base = PathBuf::from(program_files);
+                candidates.push(base.join("Sublime Text").join("subl.exe"));
+                candidates.push(base.join("Sublime Text").join("sublime_text.exe"));
+                candidates.push(base.join("Notepad++").join("notepad++.exe"));
+            }
+        }
+    } else if cfg!(target_os = "macos") {
+        candidates.push(PathBuf::from("/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"));
+        candidates.push(PathBuf::from("/Applications/Cursor.app/Contents/Resources/app/bin/cursor"));
+        candidates.push(PathBuf::from("/Applications/Windsurf.app/Contents/Resources/app/bin/windsurf"));
+        candidates.push(PathBuf::from("/Applications/Zed.app/Contents/MacOS/zed"));
+        candidates.push(PathBuf::from("/usr/local/bin/subl"));
+    } else {
+        candidates.push(PathBuf::from("/usr/bin/code"));
+        candidates.push(PathBuf::from("/usr/local/bin/code"));
+        candidates.push(PathBuf::from("/usr/bin/codium"));
+        candidates.push(PathBuf::from("/usr/local/bin/codium"));
+        candidates.push(PathBuf::from("/usr/bin/cursor"));
+        candidates.push(PathBuf::from("/usr/local/bin/cursor"));
+        candidates.push(PathBuf::from("/usr/bin/windsurf"));
+        candidates.push(PathBuf::from("/usr/local/bin/windsurf"));
+        candidates.push(PathBuf::from("/usr/bin/zed"));
+        candidates.push(PathBuf::from("/usr/local/bin/zed"));
+        candidates.push(PathBuf::from("/usr/bin/subl"));
+        candidates.push(PathBuf::from("/usr/local/bin/subl"));
+    }
+
+    candidates
+}
+
+fn build_editor_args(
+    editor_family: EditorFamily,
+    target_path: &Path,
+    line: Option<u32>,
+    column: Option<u32>,
+) -> Vec<String> {
+    let target_arg = format_editor_target(target_path, line, column);
+    match editor_family {
+        EditorFamily::CodeLike => vec!["--goto".to_string(), target_arg],
+        EditorFamily::Sublime => vec![target_arg],
+        EditorFamily::JetBrains => {
+            let mut args = Vec::new();
+            if let Some(line) = line {
+                args.push("--line".to_string());
+                args.push(line.to_string());
+            }
+            args.push(editor_path_string(target_path));
+            args
+        }
+        EditorFamily::NotepadPlusPlus => {
+            let mut args = Vec::new();
+            if let Some(line) = line {
+                args.push(format!("-n{line}"));
+            }
+            args.push(editor_path_string(target_path));
+            args
+        }
+        EditorFamily::Zed | EditorFamily::Generic => vec![editor_path_string(target_path)],
+    }
+}
+
+fn build_editor_args_from_template(
+    args_template: &str,
+    target_path: &Path,
+    line: Option<u32>,
+    column: Option<u32>,
+) -> Result<Vec<String>, String> {
+    let template = args_template.trim();
+    if template.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let Some(parts) = shlex::split(template) else {
+        return Err("editor arguments contain unmatched quotes".to_string());
+    };
+
+    let path_value = editor_path_string(target_path);
+    let line_value = editor_line_value(line);
+    let column_value = editor_column_value(column);
+    let target_value = format_editor_target(target_path, line, column);
+
+    Ok(parts
+        .into_iter()
+        .map(|part| {
+            part.replace("{target}", &target_value)
+                .replace("{path}", &path_value)
+                .replace("{line}", &line_value)
+                .replace("{column}", &column_value)
+        })
+        .collect())
+}
+
+fn spawn_editor_command(
+    command_path: &Path,
+    args: &[String],
+    method_suffix: &str,
+    opened_path: &str,
+) -> Result<OpenWorkspacePathResult, std::io::Error> {
+    let mut child = Command::new(command_path);
+    child.args(args);
+    child.spawn().map(|_| OpenWorkspacePathResult {
+        opened_path: opened_path.to_string(),
+        method: format!("editor:{method_suffix}"),
+    })
+}
+
+fn try_spawn_editor(
+    command_path: &Path,
+    path: &Path,
+    line: Option<u32>,
+    column: Option<u32>,
+) -> Result<OpenWorkspacePathResult, std::io::Error> {
+    let editor_family = detect_editor_family(command_path);
+    let args = build_editor_args(editor_family, path, line, column);
+    let opened_path = match editor_family {
+        EditorFamily::CodeLike | EditorFamily::Sublime => format_editor_target(path, line, column),
+        _ => editor_path_string(path),
+    };
+    spawn_editor_command(
+        command_path,
+        &args,
+        &normalized_editor_name(command_path),
+        &opened_path,
+    )
+}
+
+fn try_spawn_editor_with_template(
+    command_path: &Path,
+    path: &Path,
+    line: Option<u32>,
+    column: Option<u32>,
+    args_template: &str,
+) -> Result<OpenWorkspacePathResult, String> {
+    let args = build_editor_args_from_template(args_template, path, line, column)?;
+    spawn_editor_command(
+        command_path,
+        &args,
+        &normalized_editor_name(command_path),
+        &editor_path_string(path),
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn open_path_in_editor(
+    path: &Path,
+    line: Option<u32>,
+    column: Option<u32>,
+    preferred_editors: &[PreferredEditorLaunch],
+) -> Result<OpenWorkspacePathResult, String> {
+    let editor_candidates = [
+        "code",
+        "code-insiders",
+        "codium",
+        "cursor",
+        "windsurf",
+        "zed",
+        "subl",
+        "idea",
+        "webstorm",
+        "pycharm",
+        "goland",
+        "rider",
+        "clion",
+        "phpstorm",
+        "notepad++",
     ];
 
     let mut first_error: Option<String> = None;
-    for (command, static_args) in editor_candidates {
-        let mut child = Command::new(command);
-        for arg in static_args {
-            child.arg(arg);
+    for preferred_editor in preferred_editors {
+        let preferred_path = preferred_editor.path.trim();
+        if preferred_path.is_empty() {
+            continue;
         }
-        child.arg(path);
 
-        match child.spawn() {
-            Ok(_) => {
-                return Ok(OpenWorkspacePathResult {
-                    opened_path: path.display().to_string(),
-                    method: format!("editor:{command}"),
-                });
+        let command_path = PathBuf::from(preferred_path);
+        let args_template = preferred_editor.args_template.trim();
+
+        if !args_template.is_empty() {
+            match try_spawn_editor_with_template(
+                &command_path,
+                path,
+                line,
+                column,
+                args_template,
+            ) {
+                Ok(result) => return Ok(result),
+                Err(error) => {
+                    if first_error.is_none() {
+                        first_error = Some(format!("{preferred_path}: {error}"));
+                    }
+                    continue;
+                }
             }
+        }
+
+        match try_spawn_editor(&command_path, path, line, column) {
+            Ok(result) => return Ok(result),
+            Err(error) if error.kind() == ErrorKind::NotFound => continue,
+            Err(error) => {
+                if first_error.is_none() {
+                    first_error = Some(format!("{preferred_path}: {error}"));
+                }
+            }
+        }
+    }
+
+    for command_path in direct_editor_candidates() {
+        if !command_path.exists() {
+            continue;
+        }
+
+        match try_spawn_editor(&command_path, path, line, column) {
+            Ok(result) => return Ok(result),
+            Err(error) if error.kind() == ErrorKind::NotFound => continue,
+            Err(error) => {
+                if first_error.is_none() {
+                    first_error = Some(format!("{}: {error}", command_path.display()));
+                }
+            }
+        }
+    }
+
+    for command in editor_candidates {
+        match try_spawn_editor(Path::new(command), path, line, column) {
+            Ok(result) => return Ok(result),
             Err(error) if error.kind() == ErrorKind::NotFound => continue,
             Err(error) => {
                 if first_error.is_none() {
@@ -819,7 +1149,7 @@ pub fn open_workspace_plugin_source(
     } else {
         workspace_dir.join("plugin.json")
     };
-    open_path_in_editor(&source_path)
+    open_path_in_editor(&source_path, None, None, &[])
 }
 
 #[tauri::command]
@@ -835,14 +1165,20 @@ pub fn open_workspace_plugin_manifest(
             manifest_path.display()
         ));
     }
-    open_path_in_editor(&manifest_path)
+    open_path_in_editor(&manifest_path, None, None, &[])
 }
 
 #[tauri::command]
-pub fn open_repo_source_path(repo_path: String) -> Result<OpenWorkspacePathResult, String> {
+pub fn open_repo_source_path(
+    repo_path: String,
+    line: Option<u32>,
+    column: Option<u32>,
+    preferred_editors: Option<Vec<PreferredEditorLaunch>>,
+) -> Result<OpenWorkspacePathResult, String> {
     ensure_devtools_enabled()?;
     let path = resolve_repo_relative_path(&repo_path)?;
-    open_path_in_editor(&path)
+    let preferred_editors = preferred_editors.unwrap_or_default();
+    open_path_in_editor(&path, line, column, &preferred_editors)
 }
 
 #[cfg(test)]
@@ -867,6 +1203,56 @@ mod tests {
             template: Some(template),
             include_readme: true,
         }
+    }
+
+    #[test]
+    fn detects_common_editor_families() {
+        assert!(matches!(
+            detect_editor_family(Path::new("Code.exe")),
+            EditorFamily::CodeLike
+        ));
+        assert!(matches!(
+            detect_editor_family(Path::new("idea64.exe")),
+            EditorFamily::JetBrains
+        ));
+        assert!(matches!(
+            detect_editor_family(Path::new("notepad++.exe")),
+            EditorFamily::NotepadPlusPlus
+        ));
+    }
+
+    #[test]
+    fn expands_editor_argument_templates() {
+        let args = build_editor_args_from_template(
+            r#"--goto "{target}" --label inspect"#,
+            Path::new("src/components/ImageViewer.tsx"),
+            Some(154),
+            Some(1),
+        )
+        .expect("template should parse");
+
+        assert_eq!(
+            args,
+            vec![
+                "--goto".to_string(),
+                "src/components/ImageViewer.tsx:154:1".to_string(),
+                "--label".to_string(),
+                "inspect".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_editor_argument_templates() {
+        let error = build_editor_args_from_template(
+            "\"--goto",
+            Path::new("src/components/ImageViewer.tsx"),
+            Some(154),
+            Some(1),
+        )
+        .expect_err("template should fail");
+
+        assert!(error.contains("unmatched quotes"));
     }
 
     #[test]

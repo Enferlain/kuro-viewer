@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Frontend/Backend/Settings: **Inspect source opening now supports editor line jumps across common and custom setups** (`DevTools.tsx`, `InspectTab.tsx`, `SettingsModal.tsx`, `EditTab.tsx`, `settingsSchema.ts`, `src-tauri/src/devtools.rs`, `src-tauri/Cargo.toml`) — Inspect now passes tagged source line metadata through to the backend, auto-detects common editor families for goto-style launch arguments, and adds optional per-editor argument templates so non-standard editor setups can still jump to the selected source location.
 - Frontend/Devtools: **Inspect tab selection now persists across tab switches** (`DevTools.tsx`, `InspectTab.tsx`) — lifted `selectedElement` state from `InspectTab` into the parent `DevTools` shell so inspected element details survive tab navigation instead of clearing on unmount.
 - Frontend/Devtools: **Inspect tab is now source-aware for tagged app surfaces** (`InspectTab.tsx`, `inspectTargets.ts`, `App.tsx`, `Toolbar.tsx`, `ImageViewer.tsx`, `ThumbnailStrip.tsx`, `MetadataModal.tsx`, `SettingsModal.tsx`) — click-to-inspect now resolves the nearest tagged host owner, shows source/context details, and enables `Open in Editor` for mapped repo files instead of logging a placeholder.
 - Backend/Devtools: **Inspect source opening now has a safe repo-relative command** (`src-tauri/src/devtools.rs`, `src-tauri/src/lib.rs`) — added `open_repo_source_path` with repository-root path validation so inspect can open mapped source files without exposing arbitrary filesystem traversal.
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Backend/Devtools: **Inspect editor jumps now normalize launch paths before building goto arguments** (`src-tauri/src/devtools.rs`) — fixed `Open in Editor` on Windows setups where repo-relative source paths resolved through verbatim `\\?\...` paths, which caused VS Code and similar editors to reject `--goto` targets instead of opening the file at the tagged line.
 - Frontend/Devtools: **Inspect tab content was clipped without scrollbar when element info overflowed** (`DevTools.tsx`) — changed tab content container from `overflow-hidden` to `overflow-y-auto` so the full Inspect tab scrolls when content exceeds panel height.
 - Frontend/Devtools: **Plugin action buttons were invisible when card was selected** (`PluginsTab.tsx`) — removed `overflow-hidden` from plugin cards that was clipping the dynamically-rendered actions bar; rounded corners are preserved via `border-radius` alone.
 

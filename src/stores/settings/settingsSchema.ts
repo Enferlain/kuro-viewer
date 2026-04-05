@@ -78,7 +78,9 @@ export interface AppSettingsV1 {
 		enableClipboardPasting: boolean;
 		multiFileSelection: boolean;
 		primaryEditorPath: string;
+		primaryEditorArgsTemplate: string;
 		secondaryEditorPath: string;
+		secondaryEditorArgsTemplate: string;
 		cropGridType: "thirds" | "golden" | "center" | "none";
 		preserveCropAspectRatio: boolean;
 	};
@@ -173,7 +175,9 @@ export const defaultAppSettings: AppSettings = {
 		enableClipboardPasting: true,
 		multiFileSelection: false,
 		primaryEditorPath: "",
+		primaryEditorArgsTemplate: "",
 		secondaryEditorPath: "",
+		secondaryEditorArgsTemplate: "",
 		cropGridType: "thirds",
 		preserveCropAspectRatio: true,
 	},
@@ -417,9 +421,17 @@ function migrateLegacyFlatSettings(
 		source.primaryEditorPath,
 		settings.edit.primaryEditorPath,
 	);
+	settings.edit.primaryEditorArgsTemplate = readString(
+		source.primaryEditorArgsTemplate,
+		settings.edit.primaryEditorArgsTemplate,
+	);
 	settings.edit.secondaryEditorPath = readString(
 		source.secondaryEditorPath,
 		settings.edit.secondaryEditorPath,
+	);
+	settings.edit.secondaryEditorArgsTemplate = readString(
+		source.secondaryEditorArgsTemplate,
+		settings.edit.secondaryEditorArgsTemplate,
 	);
 	settings.edit.cropGridType = readEnum(
 		source.cropGridType,
@@ -458,11 +470,72 @@ function migrateLegacyFlatSettings(
 function normalizeV1(source: LegacyFlatSettings): AppSettings {
 	if (isAppSettingsV1(source)) {
 		const cloned = structuredClone(source);
+		const normalizedEdit: Record<string, unknown> = isRecord(cloned.edit)
+			? cloned.edit
+			: {};
 		const normalizedPlugins: Record<string, unknown> = isRecord(cloned.plugins)
 			? cloned.plugins
 			: {};
 		return {
 			...cloned,
+			edit: {
+				...defaultAppSettings.edit,
+				...normalizedEdit,
+				confirmDelete: readBoolean(
+					normalizedEdit.confirmDelete,
+					defaultAppSettings.edit.confirmDelete,
+				),
+				confirmOverwrite: readBoolean(
+					normalizedEdit.confirmOverwrite,
+					defaultAppSettings.edit.confirmOverwrite,
+				),
+				defaultSaveBehavior: readEnum(
+					normalizedEdit.defaultSaveBehavior,
+					defaultAppSettings.edit.defaultSaveBehavior,
+					["save_as", "save_copy", "overwrite"],
+				),
+				preserveMetadata: readBoolean(
+					normalizedEdit.preserveMetadata,
+					defaultAppSettings.edit.preserveMetadata,
+				),
+				saveAsCurrentFolder: readBoolean(
+					normalizedEdit.saveAsCurrentFolder,
+					defaultAppSettings.edit.saveAsCurrentFolder,
+				),
+				enableClipboardPasting: readBoolean(
+					normalizedEdit.enableClipboardPasting,
+					defaultAppSettings.edit.enableClipboardPasting,
+				),
+				multiFileSelection: readBoolean(
+					normalizedEdit.multiFileSelection,
+					defaultAppSettings.edit.multiFileSelection,
+				),
+				primaryEditorPath: readString(
+					normalizedEdit.primaryEditorPath,
+					defaultAppSettings.edit.primaryEditorPath,
+				),
+				primaryEditorArgsTemplate: readString(
+					normalizedEdit.primaryEditorArgsTemplate,
+					defaultAppSettings.edit.primaryEditorArgsTemplate,
+				),
+				secondaryEditorPath: readString(
+					normalizedEdit.secondaryEditorPath,
+					defaultAppSettings.edit.secondaryEditorPath,
+				),
+				secondaryEditorArgsTemplate: readString(
+					normalizedEdit.secondaryEditorArgsTemplate,
+					defaultAppSettings.edit.secondaryEditorArgsTemplate,
+				),
+				cropGridType: readEnum(
+					normalizedEdit.cropGridType,
+					defaultAppSettings.edit.cropGridType,
+					["thirds", "golden", "center", "none"],
+				),
+				preserveCropAspectRatio: readBoolean(
+					normalizedEdit.preserveCropAspectRatio,
+					defaultAppSettings.edit.preserveCropAspectRatio,
+				),
+			},
 			plugins: {
 				...defaultAppSettings.plugins,
 				...normalizedPlugins,

@@ -45,7 +45,7 @@ The repo does not yet have:
 
 - full plugin frontend/backend reload beyond the current workspace rescan
 - existing-folder registration from inside the app
-- source-opening/editor integration from inspection
+- full live runtime reload of workspace plugin code from inspection actions
 
 ## Desired Outcome
 
@@ -112,6 +112,9 @@ Current implementation:
 - `Inspect` is backed by real DOM click inspection, not mock rows
 - `Inspect` now resolves tagged host ownership metadata and can open mapped repo
   source files in the editor for known surfaces
+- inspect source opening now carries tagged source line metadata and supports
+  both common-editor auto-detection plus configurable jump arguments for custom
+  editor setups
 - `State` shows real host settings, runtime plugin settings, viewer state, and
   workspace plugin summaries
 - `Logs` shows real devtools events and workspace reload/discovery messages
@@ -154,5 +157,5 @@ Current implementation:
 - workspace plugins can now be bundled from `src/index.*` with
   `pnpm plugin:build <id>` and packed into `plugins/dist/<id>-<version>.plugin`
   with `pnpm plugin:pack <id>`
-- existing-folder registration and inspection-to-source mapping are still not
-  implemented
+- existing-folder registration and true live plugin runtime reload are still
+  not implemented

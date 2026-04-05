@@ -11,7 +11,10 @@ import {
 import { useState } from "react";
 import { useSettings } from "../../stores/settings";
 import { Button } from "../ui/Button";
-import type { SelectedElementInfo } from "./tabs/InspectTab";
+import type {
+	EditorLaunchPreference,
+	SelectedElementInfo,
+} from "./tabs/InspectTab";
 import { InspectTab } from "./tabs/InspectTab";
 import { LogsTab } from "./tabs/LogsTab";
 import { PluginsTab } from "./tabs/PluginsTab";
@@ -45,6 +48,16 @@ export function DevTools({
 		useWorkspacePlugins();
 	const [selectedElement, setSelectedElement] =
 		useState<SelectedElementInfo | null>(null);
+	const preferredEditors: EditorLaunchPreference[] = [
+		{
+			path: settings.edit.primaryEditorPath,
+			argsTemplate: settings.edit.primaryEditorArgsTemplate,
+		},
+		{
+			path: settings.edit.secondaryEditorPath,
+			argsTemplate: settings.edit.secondaryEditorArgsTemplate,
+		},
+	];
 
 	return (
 		<div
@@ -151,6 +164,7 @@ export function DevTools({
 								onLog={appendLog}
 								selectedElement={selectedElement}
 								onSelectedElementChange={setSelectedElement}
+								preferredEditors={preferredEditors}
 							/>
 						) : activeTab === "state" ? (
 							<StateTab

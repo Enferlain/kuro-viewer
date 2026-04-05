@@ -90,6 +90,8 @@ Legend:
   - [x] Support click-to-inspect in dev mode.
   - [x] Show useful live DOM ownership/context even before source mapping exists.
   - [x] Prefer “open in editor” over trying to become a full source editor.
+  - [x] Pass tagged source line metadata through to editor launchers.
+  - [x] Support configurable editor jump arguments for non-standard setups.
 
 - [ ] Task: Add safe live manipulation
   - [ ] Allow live plugin settings tweaking.
@@ -115,6 +117,7 @@ Legend:
   - [ ] Verify an external existing plugin folder can be surfaced.
   - [ ] Verify invalid manifest and schema cases produce clear errors.
   - [ ] Verify reload updates the devtools state cleanly.
+  - [ ] Verify inspect line-jump behavior across at least one auto-detected editor and one custom argument-template setup.
   - [ ] Verify the devtools surface stays out of normal user settings flows.
 
 ## Open Decisions

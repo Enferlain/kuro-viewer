@@ -30,8 +30,12 @@ export interface EditTabProps {
 	setMultiFileSelection: (val: boolean) => void;
 	primaryEditorPath: string;
 	setPrimaryEditorPath: (val: string) => void;
+	primaryEditorArgsTemplate: string;
+	setPrimaryEditorArgsTemplate: (val: string) => void;
 	secondaryEditorPath: string;
 	setSecondaryEditorPath: (val: string) => void;
+	secondaryEditorArgsTemplate: string;
+	setSecondaryEditorArgsTemplate: (val: string) => void;
 	cropGridType: string;
 	setCropGridType: (val: string) => void;
 	preserveCropAspectRatio: boolean;
@@ -55,8 +59,12 @@ export const EditTab: React.FC<EditTabProps> = ({
 	setMultiFileSelection,
 	primaryEditorPath,
 	setPrimaryEditorPath,
+	primaryEditorArgsTemplate,
+	setPrimaryEditorArgsTemplate,
 	secondaryEditorPath,
 	setSecondaryEditorPath,
+	secondaryEditorArgsTemplate,
+	setSecondaryEditorArgsTemplate,
 	cropGridType,
 	setCropGridType,
 	preserveCropAspectRatio,
@@ -189,7 +197,7 @@ export const EditTab: React.FC<EditTabProps> = ({
 			<SettingRow
 				id="edit-primary-app"
 				label="Primary Application"
-				description="Default app used for 'Edit in...' actions (e.g., Photoshop.exe)."
+				description="Default app used for 'Edit in...' actions and devtools source jumps."
 			>
 				<div className="flex w-full gap-2 items-center">
 					<input
@@ -207,6 +215,19 @@ export const EditTab: React.FC<EditTabProps> = ({
 						<FolderInput size={14} className="opacity-70" />
 					</Button>
 				</div>
+			</SettingRow>
+			<SettingRow
+				id="edit-primary-app-args"
+				label="Primary Jump Arguments"
+				description="Optional custom line-jump arguments. Use {path}, {line}, {column}, or {target}. Leave empty for auto-detect."
+			>
+				<input
+					type="text"
+					value={primaryEditorArgsTemplate}
+					onChange={(e) => setPrimaryEditorArgsTemplate(e.target.value)}
+					placeholder='Example: --goto "{target}"'
+					className="w-full bg-glass-bg-subtle border border-glass-border-base rounded-xl px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-glass-border-focus focus:ring-1 focus:ring-glass-border-focus transition-all duration-(--ui-motion-duration-standard)"
+				/>
 			</SettingRow>
 			<SettingRow
 				id="edit-secondary-app"
@@ -229,6 +250,19 @@ export const EditTab: React.FC<EditTabProps> = ({
 						<FolderInput size={14} className="opacity-70" />
 					</Button>
 				</div>
+			</SettingRow>
+			<SettingRow
+				id="edit-secondary-app-args"
+				label="Secondary Jump Arguments"
+				description="Optional custom line-jump arguments for the backup editor. Uses the same {path}, {line}, {column}, and {target} placeholders."
+			>
+				<input
+					type="text"
+					value={secondaryEditorArgsTemplate}
+					onChange={(e) => setSecondaryEditorArgsTemplate(e.target.value)}
+					placeholder='Example: --line {line} "{path}"'
+					className="w-full bg-glass-bg-subtle border border-glass-border-base rounded-xl px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-glass-border-focus focus:ring-1 focus:ring-glass-border-focus transition-all duration-(--ui-motion-duration-standard)"
+				/>
 			</SettingRow>
 		</SettingGroup>
 	</div>

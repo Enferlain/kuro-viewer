@@ -432,12 +432,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 		"edit",
 		"primaryEditorPath",
 	);
+	const [primaryEditorArgsTemplate, setPrimaryEditorArgsTemplate] = useField(
+		draft,
+		setDraft,
+		"edit",
+		"primaryEditorArgsTemplate",
+	);
 	const [secondaryEditorPath, setSecondaryEditorPath] = useField(
 		draft,
 		setDraft,
 		"edit",
 		"secondaryEditorPath",
 	);
+	const [secondaryEditorArgsTemplate, setSecondaryEditorArgsTemplate] =
+		useField(draft, setDraft, "edit", "secondaryEditorArgsTemplate");
 	const [cropGridType, setCropGridType] = useField(
 		draft,
 		setDraft,
@@ -706,8 +714,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 						setMultiFileSelection={setMultiFileSelection}
 						primaryEditorPath={primaryEditorPath}
 						setPrimaryEditorPath={setPrimaryEditorPath}
+						primaryEditorArgsTemplate={primaryEditorArgsTemplate}
+						setPrimaryEditorArgsTemplate={setPrimaryEditorArgsTemplate}
 						secondaryEditorPath={secondaryEditorPath}
 						setSecondaryEditorPath={setSecondaryEditorPath}
+						secondaryEditorArgsTemplate={secondaryEditorArgsTemplate}
+						setSecondaryEditorArgsTemplate={setSecondaryEditorArgsTemplate}
 						cropGridType={cropGridType}
 						setCropGridType={setCropGridType}
 						preserveCropAspectRatio={preserveCropAspectRatio}
