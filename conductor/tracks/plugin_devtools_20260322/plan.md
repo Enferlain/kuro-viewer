@@ -51,7 +51,7 @@ Legend:
     - [x] `src/`
     - [x] optional `python/`
     - [x] optional `README.md`
-  - [ ] Add build/package helper scripts for scaffolded workspaces.
+  - [x] Add build/package helper scripts for scaffolded workspaces.
 
 ## Phase 2: Devtools Surface
 
@@ -88,8 +88,8 @@ Legend:
 - [~] Task: Add in-app inspection support
   - [ ] Evaluate an existing React inspection package rather than building from scratch.
   - [x] Support click-to-inspect in dev mode.
-  - [~] Show useful live DOM ownership/context even before source mapping exists.
-  - [ ] Prefer “open in editor” over trying to become a full source editor.
+  - [x] Show useful live DOM ownership/context even before source mapping exists.
+  - [x] Prefer “open in editor” over trying to become a full source editor.
 
 - [ ] Task: Add safe live manipulation
   - [ ] Allow live plugin settings tweaking.
@@ -99,11 +99,11 @@ Legend:
 ## Phase 4: Author Workflow And Docs
 
 - [ ] Task: Document the supported workspace author workflow
-  - [ ] create plugin
+  - [x] create plugin
   - [ ] register existing folder
-  - [ ] build or bundle plugin frontend
-  - [ ] reload in app
-  - [ ] package as `.plugin`
+  - [x] build or bundle plugin frontend
+  - [x] reload in app
+  - [x] package as `.plugin`
 
 - [ ] Task: Define the boundary between workspace and installed plugins
   - [ ] Make the UI distinction obvious.

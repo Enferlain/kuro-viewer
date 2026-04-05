@@ -7,6 +7,8 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"tauri": "tauri",
+		"plugin:build": "node scripts/plugin-workspace.mjs build",
+		"plugin:pack": "node scripts/plugin-workspace.mjs pack",
 		"check": "biome check .",
 		"format": "biome format . --write",
 		"check:all": "pnpm check",

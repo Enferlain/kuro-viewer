@@ -2,6 +2,7 @@ mod devtools;
 mod plugin_install;
 mod plugin_manifest;
 mod settings;
+pub mod workspace_packaging;
 
 use plugin_manifest::{host_plugin_contract, validate_plugin_manifest_json, HostPluginContract};
 
@@ -23,6 +24,7 @@ pub fn run() {
             devtools::list_workspace_plugins,
             devtools::open_workspace_plugin_folder,
             devtools::open_workspace_plugin_manifest,
+            devtools::open_repo_source_path,
             devtools::open_workspace_plugin_source,
             plugin_contract_info,
             validate_plugin_manifest,

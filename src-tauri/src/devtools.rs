@@ -126,6 +126,36 @@ fn ensure_safe_workspace_segment(value: &str, label: &str) -> Result<(), String>
     Ok(())
 }
 
+fn resolve_repo_relative_path(repo_path: &str) -> Result<PathBuf, String> {
+    if repo_path.trim().is_empty() {
+        return Err("repo_path cannot be empty".to_string());
+    }
+    if repo_path.contains('\0') {
+        return Err("repo_path cannot contain null bytes".to_string());
+    }
+
+    let relative = Path::new(repo_path);
+    if relative.is_absolute() {
+        return Err("repo_path must be relative to the repository root".to_string());
+    }
+
+    for component in relative.components() {
+        match component {
+            std::path::Component::Normal(_) | std::path::Component::CurDir => {}
+            _ => {
+                return Err("repo_path must stay within the repository root".to_string());
+            }
+        }
+    }
+
+    let full_path = repo_root().join(relative);
+    if !full_path.exists() {
+        return Err(format!("repo path '{}' was not found", full_path.display()));
+    }
+
+    Ok(full_path)
+}
+
 fn theme_contract_string() -> String {
     let major = crate::plugin_manifest::HOST_THEME_CONTRACT_VERSION
         .split('.')
@@ -410,7 +440,7 @@ fn create_readme(
     };
 
     format!(
-        "# {name}\n\nThis workspace plugin scaffold was generated from Kuro Viewer's Plugin Devtools.\n\n- Plugin id: `{plugin_id}`\n- Template: `{template_label}`\n- Contract guide: `docs/PLUGIN_CONTRACT_1.0.md`\n\n## Next Steps\n\n1. Edit `plugin.json` to match the behavior you want to prototype.\n2. Replace `src/index.ts` with the real plugin frontend entry.\n3. Adjust `settings.schema.json` so the host Configure UI matches your plugin surface.\n4. Package the workspace into a `.plugin` archive when the workflow is documented.\n",
+        "# {name}\n\nThis workspace plugin scaffold was generated from Kuro Viewer's Plugin Devtools.\n\n- Plugin id: `{plugin_id}`\n- Template: `{template_label}`\n- Contract guide: `docs/PLUGIN_CONTRACT_1.0.md`\n- Workspace workflow: `docs/PLUGIN_WORKSPACE_DEV.md`\n\n## Next Steps\n\n1. Edit `plugin.json` to match the behavior you want to prototype.\n2. Replace `src/index.ts` with the real plugin frontend entry.\n3. Adjust `settings.schema.json` so the host Configure UI matches your plugin surface.\n4. Run `pnpm plugin:build {plugin_id}` to bundle `src/index.ts` into a packageable frontend artifact.\n5. Run `pnpm plugin:pack {plugin_id}` to emit `plugins/dist/{plugin_id}-<version>.plugin`.\n",
         name = request.name.trim(),
         plugin_id = request.plugin_id,
         template_label = template_label
@@ -808,6 +838,13 @@ pub fn open_workspace_plugin_manifest(
     open_path_in_editor(&manifest_path)
 }
 
+#[tauri::command]
+pub fn open_repo_source_path(repo_path: String) -> Result<OpenWorkspacePathResult, String> {
+    ensure_devtools_enabled()?;
+    let path = resolve_repo_relative_path(&repo_path)?;
+    open_path_in_editor(&path)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -906,5 +943,19 @@ mod tests {
         let error = create_workspace_plugin_scaffold_in(&plugins_root, &request)
             .expect_err("expected duplicate rejection");
         assert!(error.contains("already exists"));
+    }
+
+    #[test]
+    fn resolves_safe_repo_relative_path() {
+        let path = resolve_repo_relative_path("src/App.tsx")
+            .expect("expected repo-relative app path to resolve");
+        assert!(path.ends_with(Path::new("src").join("App.tsx")));
+    }
+
+    #[test]
+    fn rejects_repo_path_traversal() {
+        let error = resolve_repo_relative_path("../Cargo.toml")
+            .expect_err("expected traversal path to be rejected");
+        assert!(error.contains("repository root"));
     }
 }

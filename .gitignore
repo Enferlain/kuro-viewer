@@ -31,3 +31,7 @@ __pycache__
 ref_functions
 ref_frontend
 !ref_generic
+
+# plugin workspace build outputs
+plugins/.build/
+plugins/dist/*.plugin

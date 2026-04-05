@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useSettings } from "../../stores/settings";
 import { Button } from "../ui/Button";
+import type { SelectedElementInfo } from "./tabs/InspectTab";
 import { InspectTab } from "./tabs/InspectTab";
 import { LogsTab } from "./tabs/LogsTab";
 import { PluginsTab } from "./tabs/PluginsTab";
@@ -42,6 +43,8 @@ export function DevTools({
 	const { position, handlePointerDown, resetPosition } = useDrag();
 	const { plugins, logs, summary, appendLog, reloadWorkspacePlugins } =
 		useWorkspacePlugins();
+	const [selectedElement, setSelectedElement] =
+		useState<SelectedElementInfo | null>(null);
 
 	return (
 		<div
@@ -135,7 +138,7 @@ export function DevTools({
 						})}
 					</div>
 
-					<div className="flex-1 flex min-h-0 flex-col overflow-hidden bg-background-deep">
+					<div className="flex-1 flex min-h-0 flex-col overflow-y-auto bg-background-deep">
 						{activeTab === "plugins" ? (
 							<PluginsTab
 								plugins={plugins}
@@ -144,7 +147,11 @@ export function DevTools({
 								onLog={appendLog}
 							/>
 						) : activeTab === "inspect" ? (
-							<InspectTab onLog={appendLog} />
+							<InspectTab
+								onLog={appendLog}
+								selectedElement={selectedElement}
+								onSelectedElementChange={setSelectedElement}
+							/>
 						) : activeTab === "state" ? (
 							<StateTab
 								host={host}

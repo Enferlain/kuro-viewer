@@ -1,6 +1,7 @@
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ViewerState } from "../types";
+import { createInspectTargetAttrs } from "./devtools/inspectTargets";
 
 interface ImageViewerProps {
 	src: string;
@@ -153,6 +154,13 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 		<section
 			ref={containerRef}
 			aria-label="Image Viewer"
+			{...createInspectTargetAttrs({
+				label: "Image Viewer",
+				sourcePath: "src/components/ImageViewer.tsx",
+				sourceLine: 154,
+				kind: "host-component",
+				area: "viewer",
+			})}
 			className="flex-1 relative overflow-hidden bg-background-deep select-none"
 			style={{
 				cursor: isSpacePressed

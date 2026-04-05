@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PluginSettingsStore } from "../../plugin-system/settings";
 import type { AppSettings } from "../../stores/settings";
 import { useSettings } from "../../stores/settings";
+import { createInspectTargetAttrs } from "../devtools/inspectTargets";
 import { Button } from "../ui/Button";
 import { SettingsSearch } from "./SettingsSearch";
 import { AppearanceTab } from "./tabs/AppearanceTab";
@@ -767,6 +768,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 			/>
 
 			<div
+				{...createInspectTargetAttrs({
+					label: "Settings Modal",
+					sourcePath: "src/components/settings/SettingsModal.tsx",
+					sourceLine: 770,
+					kind: "host-component",
+					area: "modal",
+				})}
 				className={`
 	          relative bg-background-deep border border-glass-border-strong rounded-2xl shadow-xl overflow-hidden flex
 	          transform transition-[transform,opacity] ease-[var(--ease-decelerate)] transform-gpu

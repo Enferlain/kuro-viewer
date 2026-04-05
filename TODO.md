@@ -23,6 +23,7 @@ State tags used below:
 - [x] Controls: Default pan is space + drag. Default cursor is normal cursor, not pan cursor. Default zoom is to the cursor, not center of image.
 - [x] Settings: Global Search mechanism (Highlight & Navigate) and Dropdown styling alignment
 - [ ] Settings: SettingsModal scrollbar doesn't shift contents to left
+- [ ] devtools: maybe always visible cute icon that brings it up either in a floating movable container like now, or like a dev console (vue devtools style). Leaning towards first one for now
 
 ### Near-term Execution
 

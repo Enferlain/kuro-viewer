@@ -38,14 +38,14 @@ The repo already has:
 - a dev-only floating Plugin Devtools surface in the app shell
 - real devtools tabs for workspace plugin discovery, DOM inspection, state view,
   and logs
+- repo-native workspace helper commands for build/package authoring
+- a documented workspace-to-archive author workflow in `docs/`
 
 The repo does not yet have:
 
 - full plugin frontend/backend reload beyond the current workspace rescan
 - existing-folder registration from inside the app
 - source-opening/editor integration from inspection
-- full author workflow docs for scaffold/build/package
-- a supported local build/package workflow for plugin workspaces
 
 ## Desired Outcome
 
@@ -110,6 +110,8 @@ Current implementation:
 
 - `Plugins` is backed by real workspace discovery from `plugins/*/plugin.json`
 - `Inspect` is backed by real DOM click inspection, not mock rows
+- `Inspect` now resolves tagged host ownership metadata and can open mapped repo
+  source files in the editor for known surfaces
 - `State` shows real host settings, runtime plugin settings, viewer state, and
   workspace plugin summaries
 - `Logs` shows real devtools events and workspace reload/discovery messages
@@ -149,5 +151,8 @@ Current implementation:
   app
 - manifest and `settings.schema.json` validation now reuse the host-side
   contract validators during workspace scans
+- workspace plugins can now be bundled from `src/index.*` with
+  `pnpm plugin:build <id>` and packed into `plugins/dist/<id>-<version>.plugin`
+  with `pnpm plugin:pack <id>`
 - existing-folder registration and inspection-to-source mapping are still not
   implemented

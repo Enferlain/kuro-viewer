@@ -9,12 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Frontend/Devtools: **Inspect tab selection now persists across tab switches** (`DevTools.tsx`, `InspectTab.tsx`) — lifted `selectedElement` state from `InspectTab` into the parent `DevTools` shell so inspected element details survive tab navigation instead of clearing on unmount.
+- Frontend/Devtools: **Inspect tab is now source-aware for tagged app surfaces** (`InspectTab.tsx`, `inspectTargets.ts`, `App.tsx`, `Toolbar.tsx`, `ImageViewer.tsx`, `ThumbnailStrip.tsx`, `MetadataModal.tsx`, `SettingsModal.tsx`) — click-to-inspect now resolves the nearest tagged host owner, shows source/context details, and enables `Open in Editor` for mapped repo files instead of logging a placeholder.
+- Backend/Devtools: **Inspect source opening now has a safe repo-relative command** (`src-tauri/src/devtools.rs`, `src-tauri/src/lib.rs`) — added `open_repo_source_path` with repository-root path validation so inspect can open mapped source files without exposing arbitrary filesystem traversal.
+- Tooling/Plugins: **Workspace plugins now have a supported build/package helper flow** (`package.json`, `scripts/plugin-workspace.mjs`, `src-tauri/src/workspace_packaging.rs`, `src-tauri/src/bin/workspace_plugin_packager.rs`) — added `pnpm plugin:build <id>` to bundle `src/index.*` into the manifest’s frontend entry under `plugins/.build/`, plus `pnpm plugin:pack <id>` to validate and emit `plugins/dist/<id>-<version>.plugin` without shipping `src/`.
+- Docs/Devtools: **Workspace scaffold guidance now matches the real author workflow** (`docs/PLUGIN_WORKSPACE_DEV.md`, `src-tauri/src/devtools.rs`, `implementation_plan.md`, `conductor/tracks/plugin_devtools_20260322/plan.md`) — generated scaffold READMEs now point at the new build/package steps, and the plugin-devtools track docs now treat packaging as part of the supported loop.
 - Frontend/Devtools: **Plugin cards now expand on click to reveal action buttons** (`PluginsTab.tsx`) — Reload, Folder, Source, and Manifest buttons are hidden by default and appear when a plugin card is clicked, with a rotating chevron indicator and accent border highlight on the selected card.
 - Frontend/Devtools: **Create panel no longer pushes content out of scrollable view** (`PluginsTab.tsx`, `DevTools.tsx`) — fixed nested flex overflow chain by propagating `min-h-0` through all ancestor flex containers and changing the tab content wrapper from `overflow-y-auto` to `overflow-hidden` so the inner scroll area properly constrains. Opening the Create panel now also auto-scrolls to top.
 - Frontend/Devtools: **Plugin card actions bar simplified** (`PluginsTab.tsx`) — removed the redundant "Actions" label and nested `justify-between` layout that was cramping buttons and pushing Manifest off-screen; replaced with a flat `flex-wrap` row.
 
 ### Fixed
 
+- Frontend/Devtools: **Inspect tab content was clipped without scrollbar when element info overflowed** (`DevTools.tsx`) — changed tab content container from `overflow-hidden` to `overflow-y-auto` so the full Inspect tab scrolls when content exceeds panel height.
 - Frontend/Devtools: **Plugin action buttons were invisible when card was selected** (`PluginsTab.tsx`) — removed `overflow-hidden` from plugin cards that was clipping the dynamically-rendered actions bar; rounded corners are preserved via `border-radius` alone.
 
 ## [Unreleased] - 2026-04-04

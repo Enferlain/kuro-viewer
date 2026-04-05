@@ -1,6 +1,7 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
 import type { ImageFile } from "../types";
+import { createInspectTargetAttrs } from "./devtools/inspectTargets";
 
 interface ThumbnailStripProps {
 	images: ImageFile[];
@@ -32,7 +33,16 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
 	}, [selectedIndex]);
 
 	return (
-		<div className="h-[var(--spacing-thumbnail-strip)] bg-background-base border-t border-glass-border-base flex items-center px-4 relative z-[var(--ui-layer-chrome)]">
+		<div
+			{...createInspectTargetAttrs({
+				label: "Thumbnail Strip",
+				sourcePath: "src/components/ThumbnailStrip.tsx",
+				sourceLine: 36,
+				kind: "host-component",
+				area: "gallery",
+			})}
+			className="h-[var(--spacing-thumbnail-strip)] bg-background-base border-t border-glass-border-base flex items-center px-4 relative z-[var(--ui-layer-chrome)]"
+		>
 			<div
 				ref={scrollContainerRef}
 				className="flex gap-3 overflow-x-auto w-full h-full items-center no-scrollbar pb-1"

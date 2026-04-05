@@ -1,5 +1,6 @@
 import { Info, Maximize, Settings, ZoomIn, ZoomOut } from "lucide-react";
 import type React from "react";
+import { createInspectTargetAttrs } from "./devtools/inspectTargets";
 import { Button } from "./ui/Button";
 
 interface ToolbarProps {
@@ -22,7 +23,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 	zoomLevel,
 }) => {
 	return (
-		<div className="h-[var(--spacing-toolbar)] bg-background-base/80 backdrop-blur-md border-b border-glass-border-base flex items-center justify-between px-4 z-[var(--ui-layer-chrome)] select-none">
+		<div
+			{...createInspectTargetAttrs({
+				label: "Toolbar",
+				sourcePath: "src/components/Toolbar.tsx",
+				sourceLine: 26,
+				kind: "host-component",
+				area: "chrome",
+			})}
+			className="h-[var(--spacing-toolbar)] bg-background-base/80 backdrop-blur-md border-b border-glass-border-base flex items-center justify-between px-4 z-[var(--ui-layer-chrome)] select-none"
+		>
 			<div className="flex items-center gap-3 w-1/3">
 				<div className="flex flex-col">
 					<span className="text-sm font-medium text-foreground truncate max-w-[300px]">

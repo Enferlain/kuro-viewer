@@ -8,6 +8,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { createInspectTargetAttrs } from "./components/devtools/inspectTargets";
 import { ImageViewer } from "./components/ImageViewer";
 import { MetadataModal } from "./components/MetadataModal";
 import { SettingsModal } from "./components/settings/SettingsModal";
@@ -369,7 +370,16 @@ const App: React.FC = () => {
 	}, [handleNext, handlePrev, handleResetView, handleZoomIn, handleZoomOut]);
 
 	return (
-		<div className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden">
+		<div
+			{...createInspectTargetAttrs({
+				label: "App Shell",
+				sourcePath: "src/App.tsx",
+				sourceLine: 373,
+				kind: "host-shell",
+				area: "app",
+			})}
+			className="flex flex-col h-screen w-screen bg-background-deep text-foreground font-sans overflow-hidden"
+		>
 			<div
 				className={`transition-[height,opacity] duration-(--ui-motion-duration-slow) ease-standard overflow-hidden ${
 					isToolbarVisible ? "h-toolbar opacity-100" : "h-0 opacity-0"
@@ -387,6 +397,13 @@ const App: React.FC = () => {
 			</div>
 
 			<section
+				{...createInspectTargetAttrs({
+					label: "Main Content Area",
+					sourcePath: "src/App.tsx",
+					sourceLine: 398,
+					kind: "host-layout",
+					area: "viewer",
+				})}
 				className="flex-1 flex flex-col relative min-h-0"
 				onMouseMove={handleMouseMove}
 				onMouseLeave={handleMouseLeave}
@@ -409,6 +426,13 @@ const App: React.FC = () => {
 						>
 							<button
 								type="button"
+								{...createInspectTargetAttrs({
+									label: "Previous Image Navigation",
+									sourcePath: "src/App.tsx",
+									sourceLine: 425,
+									kind: "host-control",
+									area: "viewer",
+								})}
 								onClick={(event) => {
 									event.stopPropagation();
 									handlePrev();
@@ -429,6 +453,13 @@ const App: React.FC = () => {
 						>
 							<button
 								type="button"
+								{...createInspectTargetAttrs({
+									label: "Next Image Navigation",
+									sourcePath: "src/App.tsx",
+									sourceLine: 451,
+									kind: "host-control",
+									area: "viewer",
+								})}
 								onClick={(event) => {
 									event.stopPropagation();
 									handleNext();

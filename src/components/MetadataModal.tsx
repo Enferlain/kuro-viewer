@@ -10,6 +10,7 @@ import {
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ImageMetadata } from "../types";
+import { createInspectTargetAttrs } from "./devtools/inspectTargets";
 import { Button } from "./ui/Button";
 
 interface MetadataModalProps {
@@ -123,6 +124,13 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
 
 			{/* Modal Window */}
 			<div
+				{...createInspectTargetAttrs({
+					label: "Metadata Modal",
+					sourcePath: "src/components/MetadataModal.tsx",
+					sourceLine: 126,
+					kind: "host-component",
+					area: "modal",
+				})}
 				className={`
           relative w-full max-w-2xl h-[85vh] bg-background-deep border border-glass-border-strong rounded-2xl shadow-xl overflow-hidden flex flex-col
 	          transform transition-[transform,opacity] duration-[var(--ui-motion-duration-slow)] ease-[var(--ease-decelerate)]
