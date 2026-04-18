@@ -166,17 +166,23 @@ function InspectOverlay({
 
 export function InspectTab({
 	onLog,
+	onInspectingChange,
 	selectedElement,
 	onSelectedElementChange,
 	preferredEditors,
 }: {
 	onLog: (entry: Omit<DevLogEntry, "id" | "time">) => void;
+	onInspectingChange: (nextIsInspecting: boolean) => void;
 	selectedElement: SelectedElementInfo | null;
 	onSelectedElementChange: (el: SelectedElementInfo | null) => void;
 	preferredEditors: EditorLaunchPreference[];
 }) {
 	const [isInspecting, setIsInspecting] = useState(false);
 	const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+
+	useEffect(() => {
+		onInspectingChange(isInspecting);
+	}, [isInspecting, onInspectingChange]);
 
 	/* ---- Global cursor + body attribute for inspect mode ---- */
 	useEffect(() => {
@@ -210,12 +216,27 @@ export function InspectTab({
 			return;
 		}
 
-		const handlePointerMove = (event: PointerEvent) => {
-			const target = event.target;
+		const resolveInspectableElement = (
+			target: EventTarget | null,
+		): HTMLElement | null => {
 			if (!(target instanceof HTMLElement)) {
-				return;
+				return null;
 			}
 			if (target.closest("[data-devtools-root='true']")) {
+				return null;
+			}
+			return target;
+		};
+
+		const blockEvent = (event: Event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
+		};
+
+		const handlePointerMove = (event: PointerEvent) => {
+			const target = resolveInspectableElement(event.target);
+			if (!target) {
 				setHoverInfo(null);
 				return;
 			}
@@ -233,17 +254,22 @@ export function InspectTab({
 			});
 		};
 
-		const handleClick = (event: MouseEvent) => {
-			const target = event.target;
-			if (!(target instanceof HTMLElement)) {
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = resolveInspectableElement(event.target);
+			if (!target) {
 				return;
 			}
-			if (target.closest("[data-devtools-root='true']")) {
+			blockEvent(event);
+			target.blur();
+		};
+
+		const handlePointerUp = (event: PointerEvent) => {
+			const target = resolveInspectableElement(event.target);
+			if (!target) {
 				return;
 			}
 
-			event.preventDefault();
-			event.stopPropagation();
+			blockEvent(event);
 			const next = describeElement(target);
 			onSelectedElementChange(next);
 			setHoverInfo(null);
@@ -254,10 +280,17 @@ export function InspectTab({
 			});
 		};
 
+		const handleClick = (event: MouseEvent) => {
+			const target = resolveInspectableElement(event.target);
+			if (!target) {
+				return;
+			}
+			blockEvent(event);
+		};
+
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === "Escape") {
-				event.preventDefault();
-				event.stopPropagation();
+				blockEvent(event);
 				setHoverInfo(null);
 				setIsInspecting(false);
 				onLog({ type: "info", message: "Inspect mode cancelled" });
@@ -265,10 +298,14 @@ export function InspectTab({
 		};
 
 		document.addEventListener("pointermove", handlePointerMove, true);
+		document.addEventListener("pointerdown", handlePointerDown, true);
+		document.addEventListener("pointerup", handlePointerUp, true);
 		document.addEventListener("click", handleClick, true);
 		document.addEventListener("keydown", handleKeyDown, true);
 		return () => {
 			document.removeEventListener("pointermove", handlePointerMove, true);
+			document.removeEventListener("pointerdown", handlePointerDown, true);
+			document.removeEventListener("pointerup", handlePointerUp, true);
 			document.removeEventListener("click", handleClick, true);
 			document.removeEventListener("keydown", handleKeyDown, true);
 		};

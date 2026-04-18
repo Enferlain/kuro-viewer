@@ -1,0 +1,19 @@
+{
+	"api_version": "1.0.0",
+	"author": "Kuro Viewer Team",
+	"backend": "none",
+	"backend_entry": null,
+	"description": "Workspace starter scaffold for test_plugin_69.",
+	"docs_url": "https://github.com/kuro-viewer/kuro-viewer/blob/main/docs/PLUGIN_CONTRACT_1.0.md",
+	"frontend_entry": "frontend.js",
+	"id": "test-plugin-69",
+	"min_host_version": "0.1.0",
+	"name": "test_plugin_69",
+	"permissions": [],
+	"schema_version": "1.0.0",
+	"slots": [],
+	"source_url": "https://github.com/kuro-viewer/kuro-viewer",
+	"theme_contract": "1.x",
+	"usage": "Open Plugin Devtools in dev mode to inspect the workspace plugin, then build/package it when ready.",
+	"version": "0.1.0"
+}

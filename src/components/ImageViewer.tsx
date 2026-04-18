@@ -176,6 +176,13 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 			onMouseLeave={handleMouseUp}
 		>
 			<div
+				{...createInspectTargetAttrs({
+					label: "Viewer Grid Overlay",
+					sourcePath: "src/components/ImageViewer.tsx",
+					sourceLine: 178,
+					kind: "host-component",
+					area: "viewer",
+				})}
 				className="absolute inset-0 opacity-10 pointer-events-none"
 				style={{
 					backgroundImage:
@@ -185,6 +192,13 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 			/>
 
 			<div
+				{...createInspectTargetAttrs({
+					label: "Image Transform Layer",
+					sourcePath: "src/components/ImageViewer.tsx",
+					sourceLine: 194,
+					kind: "host-component",
+					area: "viewer",
+				})}
 				className="absolute w-full h-full flex items-center justify-center"
 				style={{
 					transform: `translate3d(${viewerState.translation.x}px, ${viewerState.translation.y}px, 0) scale(${renderScale})`,
@@ -192,8 +206,24 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
 					opacity: isHidden ? 0 : 1,
 				}}
 			>
-				<div className="relative shadow-xl">
+				<div
+					{...createInspectTargetAttrs({
+						label: "Image Frame",
+						sourcePath: "src/components/ImageViewer.tsx",
+						sourceLine: 209,
+						kind: "host-component",
+						area: "viewer",
+					})}
+					className="relative shadow-xl"
+				>
 					<img
+						{...createInspectTargetAttrs({
+							label: "Viewer Image",
+							sourcePath: "src/components/ImageViewer.tsx",
+							sourceLine: 219,
+							kind: "host-component",
+							area: "viewer",
+						})}
 						ref={imgRef}
 						src={src}
 						alt="View"

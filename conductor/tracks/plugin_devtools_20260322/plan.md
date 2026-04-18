@@ -1,5 +1,20 @@
 # Implementation Plan: Plugin Workspace And Devtools
 
+## Recent Progress
+
+Date: 2026-04-18
+
+- Minimize now collapses Plugin Devtools into a draggable badge rather than a
+  reduced control strip.
+- The minimized badge now uses click-to-open and drag-to-move behavior.
+- Drag responsiveness was tightened by moving the floating shell directly
+  during pointer movement instead of waiting on full React rerenders.
+- Starting `Inspect > Select Element` now minimizes the devtools automatically,
+  and the panel restores itself after selection or cancel.
+- Inspect precision was improved for `ImageViewer` so tagged source lines can
+  point to the actual JSX element start instead of only the outer viewer
+  section.
+
 ## Status Snapshot
 
 Already true in the repo:
